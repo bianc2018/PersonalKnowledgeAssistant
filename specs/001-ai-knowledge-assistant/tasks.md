@@ -30,6 +30,7 @@
 - [ ] T008 实现配置管理：`src/config.py`（Pydantic Settings，含 LLM、Embedding、搜索、隐私、重试、存储、日志配置）
 - [ ] T009 实现日志基础设施：`src/utils/logging.py`（应用错误日志与关键操作日志输出到本地文件）
 - [ ] T010 实现前端静态页面入口：`src/web/static/index.html` 与基础路由 `/`
+- [ ] T010a 实现密码重置与恢复引导：`src/web/static/recovery.html` / `recovery.js` 与 `src/api/routes/auth.py` 新增 `/auth/reset` 端点；当用户连续输错密码或主动点击"忘记密码"时，展示"本地加密数据不可恢复，是否重新初始化？"的确认流程，确认后清空数据库与加密文件并引导用户导入已有备份
 
 **Checkpoint**: 基础框架就绪，应用可启动，数据库可连接，鉴权链路可跑通
 
@@ -53,9 +54,9 @@
 - [ ] T013 [P] [US1] 实现标签模型：`src/db/models.py` 中 `Tag` 与 `TagLink` 的 CRUD 工具函数
 - [ ] T014 [P] [US1] 实现知识库服务层：`src/services/knowledge_service.py`（知识 CRUD、版本管理、标签关联、软删除）
 - [ ] T015 [P] [US1] 实现附件存储服务：`src/services/storage_service.py`（本地文件两级目录保存、加密读写、提取状态记录）
-- [ ] T016 [P] [US1] 实现多媒体提取服务骨架：`src/services/extraction_service.py`（优先支持文本、PDF、Word、Excel、网页；图片 OCR 和音视频转录做接口预留）
+- [ ] T016 [P] [US1] 实现多媒体提取服务：`src/services/extraction_service.py`（优先实现文本、PDF、Word、Excel、网页的全文提取；图片 OCR 和音视频转录通过外部 API 或本地模型实现，若提取失败则按 FR-001 要求标记失败状态并利用元数据做极简索引）
 - [ ] T017 [US1] 实现知识库 API：`src/api/routes/knowledge.py`（覆盖 `POST /api/knowledge`、上传、URL 添加、列表、详情、更新、删除、标签接口）
-- [ ] T018 [US1] 实现前端知识库页面：`src/web/static/knowledge.html` / `knowledge.js`（列表、搜索、添加弹窗、详情展示）
+- [ ] T018 [US1] 实现前端知识库页面：`src/web/static/knowledge.html` / `knowledge.js`（列表、搜索、添加弹窗、详情展示、标签分配与按标签筛选）
 
 **Checkpoint**: US1 独立可用，用户可完成“添加→搜索→查看→删除”闭环
 
@@ -77,7 +78,7 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [P] [US2] 实现 Embedding 服务：`src/services/embedding_service.py`（外部 OpenAI 兼容 API 封装，知识分片与向量写入 sqlite-vec）
-- [ ] T022 [P] [US2] 实现检索服务：`src/services/embedding_service.py` 中增加混合检索（向量相似度 + FTS5 关键词召回）
+- [ ] T022 [P] [US2] 实现检索服务：`src/services/embedding_service.py` 中增加混合检索（向量相似度 + sqlite-vec 全文检索关键词召回）
 - [ ] T023 [P] [US2] 实现 LLM 客户端：`src/ai/client.py`（兼容 OpenAI API，支持流式输出与工具调用接口）
 - [ ] T024 [P] [US2] 实现对话生成服务：`src/services/chat_service.py`（组装 RAG 上下文、调用 LLM、解析 citation、处理无结果时的拒绝回答）
 - [ ] T025 [P] [US2] 实现用户画像服务：`src/services/chat_service.py` 内画像更新逻辑，或独立 `src/services/profile_service.py`（基于对话历史提取兴趣与知识水平）
@@ -144,6 +145,7 @@
 - [ ] T041 [P] 实现系统配置 API：`src/api/routes/system.py`（状态、配置读写、隐私策略开关）
 - [ ] T042 [P] 实现导出功能：`src/api/routes/system.py` 导出 ZIP（含 metadata.json、原始附件，不含 embedding 向量）
 - [ ] T043 [P] 实现导入功能：`src/api/routes/system.py` 导入 ZIP（校验 JSON、跳过损坏文件、模型不一致时重算向量）
+- [ ] T043a [P] 实现版本保留策略与自动清理：`src/services/knowledge_service.py` 增加后台清理逻辑；`src/api/routes/system.py` 增加版本保留策略配置读写接口；按用户配置的版本数量/时间/磁盘阈值定期清理过期历史版本数据
 - [ ] T044 实现降线与容错机制：外部 AI/搜索请求的自动重试（指数退避 3 次）、服务不可用提示、本地模型降级逻辑
 - [ ] T045 实现磁盘归档压缩：`src/services/storage_service.py` 中容量超过阈值时对旧媒体文件 gzip 归档
 - [ ] T046 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支

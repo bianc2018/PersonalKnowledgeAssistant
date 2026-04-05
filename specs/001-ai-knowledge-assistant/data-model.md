@@ -363,6 +363,8 @@ stateDiagram-v2
     running --> completed: 报告生成完成
     running --> failed: 外部错误 / 重试耗尽
     running --> degraded: 降级至本地模型
+    running --> pending_recheck: 外部服务不可用
+    pending_recheck --> queued: 外部服务恢复
 ```
 
 ### 5.2 知识版本与置信度评估生命周期

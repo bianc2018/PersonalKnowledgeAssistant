@@ -73,14 +73,14 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T020 [P] [US2] 契约测试：`tests/contract/test_chat_api.py`（消息发送、流式与非流式响应格式、引用结构）
-- [ ] T021 [P] [US2] 集成测试：`tests/integration/test_chat_rag.py`（先插入知识→发起对话→验证回答包含正确 citation）
+- [ ] T021 [P] [US2] 集成测试：`tests/integration/test_chat_rag.py`（先插入知识→发起对话→验证回答包含正确 citation→软删除该知识→验证历史消息中 citation 仍可正常展示）
 - [ ] T022 [P] [US2] 建立 RAG 准确率评测集：`tests/evaluation/chat_eval_dataset.json`（至少 30 条带标注问答对，覆盖已知/未知领域、有/无引用、拒绝回答场景）及 `tests/evaluation/test_chat_accuracy.py` 评测脚本，用于验证 SC-002。
 
 ### Implementation for User Story 2
 
 - [ ] T023 [P] [US2] 实现 Embedding 服务：`src/services/embedding_service.py`（外部 OpenAI 兼容 API 封装，知识分片与向量写入 sqlite-vec）
 - [ ] T024 [P] [US2] 实现检索服务：`src/services/retrieval_service.py`（混合检索：向量相似度 + sqlite-vec 全文检索关键词召回）
-- [ ] T025 [P] [US2] 实现 LLM 客户端：`src/ai/client.py`（兼容 OpenAI API，支持流式输出与工具调用接口）
+- [ ] T025 [P] [US2] 实现 LLM 客户端：`src/ai/client.py`（兼容 OpenAI API，支持流式输出）
 - [ ] T026 [P] [US2] 实现对话生成服务：`src/services/chat_service.py`（组装 RAG 上下文、调用 LLM、解析 citation、处理无结果时的拒绝回答）
 - [ ] T027 [P] [US2] 实现用户画像服务：`src/services/chat_service.py` 内画像更新逻辑，或独立 `src/services/profile_service.py`（基于对话历史提取兴趣与知识水平，每 5 轮或新领域触发）
 - [ ] T028 [US2] 实现对话 API：`src/api/routes/chat.py`（会话 CRUD、消息发送、SSE 流式响应 `/api/chat/conversations/{id}/messages`）
@@ -106,7 +106,7 @@
 ### Implementation for User Story 3
 
 - [ ] T032 [P] [US3] 实现搜索源适配层：`src/ai/search.py`（统一 `SearchProvider` 接口，实现 LLM 自带搜索、Tavily/SerpAPI、httpx+trafilatura 爬虫三种适配器）
-- [ ] T033 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库）
+- [ ] T033 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库；监听外部服务恢复，将 `pending_recheck` 状态任务重新置为 `queued` 并触发重跑）
 - [ ] T034 [US3] 实现调研服务：`src/services/research_service.py`（分阶段执行：大纲→检索→章节撰写→汇总；支持暂停提问与恢复）
 - [ ] T035 [US3] 实现调研 API：`src/api/routes/research.py`（任务提交、详情、SSE 进度订阅、用户决策回复、保存报告）
 - [ ] T036 [US3] 实现前端调研页面：`src/web/static/research.html` / `research.js`（主题输入、进度条、SSE 事件展示、决策弹窗、报告预览与保存、顶部展示当前使用的搜索源类型）

@@ -108,7 +108,7 @@
 - [ ] T031 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库）
 - [ ] T032 [US3] 实现调研服务：`src/services/research_service.py`（分阶段执行：大纲→检索→章节撰写→汇总；支持暂停提问与恢复）
 - [ ] T033 [US3] 实现调研 API：`src/api/routes/research.py`（任务提交、详情、SSE 进度订阅、用户决策回复、保存报告）
-- [ ] T034 [US3] 实现前端调研页面：`src/web/static/research.html` / `research.js`（主题输入、进度条、SSE 事件展示、决策弹窗、报告预览与保存）
+- [ ] T034 [US3] 实现前端调研页面：`src/web/static/research.html` / `research.js`（主题输入、进度条、SSE 事件展示、决策弹窗、报告预览与保存、顶部展示当前使用的搜索源类型）
 
 **Checkpoint**: US3 独立可用，异步调研全链路跑通，SSE 进度正常，人机决策可恢复
 
@@ -146,10 +146,11 @@
 - [ ] T042 [P] 实现导出功能：`src/api/routes/system.py` 导出 ZIP（含 metadata.json、原始附件，不含 embedding 向量）
 - [ ] T043 [P] 实现导入功能：`src/api/routes/system.py` 导入 ZIP（校验 JSON、跳过损坏文件、模型不一致时重算向量）
 - [ ] T043a [P] 实现版本保留策略与自动清理：`src/services/knowledge_service.py` 增加后台清理逻辑；`src/api/routes/system.py` 增加版本保留策略配置读写接口；按用户配置的版本数量/时间/磁盘阈值定期清理过期历史版本数据
-- [ ] T044 实现降线与容错机制：外部 AI/搜索请求的自动重试（指数退避 3 次）、服务不可用提示、本地模型降级逻辑
-- [ ] T045 实现磁盘归档压缩：`src/services/storage_service.py` 中容量超过阈值时对旧媒体文件 gzip 归档
+- [ ] T043b [P] 实现日志保留策略：`src/api/routes/system.py` 增加日志保留策略配置接口（按天数或文件大小清理），`src/utils/logging.py` 增加定时清理旧日志文件逻辑
+- [ ] T044 实现降线与容错机制：外部 AI/搜索请求的自动重试（指数退避 3 次）、服务不可用提示、本地模型降级逻辑（当外部 LLM/搜索 API 连续失败时，若配置中存在本地模型端点，则自动切换至本地模型生成本地知识库摘要并提示用户"当前处于降级模式，外部搜索不可用"）
+- [ ] T045 实现磁盘归档压缩：`src/services/storage_service.py` 中当总容量超过用户配置阈值时，对超过 6 个月未访问（或按创建时间排序的最旧 20%）的媒体文件自动 gzip 归档
 - [ ] T046 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支
-- [ ] T047 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程
+- [ ] T047 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒
 
 ---
 

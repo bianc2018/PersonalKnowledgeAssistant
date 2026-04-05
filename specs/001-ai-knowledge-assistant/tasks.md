@@ -107,8 +107,8 @@
 ### Implementation for User Story 3
 
 - [ ] T032 [P] [US3] 实现搜索源适配层：`src/ai/search.py`（统一 `SearchProvider` 接口，实现 LLM 自带搜索、Tavily/SerpAPI、httpx+trafilatura 爬虫三种适配器）
-- [ ] T033 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库；监听外部服务恢复，将 `pending_recheck` 状态任务重新置为 `queued` 并触发重跑）
-- [ ] T034 [US3] 实现调研服务：`src/services/research_service.py`（分阶段执行：大纲→检索→章节撰写→汇总；支持暂停提问与恢复）
+- [ ] T033 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库；通过定时心跳探针检测外部 AI/搜索服务可用性，当从不可用恢复为可用后，将 `pending_recheck` 状态任务重新置为 `queued` 并触发重跑）
+- [ ] T034 [US3] 实现调研服务：`src/services/research_service.py`（分阶段执行：大纲→检索→章节撰写→汇总；报告章节须覆盖 background / key_points / trends / conclusion，支持暂停提问与恢复）
 - [ ] T035 [US3] 实现调研 API：`src/api/routes/research.py`（任务提交、详情、SSE 进度订阅、用户决策回复、保存报告）
 - [ ] T036 [US3] 实现前端调研页面：`src/web/static/research.html` / `research.js`（主题输入、进度条、SSE 事件展示、决策弹窗、报告预览与保存、顶部展示当前使用的搜索源类型）
 
@@ -152,8 +152,9 @@
 - [ ] T045b [P] 实现日志保留策略：`src/api/routes/system.py` 增加日志保留策略配置接口（按天数或文件大小清理），`src/utils/logging.py` 增加定时清理旧日志文件逻辑
 - [ ] T047 [P] 实现降线与本地模型降级逻辑：`src/services/research_service.py` / `src/services/chat_service.py` 中检测外部 LLM/搜索 API 连续失败时，若配置中存在本地模型端点，则自动切换至本地模型生成并提示用户"当前处于降级模式"（FR-013、FR-022 与 FR-012 结合）
 - [ ] T048 [P] 实现磁盘归档压缩：`src/services/storage_service.py` 中当总容量超过用户配置阈值时，对超过 6 个月未访问（或按创建时间排序的最旧 20%）的媒体文件自动 gzip 归档
-- [ ] T049 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支
-- [ ] T050 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒；录制并验证添加一条新知识的前端交互耗时 ≤2 分钟（SC-001）
+- [ ] T049 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支；实际执行时可随各阶段实现同步编写，不必强制集中到最后阶段
+- [ ] T050a [P] 运行时验证（性能）：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒（SC-005）
+- [ ] T050b [P] 运行时验证（交互耗时）：录制并验证添加一条新知识的前端交互耗时 ≤2 分钟（SC-001）
 
 ---
 
@@ -181,7 +182,7 @@
 2. **US1**（T012 ~ T019）→ 验证知识库闭环
 3. **US2**（T020 ~ T029）→ 验证 RAG 对话
 4. **US3 + US4 并行**（T030 ~ T042）→ 调研与置信度
-5. **System + Polish**（T043 ~ T050）→ 导出导入、降级容错、归档压缩
+5. **System + Polish**（T043 ~ T050b）→ 导出导入、降级容错、归档压缩
 
 ---
 

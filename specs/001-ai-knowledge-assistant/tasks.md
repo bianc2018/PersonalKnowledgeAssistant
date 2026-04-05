@@ -29,6 +29,7 @@
 - [ ] T007 [P] 搭建 FastAPI 应用骨架：`src/main.py`（含路由注册、全局异常处理器、CORS、StaticFiles）
 - [ ] T008 实现配置管理：`src/config.py`（Pydantic Settings，含 LLM、Embedding、搜索、隐私、重试、存储、日志配置）
 - [ ] T009 实现日志基础设施：`src/utils/logging.py`（应用错误日志与关键操作日志输出到本地文件）
+- [ ] T046 [P] 实现外部请求重试中间件：`src/utils/http_client.py`（指数退避 3 次、超时配置、统一错误码转换），供后续 `src/ai/client.py` 与 `src/ai/search.py` 使用
 - [ ] T010 实现前端静态页面入口：`src/web/static/index.html` 与基础路由 `/`
 - [ ] T011 [P] 实现密码重置与恢复引导：`src/web/static/recovery.html` / `recovery.js` 与 `src/api/routes/auth.py` 新增 `/auth/reset` 端点；当用户连续输错密码或主动点击"忘记密码"时，展示"本地加密数据不可恢复，是否重新初始化？"的确认流程，确认后清空数据库与加密文件并引导用户导入已有备份
 
@@ -79,7 +80,7 @@
 ### Implementation for User Story 2
 
 - [ ] T023 [P] [US2] 实现 Embedding 服务：`src/services/embedding_service.py`（外部 OpenAI 兼容 API 封装，知识分片与向量写入 sqlite-vec）
-- [ ] T024 [P] [US2] 实现检索服务：`src/services/retrieval_service.py`（混合检索：向量相似度 + sqlite-vec 全文检索关键词召回）
+- [ ] T024 [P] [US2] 实现检索服务：`src/services/retrieval_service.py`（混合检索：向量搜索召回 Top-15 相关片段，FTS5 全文检索召回 Top-15 相关片段，去重合并后按相似度/相关度分数加权排序，最终取 Top-10 作为生成回答的上下文）
 - [ ] T025 [P] [US2] 实现 LLM 客户端：`src/ai/client.py`（兼容 OpenAI API，支持流式输出）
 - [ ] T026 [P] [US2] 实现对话生成服务：`src/services/chat_service.py`（组装 RAG 上下文、调用 LLM、解析 citation、处理无结果时的拒绝回答）
 - [ ] T027 [P] [US2] 实现用户画像服务：`src/services/chat_service.py` 内画像更新逻辑，或独立 `src/services/profile_service.py`（基于对话历史提取兴趣与知识水平，每 5 轮或新领域触发）
@@ -101,7 +102,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T030 [P] [US3] 契约测试：`tests/contract/test_research_api.py`（任务创建、SSE 事件类型、状态机流转、保存报告接口）
-- [ ] T031 [P] [US3] 集成测试：`tests/integration/test_research_flow.py`（提交任务→模拟进度事件→完成报告→保存到知识库）
+- [ ] T031 [P] [US3] 集成测试：`tests/integration/test_research_flow.py`（提交任务→模拟进度事件→完成报告→保存到知识库，并验证从任务提交到报告可查看的总耗时不超过 5 分钟）
 
 ### Implementation for User Story 3
 
@@ -149,7 +150,6 @@
 - [ ] T045 [P] 实现导入功能：`src/api/routes/system.py` 导入 ZIP（校验 JSON、跳过损坏文件、模型不一致时重算向量）
 - [ ] T045a [P] 实现版本保留策略与自动清理：`src/services/knowledge_service.py` 增加后台清理逻辑；`src/api/routes/system.py` 增加版本保留策略配置读写接口；按用户配置的版本数量/时间/磁盘阈值定期清理过期历史版本数据
 - [ ] T045b [P] 实现日志保留策略：`src/api/routes/system.py` 增加日志保留策略配置接口（按天数或文件大小清理），`src/utils/logging.py` 增加定时清理旧日志文件逻辑
-- [ ] T046 [P] 实现外部请求重试中间件：`src/utils/http_client.py`（指数退避 3 次、超时配置、统一错误码转换），供 `src/ai/client.py` 与 `src/ai/search.py` 使用
 - [ ] T047 [P] 实现降线与本地模型降级逻辑：`src/services/research_service.py` / `src/services/chat_service.py` 中检测外部 LLM/搜索 API 连续失败时，若配置中存在本地模型端点，则自动切换至本地模型生成并提示用户"当前处于降级模式"（FR-013、FR-022 与 FR-012 结合）
 - [ ] T048 [P] 实现磁盘归档压缩：`src/services/storage_service.py` 中当总容量超过用户配置阈值时，对超过 6 个月未访问（或按创建时间排序的最旧 20%）的媒体文件自动 gzip 归档
 - [ ] T049 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支

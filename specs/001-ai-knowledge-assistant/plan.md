@@ -13,7 +13,7 @@
 
 **Language/Version**: Python 3.11+  
 **Primary Dependencies**: FastAPI（Web 框架 + SSE 支持）、sqlite-vec（向量/全文检索）、aiosqlite（异步 SQLite）、httpx（HTTP 客户端，含外部 AI/搜索调用）、cryptography（AES-256-GCM 加密）、argon2-cffi（Argon2id 密钥派生）、pydantic（数据校验与序列化）  
-**Storage**: SQLite（主存储）+ sqlite-vec（向量/全文索引）+ 本地文件系统（原始媒体文件，按 `files/AB/CD/<item-id>/` 两级目录组织）  
+**Storage**: SQLite（主存储）+ sqlite-vec（向量索引）+ FTS5（全文索引）+ 本地文件系统（原始媒体文件，按 `files/AB/CD/<item-id>/` 两级目录组织）  
 **Testing**: pytest + pytest-asyncio + httpx（用于 ASGI 应用测试）  
 **Target Platform**: 本地运行于 Linux/macOS/Windows，用户通过现代浏览器访问  
 **Project Type**: web-service（本地单用户 Web 应用）  

@@ -269,7 +269,7 @@
 queued → running → (awaiting_input → running)* → completed
         ↑                |
         |                v
-   pending_recheck    failed / degraded
+   pending_recheck    failed / degraded / pending_recheck
 ```
 
 ---
@@ -316,7 +316,7 @@ queued → running → (awaiting_input → running)* → completed
 | `search_config` | JSON | nullable | 独立搜索 API 配置 |
 | `privacy_settings` | JSON | NOT NULL | 隐私开关：`allow_full_content`, `allow_web_search`, `allow_log_upload` |
 | `retry_settings` | JSON | NOT NULL | 重试配置：`retry_times` (默认 3), `timeout_seconds` |
-| `storage_settings` | JSON | NOT NULL | 存储配置：`archive_threshold_gb`（归档压缩阈值）, `version_retention_policy` |
+| `storage_settings` | JSON | NOT NULL | 存储配置：`archive_threshold_gb`（归档压缩阈值，默认 10）, `research_concurrency_limit`（调研并发上限，默认 2）, `version_retention_policy`（版本保留策略，`null` 或 `{type,value}` 对象） |
 | `log_settings` | JSON | NOT NULL | 日志配置：`retention_days`, `level` |
 | `updated_at` | DATETIME | NOT NULL | 最后更新时间 |
 

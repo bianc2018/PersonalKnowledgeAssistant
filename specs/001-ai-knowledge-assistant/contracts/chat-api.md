@@ -79,7 +79,7 @@
       "content": "根据您知识库中的《低空经济政策分析》，目前有以下几个政策支持方向：\n\n1. 空域管理改革 ...（内容省略）\n\n[1] 低空经济政策分析",
       "citations": [
         {
-          "index": 1,
+          "citation_index": 1,
           "item_id": "item-001",
           "item_title": "低空经济政策分析",
           "chunk_text": "2024 年以来，低空经济被写入多地政府工作报告..."
@@ -144,7 +144,7 @@ data: {"delta": "您的知识库"}
 
 id: 3
 event: citation
-data: {"citations": [{"index": 1, "item_id": "...", "item_title": "..."}]}
+data: {"citations": [{"citation_index": 1, "item_id": "...", "item_title": "..."}]}
 
 id: 4
 event: done

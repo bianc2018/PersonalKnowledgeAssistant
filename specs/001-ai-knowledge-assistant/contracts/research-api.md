@@ -54,7 +54,7 @@
       "topic": "低空经济政策分析",
       "status": "completed",
       "progress_percent": 100,
-      "search_source_used": "search_api",
+      "search_source_used": "search_api", // 可能为 null（queued/awaiting_input 等状态），前端展示为"搜索源：未确定"/"搜索源：未开始"
       "created_at": "...",
       "started_at": "...",
       "completed_at": "..."
@@ -134,7 +134,7 @@
 
 | 事件名 | 说明 |
 |--------|------|
-| `status` | 任务状态变更：`queued` / `running` / `awaiting_input` / `completed` / `failed` / `degraded` |
+| `status` | 任务状态变更：`queued` / `running` / `awaiting_input` / `completed` / `failed` / `degraded` / `pending_recheck` |
 | `progress` | 进度更新：`{"percent": 35, "stage": "正在检索网络信息..."}` |
 | `chunk` | 阶段性输出摘要：`{"summary": "已完成政策背景检索，发现 5 个关键来源"}` |
 | `question` | 用户决策提问：`{"question": "...", "options": [...]}` |
@@ -170,6 +170,8 @@ data: {"status": "awaiting_input"}
 **POST** `/api/research/{task_id}/respond`
 
 用于在 `awaiting_input` 状态时恢复调研流程。
+
+> **注意**：MVP 阶段 `awaiting_input` 状态不设自动超时，任务将持续保持等待直到用户提交决策或手动取消。
 
 ### 请求体
 

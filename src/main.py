@@ -9,6 +9,7 @@ from src.config import get_settings, PROJECT_ROOT
 from src.db.connection import init_db
 from src.auth.router import router as auth_router
 from src.system.router import router as system_router
+from src.knowledge.router import router as knowledge_router
 
 
 @asynccontextmanager
@@ -30,6 +31,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(system_router)
+app.include_router(knowledge_router)
 
 static_dir = PROJECT_ROOT / "src" / "web" / "static"
 if static_dir.exists():

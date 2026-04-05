@@ -30,7 +30,7 @@
 - [ ] T008 实现配置管理：`src/config.py`（Pydantic Settings，含 LLM、Embedding、搜索、隐私、重试、存储、日志配置）
 - [ ] T009 实现日志基础设施：`src/utils/logging.py`（应用错误日志与关键操作日志输出到本地文件）
 - [ ] T010 实现前端静态页面入口：`src/web/static/index.html` 与基础路由 `/`
-- [ ] T010a 实现密码重置与恢复引导：`src/web/static/recovery.html` / `recovery.js` 与 `src/api/routes/auth.py` 新增 `/auth/reset` 端点；当用户连续输错密码或主动点击"忘记密码"时，展示"本地加密数据不可恢复，是否重新初始化？"的确认流程，确认后清空数据库与加密文件并引导用户导入已有备份
+- [ ] T011 [P] 实现密码重置与恢复引导：`src/web/static/recovery.html` / `recovery.js` 与 `src/api/routes/auth.py` 新增 `/auth/reset` 端点；当用户连续输错密码或主动点击"忘记密码"时，展示"本地加密数据不可恢复，是否重新初始化？"的确认流程，确认后清空数据库与加密文件并引导用户导入已有备份
 
 **Checkpoint**: 基础框架就绪，应用可启动，数据库可连接，鉴权链路可跑通
 
@@ -46,17 +46,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] 契约测试：`tests/contract/test_knowledge_api.py`（覆盖创建、列表、详情、更新、删除接口的输入输出契约）
-- [ ] T012 [P] [US1] 集成测试：`tests/integration/test_knowledge_journey.py`（添加知识→搜索→查看详情→删除的完整流程）
+- [ ] T012 [P] [US1] 契约测试：`tests/contract/test_knowledge_api.py`（覆盖创建、列表、详情、更新、删除接口的输入输出契约）
+- [ ] T013 [P] [US1] 集成测试：`tests/integration/test_knowledge_journey.py`（添加知识→搜索→查看详情→删除的完整流程）
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] 实现标签模型：`src/db/models.py` 中 `Tag` 与 `TagLink` 的 CRUD 工具函数
-- [ ] T014 [P] [US1] 实现知识库服务层：`src/services/knowledge_service.py`（知识 CRUD、版本管理、标签关联、软删除）
-- [ ] T015 [P] [US1] 实现附件存储服务：`src/services/storage_service.py`（本地文件两级目录保存、加密读写、提取状态记录）
-- [ ] T016 [P] [US1] 实现多媒体提取服务：`src/services/extraction_service.py`（优先实现文本、PDF、Word、Excel、网页的全文提取；图片 OCR 和音视频转录通过外部 API 或本地模型实现，若提取失败则按 FR-001 要求标记失败状态并利用元数据做极简索引）
-- [ ] T017 [US1] 实现知识库 API：`src/api/routes/knowledge.py`（覆盖 `POST /api/knowledge`、上传、URL 添加、列表、详情、更新、删除、标签接口）
-- [ ] T018 [US1] 实现前端知识库页面：`src/web/static/knowledge.html` / `knowledge.js`（列表、搜索、添加弹窗、详情展示、标签分配与按标签筛选）
+- [ ] T014 [P] [US1] 实现标签模型：`src/db/models.py` 中 `Tag` 与 `TagLink` 的 CRUD 工具函数
+- [ ] T015 [P] [US1] 实现知识库服务层：`src/services/knowledge_service.py`（知识 CRUD、版本管理、标签关联、软删除）
+- [ ] T016 [P] [US1] 实现附件存储服务：`src/services/storage_service.py`（本地文件两级目录保存、加密读写、提取状态记录）
+- [ ] T017 [P] [US1] 实现多媒体提取服务：`src/services/extraction_service.py`（优先实现文本、PDF、Word、Excel、网页的全文提取；图片 OCR 和音视频转录通过外部 API 或本地模型实现，若提取失败则按 FR-001 要求标记失败状态并利用元数据做极简索引）
+- [ ] T018 [US1] 实现知识库 API：`src/api/routes/knowledge.py`（覆盖 `POST /api/knowledge`、上传、URL 添加、列表、详情、更新、删除、标签接口）
+- [ ] T019 [US1] 实现前端知识库页面：`src/web/static/knowledge.html` / `knowledge.js`（列表、搜索、添加弹窗、详情展示、标签分配与按标签筛选）
 
 **Checkpoint**: US1 独立可用，用户可完成“添加→搜索→查看→删除”闭环
 
@@ -72,18 +72,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T019 [P] [US2] 契约测试：`tests/contract/test_chat_api.py`（消息发送、流式与非流式响应格式、引用结构）
-- [ ] T020 [P] [US2] 集成测试：`tests/integration/test_chat_rag.py`（先插入知识→发起对话→验证回答包含正确 citation）
+- [ ] T020 [P] [US2] 契约测试：`tests/contract/test_chat_api.py`（消息发送、流式与非流式响应格式、引用结构）
+- [ ] T021 [P] [US2] 集成测试：`tests/integration/test_chat_rag.py`（先插入知识→发起对话→验证回答包含正确 citation）
+- [ ] T022 [P] [US2] 建立 RAG 准确率评测集：`tests/evaluation/chat_eval_dataset.json`（至少 30 条带标注问答对，覆盖已知/未知领域、有/无引用、拒绝回答场景）及 `tests/evaluation/test_chat_accuracy.py` 评测脚本，用于验证 SC-002。
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] 实现 Embedding 服务：`src/services/embedding_service.py`（外部 OpenAI 兼容 API 封装，知识分片与向量写入 sqlite-vec）
-- [ ] T022 [P] [US2] 实现检索服务：`src/services/embedding_service.py` 中增加混合检索（向量相似度 + sqlite-vec 全文检索关键词召回）
-- [ ] T023 [P] [US2] 实现 LLM 客户端：`src/ai/client.py`（兼容 OpenAI API，支持流式输出与工具调用接口）
-- [ ] T024 [P] [US2] 实现对话生成服务：`src/services/chat_service.py`（组装 RAG 上下文、调用 LLM、解析 citation、处理无结果时的拒绝回答）
-- [ ] T025 [P] [US2] 实现用户画像服务：`src/services/chat_service.py` 内画像更新逻辑，或独立 `src/services/profile_service.py`（基于对话历史提取兴趣与知识水平）
-- [ ] T026 [US2] 实现对话 API：`src/api/routes/chat.py`（会话 CRUD、消息发送、SSE 流式响应 `/api/chat/conversations/{id}/messages`）
-- [ ] T027 [US2] 实现前端对话页面：`src/web/static/chat.html` / `chat.js`（会话列表、消息展示、流式渲染、来源引用高亮）
+- [ ] T023 [P] [US2] 实现 Embedding 服务：`src/services/embedding_service.py`（外部 OpenAI 兼容 API 封装，知识分片与向量写入 sqlite-vec）
+- [ ] T024 [P] [US2] 实现检索服务：`src/services/retrieval_service.py`（混合检索：向量相似度 + sqlite-vec 全文检索关键词召回）
+- [ ] T025 [P] [US2] 实现 LLM 客户端：`src/ai/client.py`（兼容 OpenAI API，支持流式输出与工具调用接口）
+- [ ] T026 [P] [US2] 实现对话生成服务：`src/services/chat_service.py`（组装 RAG 上下文、调用 LLM、解析 citation、处理无结果时的拒绝回答）
+- [ ] T027 [P] [US2] 实现用户画像服务：`src/services/chat_service.py` 内画像更新逻辑，或独立 `src/services/profile_service.py`（基于对话历史提取兴趣与知识水平，每 5 轮或新领域触发）
+- [ ] T028 [US2] 实现对话 API：`src/api/routes/chat.py`（会话 CRUD、消息发送、SSE 流式响应 `/api/chat/conversations/{id}/messages`）
+- [ ] T029 [US2] 实现前端对话页面：`src/web/static/chat.html` / `chat.js`（会话列表、消息展示、流式渲染、来源引用高亮）
 
 **Checkpoint**: US2 独立可用，RAG 查询能正确引用知识库内容；无相关知识时拒绝编造
 
@@ -99,16 +100,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T028 [P] [US3] 契约测试：`tests/contract/test_research_api.py`（任务创建、SSE 事件类型、状态机流转、保存报告接口）
-- [ ] T029 [P] [US3] 集成测试：`tests/integration/test_research_flow.py`（提交任务→模拟进度事件→完成报告→保存到知识库）
+- [ ] T030 [P] [US3] 契约测试：`tests/contract/test_research_api.py`（任务创建、SSE 事件类型、状态机流转、保存报告接口）
+- [ ] T031 [P] [US3] 集成测试：`tests/integration/test_research_flow.py`（提交任务→模拟进度事件→完成报告→保存到知识库）
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] 实现搜索源适配层：`src/ai/search.py`（统一 `SearchProvider` 接口，实现 LLM 自带搜索、Tavily/SerpAPI、httpx+trafilatura 爬虫三种适配器）
-- [ ] T031 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库）
-- [ ] T032 [US3] 实现调研服务：`src/services/research_service.py`（分阶段执行：大纲→检索→章节撰写→汇总；支持暂停提问与恢复）
-- [ ] T033 [US3] 实现调研 API：`src/api/routes/research.py`（任务提交、详情、SSE 进度订阅、用户决策回复、保存报告）
-- [ ] T034 [US3] 实现前端调研页面：`src/web/static/research.html` / `research.js`（主题输入、进度条、SSE 事件展示、决策弹窗、报告预览与保存、顶部展示当前使用的搜索源类型）
+- [ ] T032 [P] [US3] 实现搜索源适配层：`src/ai/search.py`（统一 `SearchProvider` 接口，实现 LLM 自带搜索、Tavily/SerpAPI、httpx+trafilatura 爬虫三种适配器）
+- [ ] T033 [P] [US3] 实现异步调研任务队列：`src/tasks/queue.py`（基于 asyncio Queue，按外部 API 配额控制并发，状态持久化到数据库）
+- [ ] T034 [US3] 实现调研服务：`src/services/research_service.py`（分阶段执行：大纲→检索→章节撰写→汇总；支持暂停提问与恢复）
+- [ ] T035 [US3] 实现调研 API：`src/api/routes/research.py`（任务提交、详情、SSE 进度订阅、用户决策回复、保存报告）
+- [ ] T036 [US3] 实现前端调研页面：`src/web/static/research.html` / `research.js`（主题输入、进度条、SSE 事件展示、决策弹窗、报告预览与保存、顶部展示当前使用的搜索源类型）
 
 **Checkpoint**: US3 独立可用，异步调研全链路跑通，SSE 进度正常，人机决策可恢复
 
@@ -124,15 +125,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T035 [P] [US4] 契约测试：`tests/contract/test_confidence_api.py`（评估触发接口、评分返回结构）
-- [ ] T036 [P] [US4] 集成测试：`tests/integration/test_confidence_flow.py`（添加知识→自动评估→修改触发新版本→验证旧版本评估不变）
+- [ ] T037 [P] [US4] 契约测试：`tests/contract/test_confidence_api.py`（评估触发接口、评分返回结构）
+- [ ] T038 [P] [US4] 集成测试：`tests/integration/test_confidence_flow.py`（添加知识→自动评估→修改触发新版本→验证旧版本评估不变）
 
 ### Implementation for User Story 4
 
-- [ ] T037 [P] [US4] 实现置信度评估服务：`src/services/confidence_service.py`（调用 LLM 进行网络验证或常识推理，输出 score_level、method、rationale）
-- [ ] T038 [P] [US4] 在知识库服务中集成自动评估触发：`src/services/knowledge_service.py` 保存/更新后，若内容变化 >20% 则异步调用置信度评估
-- [ ] T039 [US4] 实现置信度评估 API：`src/api/routes/knowledge.py` 中增加 `POST /api/knowledge/{id}/evaluate-confidence` 手动触发端点
-- [ ] T040 [US4] 前端展示置信度：`src/web/static/knowledge.js` 中在列表和详情页渲染评分徽章与依据弹窗
+- [ ] T039 [P] [US4] 实现置信度评估服务：`src/services/confidence_service.py`（调用 LLM 进行网络验证或常识推理，输出 score_level、method、rationale）
+- [ ] T040 [P] [US4] 在知识库服务中集成自动评估触发：`src/services/knowledge_service.py` 保存/更新后，若内容变化 >20% 则异步调用置信度评估
+- [ ] T041 [US4] 实现置信度评估 API：`src/api/routes/knowledge.py` 中增加 `POST /api/knowledge/{id}/evaluate-confidence` 手动触发端点
+- [ ] T042 [US4] 前端展示置信度：`src/web/static/knowledge.js` 中在列表和详情页渲染评分徽章与依据弹窗
 
 **Checkpoint**: US4 独立可用，自动评估与手动评估均正常工作，历史版本评估隔离
 
@@ -142,15 +143,17 @@
 
 **Purpose**: 系统级功能与跨用户故事的增强
 
-- [ ] T041 [P] 实现系统配置 API：`src/api/routes/system.py`（状态、配置读写、隐私策略开关）
-- [ ] T042 [P] 实现导出功能：`src/api/routes/system.py` 导出 ZIP（含 metadata.json、原始附件，不含 embedding 向量）
-- [ ] T043 [P] 实现导入功能：`src/api/routes/system.py` 导入 ZIP（校验 JSON、跳过损坏文件、模型不一致时重算向量）
-- [ ] T043a [P] 实现版本保留策略与自动清理：`src/services/knowledge_service.py` 增加后台清理逻辑；`src/api/routes/system.py` 增加版本保留策略配置读写接口；按用户配置的版本数量/时间/磁盘阈值定期清理过期历史版本数据
-- [ ] T043b [P] 实现日志保留策略：`src/api/routes/system.py` 增加日志保留策略配置接口（按天数或文件大小清理），`src/utils/logging.py` 增加定时清理旧日志文件逻辑
-- [ ] T044 实现降线与容错机制：外部 AI/搜索请求的自动重试（指数退避 3 次）、服务不可用提示、本地模型降级逻辑（当外部 LLM/搜索 API 连续失败时，若配置中存在本地模型端点，则自动切换至本地模型生成本地知识库摘要并提示用户"当前处于降级模式，外部搜索不可用"）
-- [ ] T045 实现磁盘归档压缩：`src/services/storage_service.py` 中当总容量超过用户配置阈值时，对超过 6 个月未访问（或按创建时间排序的最旧 20%）的媒体文件自动 gzip 归档
-- [ ] T046 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支
-- [ ] T047 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒
+- [ ] T043 [P] 实现系统配置 API：`src/api/routes/system.py`（状态、配置读写、隐私策略开关）
+- [ ] T043a [P] 实现系统配置前端界面：`src/web/static/settings.html` / `settings.js`（LLM/Embedding/搜索配置、隐私开关、版本保留策略、日志保留策略）
+- [ ] T044 [P] 实现导出功能：`src/api/routes/system.py` 导出 ZIP（含 metadata.json、原始附件，不含 embedding 向量）
+- [ ] T045 [P] 实现导入功能：`src/api/routes/system.py` 导入 ZIP（校验 JSON、跳过损坏文件、模型不一致时重算向量）
+- [ ] T045a [P] 实现版本保留策略与自动清理：`src/services/knowledge_service.py` 增加后台清理逻辑；`src/api/routes/system.py` 增加版本保留策略配置读写接口；按用户配置的版本数量/时间/磁盘阈值定期清理过期历史版本数据
+- [ ] T045b [P] 实现日志保留策略：`src/api/routes/system.py` 增加日志保留策略配置接口（按天数或文件大小清理），`src/utils/logging.py` 增加定时清理旧日志文件逻辑
+- [ ] T046 [P] 实现外部请求重试中间件：`src/utils/http_client.py`（指数退避 3 次、超时配置、统一错误码转换），供 `src/ai/client.py` 与 `src/ai/search.py` 使用
+- [ ] T047 [P] 实现降线与本地模型降级逻辑：`src/services/research_service.py` / `src/services/chat_service.py` 中检测外部 LLM/搜索 API 连续失败时，若配置中存在本地模型端点，则自动切换至本地模型生成并提示用户"当前处于降级模式"（FR-013、FR-022 与 FR-012 结合）
+- [ ] T048 [P] 实现磁盘归档压缩：`src/services/storage_service.py` 中当总容量超过用户配置阈值时，对超过 6 个月未访问（或按创建时间排序的最旧 20%）的媒体文件自动 gzip 归档
+- [ ] T049 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支
+- [ ] T050 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒
 
 ---
 
@@ -174,11 +177,11 @@
 
 ### 推荐实现顺序
 
-1. **Setup + Foundational**（T001 ~ T010）
-2. **US1**（T011 ~ T018）→ 验证知识库闭环
-3. **US2**（T019 ~ T027）→ 验证 RAG 对话
-4. **US3 + US4 并行**（T028 ~ T040）→ 调研与置信度
-5. **System + Polish**（T041 ~ T047）→ 导出导入、降级容错、归档压缩
+1. **Setup + Foundational**（T001 ~ T011）
+2. **US1**（T012 ~ T019）→ 验证知识库闭环
+3. **US2**（T020 ~ T029）→ 验证 RAG 对话
+4. **US3 + US4 并行**（T030 ~ T042）→ 调研与置信度
+5. **System + Polish**（T043 ~ T050）→ 导出导入、降级容错、归档压缩
 
 ---
 

@@ -255,7 +255,7 @@
 | `id` | UUID | PK | 唯一标识 |
 | `topic` | TEXT | NOT NULL | 调研主题 |
 | `scope_description` | TEXT | nullable | 范围描述 |
-| `status` | TEXT | NOT NULL | 状态：`queued` / `running` / `awaiting_input` / `completed` / `failed` / `degraded` |
+| `status` | TEXT | NOT NULL | 状态：`queued` / `running` / `awaiting_input` / `completed` / `failed` / `degraded` / `pending_recheck` |
 | `progress_percent` | INTEGER | DEFAULT 0 | 进度百分比（0-100） |
 | `search_source_used` | TEXT | nullable | 实际使用的搜索源：`llm_builtin` / `search_api` / `http_crawler` / `local_llm` |
 | `created_at` | DATETIME | NOT NULL | 创建时间 |
@@ -267,9 +267,9 @@
 **状态转换**:
 ```
 queued → running → (awaiting_input → running)* → completed
-                          |
-                          v
-                       failed / degraded
+        ↑                |
+        |                v
+   pending_recheck    failed / degraded
 ```
 
 ---

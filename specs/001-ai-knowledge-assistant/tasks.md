@@ -23,9 +23,9 @@
 
 **⚠️ CRITICAL**: 基础层未完成前，禁止开始任何用户故事实现
 
-- [ ] T004 实现 SQLite + sqlite-vec 数据库连接与初始化：`src/db/connection.py`、`src/db/models.py`（含所有核心表结构）
+- [ ] T004 实现 SQLite + sqlite-vec 数据库连接与初始化：`src/db/connection.py`、`src/db/models.py`（负责所有核心表结构的 SQL Schema 定义，不包含 CRUD 工具函数）
 - [ ] T005 实现数据库迁移框架：基础版本管理脚本（可简化为启动时自动 `CREATE TABLE IF NOT EXISTS` + 版本记录表）
-- [ ] T006 [P] 实现单用户密码鉴权：`src/security/auth.py`（JWT 签发与校验）+ `src/security/crypto.py`（AES-256-GCM + Argon2id）
+- [ ] T006 [P] 实现单用户密码鉴权：`src/security/auth.py`（JWT 签发与校验，含"记住我"延长至 7 天逻辑）+ `src/security/crypto.py`（AES-256-GCM + Argon2id）
 - [ ] T007 [P] 搭建 FastAPI 应用骨架：`src/main.py`（含路由注册、全局异常处理器、CORS、StaticFiles）
 - [ ] T008 实现配置管理：`src/config.py`（Pydantic Settings，含 LLM、Embedding、搜索、隐私、重试、存储、日志配置）
 - [ ] T009 实现日志基础设施：`src/utils/logging.py`（应用错误日志与关键操作日志输出到本地文件）
@@ -47,15 +47,15 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T012 [P] [US1] 契约测试：`tests/contract/test_knowledge_api.py`（覆盖创建、列表、详情、更新、删除接口的输入输出契约）
-- [ ] T013 [P] [US1] 集成测试：`tests/integration/test_knowledge_journey.py`（添加知识→搜索→查看详情→删除的完整流程）
+- [ ] T013 [P] [US1] 集成测试：`tests/integration/test_knowledge_journey.py`（添加知识→搜索→查看详情→按标签筛选→删除的完整流程）
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] 实现标签模型：`src/db/models.py` 中 `Tag` 与 `TagLink` 的 CRUD 工具函数
+- [ ] T014 [P] [US1] 实现标签模型：`src/services/tag_service.py` 中 `Tag` 与 `TagLink` 的 CRUD 工具函数（基于 T004 已定义的 Schema）
 - [ ] T015 [P] [US1] 实现知识库服务层：`src/services/knowledge_service.py`（知识 CRUD、版本管理、标签关联、软删除）
 - [ ] T016 [P] [US1] 实现附件存储服务：`src/services/storage_service.py`（本地文件两级目录保存、加密读写、提取状态记录）
 - [ ] T017 [P] [US1] 实现多媒体提取服务：`src/services/extraction_service.py`（优先实现文本、PDF、Word、Excel、网页的全文提取；图片 OCR 和音视频转录通过外部 API 或本地模型实现，若提取失败则按 FR-001 要求标记失败状态并利用元数据做极简索引）
-- [ ] T018 [US1] 实现知识库 API：`src/api/routes/knowledge.py`（覆盖 `POST /api/knowledge`、上传、URL 添加、列表、详情、更新、删除、标签接口）
+- [ ] T018 [US1] 实现知识库 API：`src/api/routes/knowledge.py`（覆盖 `POST /api/knowledge`、上传、URL 添加、列表、详情、更新、删除、标签接口；API 层实现 FR-001a 内容最小长度 ≥5 字符校验）
 - [ ] T019 [US1] 实现前端知识库页面：`src/web/static/knowledge.html` / `knowledge.js`（列表、搜索、添加弹窗、详情展示、标签分配与按标签筛选）
 
 **Checkpoint**: US1 独立可用，用户可完成“添加→搜索→查看→删除”闭环
@@ -153,7 +153,7 @@
 - [ ] T047 [P] 实现降线与本地模型降级逻辑：`src/services/research_service.py` / `src/services/chat_service.py` 中检测外部 LLM/搜索 API 连续失败时，若配置中存在本地模型端点，则自动切换至本地模型生成并提示用户"当前处于降级模式"（FR-013、FR-022 与 FR-012 结合）
 - [ ] T048 [P] 实现磁盘归档压缩：`src/services/storage_service.py` 中当总容量超过用户配置阈值时，对超过 6 个月未访问（或按创建时间排序的最旧 20%）的媒体文件自动 gzip 归档
 - [ ] T049 [P] 补充单元测试：`tests/unit/` 覆盖核心服务函数的纯逻辑分支
-- [ ] T050 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒
+- [ ] T050 [P] 运行时验证：按 `quickstart.md` 完整走通安装→启动→添加知识→对话→调研→导出流程；使用至少 100 条模拟知识验证查询端到端响应时间 ≤2 秒；录制并验证添加一条新知识的前端交互耗时 ≤2 分钟（SC-001）
 
 ---
 

@@ -25,6 +25,7 @@
 ## Active Technologies
 - Python 3.11+ + FastAPI（Web 框架 + SSE 支持）、sqlite-vec（向量/全文检索）、aiosqlite（异步 SQLite）、httpx（HTTP 客户端，含外部 AI/搜索调用）、cryptography（AES-256-GCM 加密）、argon2-cffi（Argon2id 密钥派生）、pydantic（数据校验与序列化） (001-ai-knowledge-assistant)
 - SQLite（主存储）+ sqlite-vec（向量/全文索引）+ 本地文件系统（原始媒体文件，按 `files/AB/CD/<item-id>/` 两级目录组织） (001-ai-knowledge-assistant)
+- Python 3.11+ + FastAPI（Web 框架 + SSE）、sqlite-vec（向量/全文检索）、aiosqlite（异步 SQLite）、httpx（HTTP 客户端，含外部 AI/搜索调用）、cryptography（AES-256-GCM 加密）、argon2-cffi（Argon2id 密钥派生）、pydantic（数据校验与序列化） (001-ai-knowledge-assistant)
 
 ## Recent Changes
 - 001-ai-knowledge-assistant: Added Python 3.11+ + FastAPI（Web 框架 + SSE 支持）、sqlite-vec（向量/全文检索）、aiosqlite（异步 SQLite）、httpx（HTTP 客户端，含外部 AI/搜索调用）、cryptography（AES-256-GCM 加密）、argon2-cffi（Argon2id 密钥派生）、pydantic（数据校验与序列化）

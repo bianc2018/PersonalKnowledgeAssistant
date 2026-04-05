@@ -1,25 +1,25 @@
 # Implementation Plan: AI 知识管理助手
 
-**Branch**: `001-ai-knowledge-assistant` | **Date**: 2026-04-05 | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-ai-knowledge-assistant` | **Date**: 2026-04-05 | **Spec**: [spec.md](/home/myhql/code/PersonalKnowledgeAssistant/specs/001-ai-knowledge-assistant/spec.md)
 **Input**: Feature specification from `/specs/001-ai-knowledge-assistant/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-实现一个本地运行的 AI 驱动的个人知识管理助手。核心能力包括：知识库管理（文本/文件/链接入库）、基于个人知识库的对话式查询（带来源引用）、异步领域调研报告生成（支持人机交互决策）、知识置信度评估。系统以本地 Web 服务形式运行，用户通过浏览器单用户登录访问，采用 SQLite + sqlite-vec 进行本地持久化，原始媒体文件存储于本地文件系统并按两级目录组织。
+实现一个本地运行的 AI 驱动个人知识管理助手。核心能力包括：用户通过文本、文件或网页链接添加知识条目；系统自动提取多媒体内容的可搜索文本；支持基于自然语言的对话式知识查询（RAG），并标注引用来源；支持异步生成结构化领域调研报告（通过 SSE 实时推送进度）；对知识条目进行置信度评估并可视化展示。系统采用 SQLite + sqlite-vec + FTS5 作为本地存储与检索方案，原始媒体文件按两级目录组织并存于本地文件系统，采用 AES-256-GCM 加密保护。
 
 ## Technical Context
 
-**Language/Version**: Python 3.11+  
-**Primary Dependencies**: FastAPI（Web 框架 + SSE 支持）、sqlite-vec（向量检索）、aiosqlite（异步 SQLite）、httpx（HTTP 客户端，含外部 AI/搜索调用）、cryptography（AES-256-GCM 加密）、argon2-cffi（Argon2id 密钥派生）、pydantic（数据校验与序列化）  
-**Storage**: SQLite（主存储）+ sqlite-vec（向量索引）+ FTS5（全文索引）+ 本地文件系统（原始媒体文件，按 `files/AB/CD/<item-id>/` 两级目录组织）  
-**Testing**: pytest + pytest-asyncio + httpx（用于 ASGI 应用测试）  
-**Target Platform**: 本地运行于 Linux/macOS/Windows，用户通过现代浏览器访问  
-**Project Type**: web-service（本地单用户 Web 应用）  
-**Performance Goals**: 知识库 100 条时端到端查询响应 ≤2 秒；调研报告在提交后 5 分钟内完成  
-**Constraints**: 单文件 ≤1GB；离线时基础功能保持可用；外部 AI 调用需遵循用户隐私策略开关  
-**Scale/Scope**: 单用户个人知识库，MVP 阶段不检测重复内容，排除多用户协作与移动端原生应用
+**Language/Version**: Python 3.11+
+**Primary Dependencies**: FastAPI（Web 框架 + SSE）、sqlite-vec（向量/全文检索）、aiosqlite（异步 SQLite）、httpx（HTTP 客户端，含外部 AI/搜索调用）、cryptography（AES-256-GCM 加密）、argon2-cffi（Argon2id 密钥派生）、pydantic（数据校验与序列化）
+**Storage**: SQLite（主存储）+ sqlite-vec（向量/全文索引）+ 本地文件系统（原始媒体文件，按 `files/AB/CD/<item-id>/` 两级目录组织）
+**Testing**: pytest
+**Target Platform**: Linux 桌面/服务器本地服务，通过浏览器访问
+**Project Type**: web-service
+**Performance Goals**: 知识库包含 100 条知识时，查询和展示端到端响应时间 ≤2 秒
+**Constraints**: 单文件大小 ≤1GB；本地优先，默认不发送完整知识到外部 AI；外部服务不可用时核心功能保持可用
+**Scale/Scope**: 单用户个人应用，MVP 阶段不检测重复内容，暂不排除多用户协作和移动端原生应用
 
 ## Constitution Check
 
@@ -27,13 +27,20 @@
 
 对照 `constitution.md` 验证以下条款。如有违反，MUST 在 Complexity Tracking 中记录理由。
 
-- **语言统一**: 本 plan 及关联 spec 均使用简体中文。技术术语保留英文原称。
-- **规划优先**: 输入 spec.md 已完成且包含详细的功能需求、验收标准和边界说明。
-- **简洁设计**: 技术方案为单仓库 Python Web 应用，无微服务或过度分层；依赖均为直接支持需求（FastAPI 负责 Web 与 SSE，sqlite-vec 负责 spec 要求的向量/全文检索，cryptography/argon2-cffi 负责 spec 要求的加密与密钥派生）。无未加证明的抽象。
-- **Git 纪律**: 本文档及后续代码变更均计划纳入 Git，遵循小步提交原则。
-- **复用优先**: 采用 FastAPI、sqlite-vec、httpx 等成熟开源库，避免自行实现 Web 框架、向量检索或加密原语。
-- **安全与质量**: 已识别的外部输入边界包括：用户上传内容长度（≥5 字符）、导入 ZIP 包的文件校验、用户密码强度（登录与密钥派生）、外部 AI API 响应的容错处理、HTTP 爬虫的 URL 白名单/超时限制。
-- **独立测试**: 4 个用户故事均有明确的独立测试标准（添加并查询知识、对话引用知识、异步调研报告生成、置信度评估展示）。
+- **语言统一**: 本 plan 及关联的 spec、tasks 文档是否使用简体中文？
+  - **结果**: 通过。spec.md 与本 plan 均使用简体中文。
+- **规划优先**: 当前功能是否有已完成的 spec.md 作为输入？需求变更是否同步到设计文档？
+  - **结果**: 通过。spec.md 已完成并包含详细的功能需求、验收标准和澄清记录。
+- **简洁设计**: 提出的技术方案是否为当前需求的最小必要复杂度？是否存在未加证明的额外抽象或依赖？
+  - **结果**: 通过。技术栈选择了成熟且针对需求的最小组合：FastAPI 提供 Web + SSE，SQLite + sqlite-vec 满足本地向量/全文检索，cryptography + argon2-cffi 满足文件加密需求。无未经验证的抽象层。
+- **Git 纪律**: 本功能的文档和代码变更是否计划纳入 Git 小步提交？
+  - **结果**: 通过。所有文档和后续代码变更将遵循小步提交原则。
+- **复用优先**: 是否已评估现有工具/库的可复用性？新增外部依赖的理由是否充分？
+  - **结果**: 通过。所有主要依赖均为经过验证的现有方案：FastAPI 替代自研 HTTP/SSE 服务器；sqlite-vec 替代专用向量数据库；aiosqlite 替代同步 SQLite 封装；httpx 替代 requests 以支持异步；cryptography 和 argon2-cffi 为 Python 生态主流安全库。无重复造轮子。
+- **安全与质量**: 是否已识别外部输入边界和必要的验证点？
+  - **结果**: 通过。已识别的外部输入边界包括：用户上传的文本/文件/URL、外部 AI/搜索 API 响应、导入的 ZIP 备份、JWT Token、用户密码。必要的验证点包括：内容最小长度校验（≥5 字符）、文件大小限制（≤1GB）、标签长度/空白校验、导入元数据校验、SQL 注入防护（参数化查询）、XSS 防护（正确转义输出）。
+- **独立测试**: 各用户故事是否可以独立开发和独立测试？
+  - **结果**: 通过。4 个 User Story（知识管理、对话查询、调研报告、置信度评估）均具备独立的验收场景和可测试的边界。
 
 ## Project Structure
 
@@ -54,53 +61,70 @@ specs/001-ai-knowledge-assistant/
 ```text
 src/
 ├── main.py              # FastAPI 应用入口
-├── config.py            # 配置定义与加载（Pydantic Settings）
+├── config.py            # 配置模型与加载
+├── auth/
+│   ├── router.py        # 登录/鉴权路由
+│   ├── dependencies.py  # JWT 校验依赖
+│   └── crypto.py        # 密码派生、文件加解密
+├── knowledge/
+│   ├── router.py        # 知识条目 CRUD、搜索、导入导出
+│   ├── service.py       # 知识业务逻辑
+│   ├── models.py        # 知识相关 Pydantic 模型
+│   └── extractor.py     # 多媒体文本提取封装
+├── chat/
+│   ├── router.py        # 对话/SSE 路由
+│   ├── service.py       # RAG 检索与回答生成
+│   └── models.py        # 对话相关 Pydantic 模型
+├── research/
+│   ├── router.py        # 调研任务路由
+│   ├── service.py       # 调研流程编排
+│   ├── models.py        # 调研相关 Pydantic 模型
+│   └── worker.py        # 异步调研任务执行
+├── profile/
+│   ├── service.py       # 用户画像提取与更新
+│   └── models.py        # UserProfile 模型
 ├── db/
-│   ├── connection.py    # SQLite + sqlite-vec 连接与迁移
-│   ├── models.py        # SQL 表结构定义（通过 SQLAlchemy Core 或直接 SQL）
+│   ├── connection.py    # aiosqlite 连接管理
+│   ├── schema.sql       # 数据库表结构
 │   └── migrations/      # 数据库迁移脚本
-├── api/
-│   ├── routes/
-│   │   ├── knowledge.py # 知识库 CRUD、搜索、删除
-│   │   ├── chat.py      # 对话查询、会话管理
-│   │   ├── research.py  # 调研任务提交、SSE 进度推送
-│   │   └── system.py    # 配置、状态、导出/导入
-│   ├── schemas/
-│   │   └── ...          # Pydantic 请求/响应模型
-│   ├── dependencies.py  # 认证依赖、数据库会话注入
-│   └── sse.py           # SSE 推送工具
-├── services/
-│   ├── knowledge_service.py    # 知识条目业务逻辑
-│   ├── chat_service.py         # RAG 对话生成
-│   ├── research_service.py     # 异步调研报告生成
-│   ├── confidence_service.py   # 置信度评估
-│   ├── embedding_service.py    # 嵌入向量生成与管理
-│   ├── extraction_service.py   # 多媒体文本提取（OCR、转录）
-│   └── storage_service.py      # 本地文件存储（含加密读写）
-├── ai/
-│   ├── client.py        # 兼容 OpenAI API 的 LLM 调用封装
-│   ├── search.py        # 搜索源适配（LLM 自带搜索 / Tavily / HTTP 爬虫）
-│   └── prompts.py       # 系统提示词模板
-├── security/
-│   ├── auth.py          # 单用户密码鉴权（JWT / Session）
-│   └── crypto.py        # AES-256-GCM + Argon2id
-├── tasks/
-│   └── queue.py         # 调研任务队列与并发控制
-├── web/
-│   └── static/          # 前端静态资源（HTML/JS/CSS）
-└── utils/
-    └── ...              #日志、校验等通用工具
+├── search/
+│   ├── vec.py           # sqlite-vec 向量操作
+│   ├── fts.py           # FTS5 全文检索操作
+│   └── hybrid.py        # 混合检索与排序
+├── external/
+│   ├── llm.py           # LLM API 客户端
+│   ├── search.py        # 搜索 API 客户端 + 爬虫回退
+│   └── retry.py         # 重试与退避策略
+└── tasks/
+    └── queue.py         # 调研任务队列与并发控制
 
 tests/
-├── unit/                # 单元测试（服务层、工具函数）
-├── integration/         # 集成测试（API 路由、数据库交互）
-└── contract/            # 契约测试（外部 AI/搜索适配接口）
+├── unit/                # 单元测试
+├── integration/         # 集成测试
+└── contract/            # 契约/接口测试
 ```
 
-**Structure Decision**: 采用单后端项目结构（Option 1）。前端以轻量静态页面形式直接由 FastAPI 的 `staticfiles` 托管，MVP 阶段无需独立前端工程。服务端按功能模块划分为 `api/`（路由与入口）、`services/`（核心业务逻辑）、`db/`（持久化）、`ai/`（外部 AI 交互）、`security/`（认证与加密），保持清晰且不过度分层。
+**Structure Decision**: 采用单项目结构（Option 1）。按业务领域（knowledge、chat、research、profile、auth）划分模块，所有模块共享同一 FastAPI 应用。db/ 集中管理数据库连接与 schema，search/ 集中管理检索能力，external/ 集中管理外部服务调用。 tests/ 按测试类型分层，与 src/ 平行放置。
+
+## Constitution Check (Post-Design)
+
+*Re-evaluated after Phase 1 design completion.*
+
+- **语言统一**: data-model.md、quickstart.md、contracts/ 及本 plan 均使用简体中文。通过。
+- **规划优先**: research.md 已解决所有 NEEDS CLARIFICATION；data-model.md 和 contracts/ 均基于 spec.md 生成，无未经文档化的设计变更。通过。
+- **简洁设计**: 项目结构采用单项目领域分层，无过度抽象的 ORM 层或微服务拆分；依赖清单与 research.md 决策一致。通过。
+- **Git 纪律**: 文档变更将纳入 Git 小步提交。通过。
+- **复用优先**: contracts/ 中定义的 API 契约充分利用 FastAPI 原生特性（Pydantic、SSE、StaticFiles），无重复造轮子。通过。
+- **安全与质量**: data-model.md 中识别了输入验证规则（VAL-001 ~ VAL-006）；contracts/ 中认证、加密、导出导入边界均已定义。通过。
+- **独立测试**: 4 个 User Story 对应的 API 契约和测试策略在 quickstart.md 中明确，可独立验证。通过。
+
+**Phase 1 Gate**: PASS。无违反宪法条款的设计决策。
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-当前 Constitution Check 无违规，无需记录复杂度说明。
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| 无 | - | - |
+

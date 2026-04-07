@@ -94,6 +94,7 @@ async def create_knowledge_text(
             "INSERT INTO tag_links (item_id, tag_id) VALUES (?, ?)",
             (item_id, tag.id),
         )
+    await _generate_chunks(db, version_id, data.content)
     await db.commit()
     return item_id
 
@@ -133,6 +134,7 @@ async def create_knowledge_url(
             "INSERT INTO tag_links (item_id, tag_id) VALUES (?, ?)",
             (item_id, tag.id),
         )
+    await _generate_chunks(db, version_id, text)
     await db.commit()
     return item_id
 
@@ -200,6 +202,7 @@ async def create_knowledge_upload(
             "INSERT INTO tag_links (item_id, tag_id) VALUES (?, ?)",
             (item_id, tag.id),
         )
+    await _generate_chunks(db, version_id, text)
     await db.commit()
     return item_id
 

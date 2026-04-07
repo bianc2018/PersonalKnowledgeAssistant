@@ -178,7 +178,7 @@ async def evaluate_confidence_endpoint(
         await db.close()
 
 
-@router.get("/tags/all", response_model=TagListResponse)
+@router.get("/tags", response_model=TagListResponse)
 async def get_tags(
     user: Annotated[CurrentUser, Depends(get_current_user)],
 ):

@@ -16,6 +16,10 @@ class ApiResponse(BaseModel):
     data: dict
 
 
+class MessagesResponse(BaseModel):
+    data: list
+
+
 class ConversationsListResponse(BaseModel):
     data: List[ConversationOut]
     pagination: dict
@@ -55,7 +59,7 @@ async def create_conversation(
         await db.close()
 
 
-@router.get("/conversations/{conversation_id}/messages", response_model=ApiResponse)
+@router.get("/conversations/{conversation_id}/messages", response_model=MessagesResponse)
 async def get_messages(
     conversation_id: str,
     user: Annotated[CurrentUser, Depends(get_current_user)] = None,
@@ -63,7 +67,7 @@ async def get_messages(
     db = await get_db()
     try:
         messages = await service.get_messages(db, conversation_id)
-        return ApiResponse(data=[m.model_dump() for m in messages])
+        return MessagesResponse(data=[m.model_dump() for m in messages])
     finally:
         await db.close()
 

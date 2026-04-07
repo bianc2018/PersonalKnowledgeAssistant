@@ -56,8 +56,9 @@
 
 - 目标环境缺少必要的运行时依赖时，系统应如何提示？
 - 服务端口已被其他进程占用时，系统应自动检测并分配一个可用端口，同时向用户明确告知新端口
-- 首次运行与再次运行时，数据库初始化逻辑是否会冲突？
-- 构建过程中网络中断导致依赖下载失败，是否有重试或明确报错？
+- 首次运行与再次运行时，SQLAlchemy `create_all()` 采用“若表已存在则跳过”策略，不会冲突或破坏已有数据
+- 当应用服务已在运行时，重新执行部署命令应报错提示用户先手动停止现有进程，而非自动重启或启动多实例
+- 构建过程中网络中断导致依赖下载失败时，脚本应最多重试 3 次，全部失败后退出并输出明确错误信息
 - 当必需的配置文件缺失时，系统应自动生成模板文件并暂停，提示用户补全后再继续
 
 ## Requirements *(mandatory)*
@@ -65,14 +66,16 @@
 ### Functional Requirements
 
 - **FR-001**: System MUST provide a single Python CLI command (e.g., `python deploy.py`) that automates the entire build, deploy, and run workflow for the application
-- **FR-002**: System MUST verify that the target environment meets minimum prerequisites before starting the build process
-- **FR-003**: System MUST initialize or migrate the database automatically when deploying for the first time
-- **FR-004**: System MUST start all application services required for the project to operate
+- **FR-002**: System MUST verify that the target environment has Python 3.11+, a compatible package manager (pip), and any system utilities needed for port detection before starting the build process
+- **FR-003**: System MUST initialize the SQLite database automatically on the first deployment by having the FastAPI application invoke SQLAlchemy `create_all()` at startup, with no standalone migration scripts required for the initial setup
+- **FR-004**: System MUST start the application service in the foreground, streaming logs directly to the terminal so the user can monitor status and stop the service with Ctrl+C
 - **FR-005**: System MUST display clear, actionable error messages when any step in the deployment process fails, including the specific step that failed
 - **FR-006**: System MUST support re-running the deployment command on an existing environment without corrupting existing data
 - **FR-007**: System MUST detect missing required configuration files, generate a template file with placeholder fields, and pause with clear instructions for the user to complete it before proceeding
 - **FR-008**: System MUST display real-time progress for each deployment step so the user can follow the current stage and overall completion status
 - **FR-009**: System MUST detect port conflicts and dynamically allocate an available alternative port, surfacing the chosen port to the user in the progress output
+- **FR-010**: System MUST detect if the application is already running and prompt the user to manually stop the existing process before re-deploying, rather than automatically restarting or spawning a second instance
+- **FR-011**: System MUST retry dependency installation up to 3 times when network interruptions occur, exiting with a clear error if all retries fail
 
 ### Key Entities *(include if feature involves data)*
 
@@ -97,6 +100,11 @@
 - **Q2**: 当部署环境缺少必要的配置文件（如 `.env`）时，Python CLI 脚本应如何处理？ → **A**: 自动生成带空占位符的模板配置文件，随后暂停并提示用户填写后继续
 - **Q3**: 当服务监听端口已被其他进程占用时，部署脚本应如何处理？ → **A**: 脚本自动检测端口冲突，动态分配一个可用端口并在输出中明确告知用户
 - **Q4**: 部署脚本在正常执行过程中，应以什么样的输出方式与用户交互？ → **A**: 脚本输出每个步骤的执行状态和进度，让用户了解当前所处阶段
+- **Q5**: 当重新部署时，如果应用服务已在运行，部署脚本应如何处理？ → **A**: 报错提示用户手动停止现有进程后重新执行，否则退出
+- **Q6**: 当构建过程中网络中断导致依赖下载失败时，部署脚本应如何处理？ → **A**: 最多重试 3 次，全部失败后退出并报告错误
+- **Q7**: 部署脚本在执行前需要验证哪些目标环境前置条件？ → **A**: 检查 Python 3.11+、pip/cmd，以及端口占用检测所需的系统工具
+- **Q8**: 首次部署时的数据库初始化应采用什么机制？ → **A**: 由 FastAPI 应用在启动时自动执行 SQLAlchemy `create_all()` 建表，无额外迁移脚本
+- **Q9**: 服务启动后应以什么模式运行？ → **A**: 前台运行，日志直接输出到终端，用户通过 Ctrl+C 停止
 
 ## Assumptions
 

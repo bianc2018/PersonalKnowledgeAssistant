@@ -28,6 +28,20 @@
       },
       "registered_skills": [],
       "installed_at": "2026-04-07T12:08:13.003033+00:00"
+    },
+    "ship": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:7aeaac4af9046a3ac9773fa2ef6c8938beef9cc02d7b8f841e72f388ecbdae69",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.ship.run"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-04-07T13:40:13.921560+00:00"
     }
   }
 }

@@ -267,8 +267,8 @@
       "id": "confluence",
       "description": "Create, read, and update Confluence docs for your project",
       "author": "aaronrsun",
-      "version": "1.1.0",
-      "download_url": "https://github.com/aaronrsun/spec-kit-confluence/archive/refs/tags/v1.1.0.zip",
+      "version": "1.1.1",
+      "download_url": "https://github.com/aaronrsun/spec-kit-confluence/archive/refs/tags/v1.1.1.zip",
       "repository": "https://github.com/aaronrsun/spec-kit-confluence",
       "homepage": "https://github.com/aaronrsun/spec-kit-confluence",
       "documentation": "https://github.com/aaronrsun/spec-kit-confluence/blob/main/README.md",
@@ -1436,8 +1436,8 @@
       "id": "v-model",
       "description": "Enforces V-Model paired generation of development specs and test specs with full traceability.",
       "author": "leocamello",
-      "version": "0.4.0",
-      "download_url": "https://github.com/leocamello/spec-kit-v-model/archive/refs/tags/v0.4.0.zip",
+      "version": "0.5.0",
+      "download_url": "https://github.com/leocamello/spec-kit-v-model/archive/refs/tags/v0.5.0.zip",
       "repository": "https://github.com/leocamello/spec-kit-v-model",
       "homepage": "https://github.com/leocamello/spec-kit-v-model",
       "documentation": "https://github.com/leocamello/spec-kit-v-model/blob/main/README.md",
@@ -1447,7 +1447,7 @@
         "speckit_version": ">=0.1.0"
       },
       "provides": {
-        "commands": 9,
+        "commands": 14,
         "hooks": 1
       },
       "tags": [
@@ -1461,7 +1461,7 @@
       "downloads": 0,
       "stars": 0,
       "created_at": "2026-02-20T00:00:00Z",
-      "updated_at": "2026-02-22T00:00:00Z"
+      "updated_at": "2026-04-06T00:00:00Z"
     },
     "verify": {
       "name": "Verify Extension",

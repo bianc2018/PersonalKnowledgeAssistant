@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.12, pytest-9.0.2, pluggy-1.6.0 -- /home/myhql/code/PersonalKnowledgeAssistant/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/myhql/code/PersonalKnowledgeAssistant
+configfile: pytest.ini
+plugins: anyio-4.13.0, respx-0.22.0, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 3 items
+
+tests/integration/test_deploy_e2e.py::TestDeployHappyPath::test_help_or_version_not_available PASSED [ 33%]
+tests/integration/test_deploy_e2e.py::TestDeployHappyPath::test_env_missing_generates_template PASSED [ 66%]
+tests/integration/test_deploy_e2e.py::TestDeployGuards::test_detects_running_service PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/integration/test_deploy_e2e.py:36
+  /home/myhql/code/PersonalKnowledgeAssistant/tests/integration/test_deploy_e2e.py:36: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.timeout(60)
+
+tests/integration/test_deploy_e2e.py:53
+  /home/myhql/code/PersonalKnowledgeAssistant/tests/integration/test_deploy_e2e.py:53: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.timeout(60)
+
+tests/integration/test_deploy_e2e.py:77
+  /home/myhql/code/PersonalKnowledgeAssistant/tests/integration/test_deploy_e2e.py:77: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.timeout(30)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 3 passed, 3 warnings in 1.41s =========================

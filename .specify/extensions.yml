@@ -11,3 +11,11 @@ hooks:
     description: Validates acceptance criteria through browser-driven or CLI-based
       testing
     condition: null
+  - extension: ship
+    command: speckit.ship.run
+    enabled: true
+    optional: true
+    prompt: Ship this feature?
+    description: Runs pre-flight checks, syncs branches, generates changelog, and
+      creates PR
+    condition: null

@@ -5,7 +5,3 @@
 错误: 未找到环境配置文件 (.env)
 建议: 已自动生成模板文件: .env
 请打开该文件，填写必要的配置项后再次运行 python deploy.py
-
-EXIT_CODE=1
-.env generated: YES
-Template contains SECRET_KEY, LLM_BASE_URL, EMBEDDING_BASE_URL: YES

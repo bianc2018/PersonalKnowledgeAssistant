@@ -55,20 +55,24 @@
 ### Edge Cases
 
 - 目标环境缺少必要的运行时依赖时，系统应如何提示？
-- 服务端口已被其他进程占用时，系统应如何处理？
+- 服务端口已被其他进程占用时，系统应自动检测并分配一个可用端口，同时向用户明确告知新端口
 - 首次运行与再次运行时，数据库初始化逻辑是否会冲突？
 - 构建过程中网络中断导致依赖下载失败，是否有重试或明确报错？
+- 当必需的配置文件缺失时，系统应自动生成模板文件并暂停，提示用户补全后再继续
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a single command that automates the entire build, deploy, and run workflow for the application
+- **FR-001**: System MUST provide a single Python CLI command (e.g., `python deploy.py`) that automates the entire build, deploy, and run workflow for the application
 - **FR-002**: System MUST verify that the target environment meets minimum prerequisites before starting the build process
 - **FR-003**: System MUST initialize or migrate the database automatically when deploying for the first time
 - **FR-004**: System MUST start all application services required for the project to operate
 - **FR-005**: System MUST display clear, actionable error messages when any step in the deployment process fails, including the specific step that failed
 - **FR-006**: System MUST support re-running the deployment command on an existing environment without corrupting existing data
+- **FR-007**: System MUST detect missing required configuration files, generate a template file with placeholder fields, and pause with clear instructions for the user to complete it before proceeding
+- **FR-008**: System MUST display real-time progress for each deployment step so the user can follow the current stage and overall completion status
+- **FR-009**: System MUST detect port conflicts and dynamically allocate an available alternative port, surfacing the chosen port to the user in the progress output
 
 ### Key Entities *(include if feature involves data)*
 
@@ -84,6 +88,15 @@
 - **SC-002**: The one-click deployment command succeeds from start to finish in at least 90% of attempts on a clean, standard environment
 - **SC-003**: When deployment fails, the error message enables the developer to identify and fix the issue without reading system internals
 - **SC-004**: Re-deploying after code updates requires executing only the single deployment command, with no manual cleanup steps
+
+## Clarifications
+
+### Session 2026-04-07
+
+- **Q1**: 一键部署的"单一命令"应该采用什么主要实现形式？ → **A**: Python CLI 脚本（如 `python deploy.py`）
+- **Q2**: 当部署环境缺少必要的配置文件（如 `.env`）时，Python CLI 脚本应如何处理？ → **A**: 自动生成带空占位符的模板配置文件，随后暂停并提示用户填写后继续
+- **Q3**: 当服务监听端口已被其他进程占用时，部署脚本应如何处理？ → **A**: 脚本自动检测端口冲突，动态分配一个可用端口并在输出中明确告知用户
+- **Q4**: 部署脚本在正常执行过程中，应以什么样的输出方式与用户交互？ → **A**: 脚本输出每个步骤的执行状态和进度，让用户了解当前所处阶段
 
 ## Assumptions
 

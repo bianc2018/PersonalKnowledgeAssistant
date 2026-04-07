@@ -116,6 +116,18 @@ async def list_knowledge(
         await db.close()
 
 
+@router.get("/tags", response_model=TagListResponse)
+async def get_tags(
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+):
+    db = await get_db()
+    try:
+        tags = await service.list_tags(db)
+        return TagListResponse(data=tags)
+    finally:
+        await db.close()
+
+
 @router.get("/{item_id}", response_model=ApiResponse)
 async def get_knowledge(
     item_id: str,
@@ -174,17 +186,5 @@ async def evaluate_confidence_endpoint(
         if not ok:
             raise HTTPException(status_code=404, detail="Knowledge not found")
         return ApiResponse(data={"task_status": "queued", "message": "置信度评估任务已提交"})
-    finally:
-        await db.close()
-
-
-@router.get("/tags", response_model=TagListResponse)
-async def get_tags(
-    user: Annotated[CurrentUser, Depends(get_current_user)],
-):
-    db = await get_db()
-    try:
-        tags = await service.list_tags(db)
-        return TagListResponse(data=tags)
     finally:
         await db.close()

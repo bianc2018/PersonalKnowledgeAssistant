@@ -282,12 +282,14 @@ async def save_report_to_knowledge(task_id: str) -> str | None:
     db = await get_db()
     try:
         async with db.execute(
-            "SELECT topic FROM research_tasks WHERE id = ?", (task_id,)
+            "SELECT topic, status FROM research_tasks WHERE id = ?", (task_id,)
         ) as cursor:
             row = await cursor.fetchone()
         if not row:
             return None
-        topic = row[0]
+        topic, status = row[0], row[1]
+        if status != "completed":
+            return None
 
         async with db.execute(
             "SELECT title, content FROM research_sections WHERE task_id = ? ORDER BY order_index",

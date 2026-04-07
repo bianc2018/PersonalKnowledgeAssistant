@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.12, pytest-9.0.2, pluggy-1.6.0 -- /home/myhql/code/PersonalKnowledgeAssistant/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/myhql/code/PersonalKnowledgeAssistant
+configfile: pytest.ini
+plugins: anyio-4.13.0, respx-0.22.0, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/unit/test_deploy.py::TestCheckPythonVersion::test_current_python_passes PASSED [  9%]
+tests/unit/test_deploy.py::TestCheckPythonVersion::test_old_python_fails PASSED [ 18%]
+tests/unit/test_deploy.py::TestCheckPythonVersion::test_python_311_passes PASSED [ 27%]
+tests/unit/test_deploy.py::TestCheckPipAvailable::test_pip_available PASSED [ 36%]
+tests/unit/test_deploy.py::TestCheckPipAvailable::test_pip_missing PASSED [ 45%]
+tests/unit/test_deploy.py::TestFindAvailablePort::test_finds_default_port_when_free PASSED [ 54%]
+tests/unit/test_deploy.py::TestFindAvailablePort::test_finds_next_port_when_8000_occupied PASSED [ 63%]
+tests/unit/test_deploy.py::TestFindAvailablePort::test_exhausts_ports_raises PASSED [ 72%]
+tests/unit/test_deploy.py::TestEnsureEnvFile::test_missing_env_generates_template PASSED [ 81%]
+tests/unit/test_deploy.py::TestEnsureEnvFile::test_existing_env_skips PASSED [ 90%]
+tests/unit/test_deploy.py::TestIsServiceRunning::test_service_detected PASSED [100%]
+
+============================== 11 passed in 0.02s ==============================

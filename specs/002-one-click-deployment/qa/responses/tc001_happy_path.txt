@@ -1,0 +1,41 @@
+INFO:     Started server process [190961]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [190961]
+[1/5] 检查环境 ................................ [OK]
+[2/5] 安装依赖 ................................ [OK]
+[3/5] 检查配置 ................................ [OK]
+[4/5] 检查端口与进程冲突 ........................... [OK]
+[5/5] 启动服务 ................................ [OK]
+
+服务已启动，访问地址: http://127.0.0.1:8000
+按 Ctrl+C 停止服务
+
+Traceback (most recent call last):
+  File "/home/myhql/code/PersonalKnowledgeAssistant/deploy.py", line 320, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/myhql/code/PersonalKnowledgeAssistant/deploy.py", line 296, in main
+    return start_service(config, actual_port)
+  File "/home/myhql/code/PersonalKnowledgeAssistant/deploy.py", line 249, in start_service
+    result = subprocess.run(cmd)
+  File "/home/myhql/.local/share/uv/python/cpython-3.13.12-linux-x86_64-gnu/lib/python3.13/subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/myhql/.local/share/uv/python/cpython-3.13.12-linux-x86_64-gnu/lib/python3.13/subprocess.py", line 1214, in communicate
+    self.wait()
+    ~~~~~~~~~^^
+  File "/home/myhql/.local/share/uv/python/cpython-3.13.12-linux-x86_64-gnu/lib/python3.13/subprocess.py", line 1280, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/myhql/.local/share/uv/python/cpython-3.13.12-linux-x86_64-gnu/lib/python3.13/subprocess.py", line 2085, in _wait
+    (pid, sts) = self._try_wait(0)
+                 ~~~~~~~~~~~~~~^^^
+  File "/home/myhql/.local/share/uv/python/cpython-3.13.12-linux-x86_64-gnu/lib/python3.13/subprocess.py", line 2043, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

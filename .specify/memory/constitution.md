@@ -1,18 +1,17 @@
 <!--
 Sync Impact Report
-Version change: 0.0.0 → 1.0.0
-- Initial ratification from template. All placeholders replaced.
-- Principles added:
-  - 1. 语言统一 (Language Unity)
-  - 2. 规划优先 (Plan Before Code)
-  - 3. 简洁设计 (Simplicity by Design)
-  - 4. Git 纪律 (Git Discipline)
-  - 5. 复用优先 (Reuse Over Reinvention)
-- Sections added: 安全与质量, 开发工作流, Governance
+Versions:
+- 0.0.0 → 1.0.0: Initial ratification from template. All placeholders replaced.
+  - Principles added: 1-5
+  - Sections added: 安全与质量, 开发工作流, Governance
+- 1.0.0 → 1.1.0: Added post-retro learnings from 002-one-click-deployment.
+  - Principles added:
+    - 6. 契约优先于实现 (Contract Over Code)
+    - 7. 系统级探测需要双重验证 (Verify System Assertions Twice)
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md (Constitution Check aligned with actual principles)
-  - ✅ .specify/templates/spec-template.md (no changes required — already aligned with independent testability)
-  - ✅ .specify/templates/tasks-template.md (no changes required — already aligned with story-driven organization)
+  - ✅ .specify/templates/spec-template.md (no changes required)
+  - ✅ .specify/templates/tasks-template.md (no changes required)
 - Follow-up TODOs: none
 -->
 
@@ -69,6 +68,29 @@ speckit 驱动的工作流完整性。
 **Rationale**: 成熟的工具和库经过广泛测试，能够节省开发时间
 并减少潜在缺陷。对依赖的审慎评估可防止项目陷入"依赖地狱"。
 
+### 6. 契约优先于实现 (Contract Over Code)
+
+当代码实现与已发布的契约（contract）发生冲突时，MUST 优先修正代码。
+若因技术限制必须修改契约，MUST 同步更新所有关联文档（spec、plan、
+contract、quickstart），并在变更中记录明确的理由。
+
+**Rationale**: 契约是各阶段协作的一致基准。事后修改契约而不追溯文档
+会造成不同角色对行为的预期脱节，增加 QA 和集成阶段的返工成本。
+_Learned from: 002-one-click-deployment 中 host 参数与 contracts/cli-contract.md
+不一致，导致 QA 返工。_
+
+### 7. 系统级探测需要双重验证 (Verify System Assertions Twice)
+
+任何涉及进程、端口、文件锁、网络状态等系统级探测的实现，MUST 同时为
+"正向场景"（存在/成功）和"负向场景"（不存在/失败）提供验证策略，
+禁止以过度简化的代理指标替代真实状态检测。
+
+**Rationale**: 系统环境具有不确定性和并发性，单一维度的检测（如仅检查
+端口占用）容易误判真实状态。双向验证能够覆盖边界情况，降低生产环境
+中的隐蔽缺陷。
+_Learned from: 002-one-click-deployment 的 FR-010 最初仅检测端口占用，
+未正确识别同应用多实例启动的风险。_
+
 ## 安全与质量 (Security and Quality)
 
 - **输入验证**: 所有来自外部的输入（用户请求、配置文件、API 响应）
@@ -101,4 +123,4 @@ speckit 驱动的工作流完整性。
 4. **运行指导**: 日常开发参考 `.specify/templates/plan-template.md` 中的
    Constitution Check 条款及本仓库的 `CLAUDE.md`。
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-04 | **Last Amended**: 2026-04-04
+**Version**: 1.1.0 | **Ratified**: 2026-04-04 | **Last Amended**: 2026-04-07

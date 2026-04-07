@@ -42,6 +42,20 @@
       },
       "registered_skills": [],
       "installed_at": "2026-04-07T13:40:13.921560+00:00"
+    },
+    "retro": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:f27959726b2bb9b5257b8a164f0096e94c03c443b2e99ccde14af220f9781457",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.retro.run"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-04-07T13:45:30.911931+00:00"
     }
   }
 }

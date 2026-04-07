@@ -1,5 +1,24 @@
 # Changelog
 
+## [Retrospective & Constitution Update] - 2026-04-07
+
+### Added
+- 生成 `002-one-click-deployment` 的 retrospective 报告，记录功能周期指标、spec 准确率、plan 有效性、实现质量
+- 在项目章程 `constitution.md` 中新增两条原则：
+  - 契约优先于实现 (Contract Over Code)
+  - 系统级探测需要双重验证 (Verify System Assertions Twice)
+- 安装 speckit retro 扩展及配套技能定义
+
+### Changed
+- 项目章程版本从 1.0.0 更新至 1.1.0
+
+### Fixed
+- 无
+
+### Technical Notes
+- retrospective 报告位于 `specs/002-one-click-deployment/retros/retro-20260407.md`
+- 两条新原则均来自 002-one-click-deployment 开发周期的实际经验教训
+
 ## [一键部署功能] - 2026-04-07
 
 ### Added

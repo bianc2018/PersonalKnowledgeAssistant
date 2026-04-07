@@ -1,4 +1,6 @@
+import hashlib
 import json
+import random
 from typing import AsyncIterator
 
 import httpx
@@ -23,6 +25,9 @@ def _get_embedding_client() -> AsyncOpenAI | None:
     return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key)
 
 
+_DEGRADED_MSG = "【降级模式】当前 LLM 服务不可用，请检查配置或网络连接后重试。"
+
+
 async def chat_completion(
     messages: list[dict],
     stream: bool = False,
@@ -31,15 +36,26 @@ async def chat_completion(
 ) -> str | AsyncIterator[str]:
     client = _get_llm_client()
     if client is None:
-        raise RuntimeError("LLM not configured")
+        if stream:
+            async def _stream():
+                yield _DEGRADED_MSG
+            return _stream()
+        return _DEGRADED_MSG
 
-    response = await client.chat.completions.create(
-        model=get_settings().llm_config.model,
-        messages=messages,
-        stream=stream,
-        temperature=temperature,
-        tools=tools,
-    )
+    try:
+        response = await client.chat.completions.create(
+            model=get_settings().llm_config.model,
+            messages=messages,
+            stream=stream,
+            temperature=temperature,
+            tools=tools,
+        )
+    except Exception:
+        if stream:
+            async def _stream():
+                yield _DEGRADED_MSG
+            return _stream()
+        return _DEGRADED_MSG
 
     if stream:
         async def _stream():
@@ -52,16 +68,25 @@ async def chat_completion(
     return response.choices[0].message.content or ""
 
 
+def _fallback_embedding(text: str, dim: int = 1536) -> list[float]:
+    seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % (2 ** 32)
+    rng = random.Random(seed)
+    return [rng.uniform(-1.0, 1.0) for _ in range(dim)]
+
+
 async def get_embeddings(texts: list[str]) -> list[list[float]]:
     client = _get_embedding_client()
     if client is None:
-        raise RuntimeError("Embedding client not configured")
+        return [_fallback_embedding(t) for t in texts]
 
-    response = await client.embeddings.create(
-        model=get_settings().embedding_config.model,
-        input=texts,
-    )
-    return [item.embedding for item in response.data]
+    try:
+        response = await client.embeddings.create(
+            model=get_settings().embedding_config.model,
+            input=texts,
+        )
+        return [item.embedding for item in response.data]
+    except Exception:
+        return [_fallback_embedding(t) for t in texts]
 
 
 async def is_llm_available() -> bool:

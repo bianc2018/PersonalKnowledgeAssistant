@@ -36,24 +36,27 @@ async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aios
         async with conn.executescript(schema_path.read_text("utf-8")):
             pass
 
-    # Create sqlite-vec virtual table for embeddings
+    # Recreate virtual tables if schema changed (safe for MVP lifecycle)
+    await conn.execute("DROP TABLE IF EXISTS vec_chunks")
+    await conn.execute("DROP TABLE IF EXISTS vec_chunks_fts")
+    await conn.execute("DROP TABLE IF EXISTS embedding_chunks_fts")
+
+    # Create sqlite-vec virtual table for embeddings only
     await conn.execute(
         f"""
         CREATE VIRTUAL TABLE IF NOT EXISTS vec_chunks USING vec0(
             chunk_id TEXT PRIMARY KEY,
-            version_id TEXT,
-            chunk_text TEXT,
             embedding FLOAT[{embedding_dim}]
         )
         """
     )
 
-    # Create FTS5 virtual table for chunk text search
+    # Create FTS5 virtual table backed by embedding_chunks
     await conn.execute(
         """
-        CREATE VIRTUAL TABLE IF NOT EXISTS vec_chunks_fts USING fts5(
+        CREATE VIRTUAL TABLE IF NOT EXISTS embedding_chunks_fts USING fts5(
             chunk_text,
-            content='',
+            content='embedding_chunks',
             content_rowid='rowid'
         )
         """

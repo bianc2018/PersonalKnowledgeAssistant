@@ -163,6 +163,21 @@ async def delete_knowledge(
         await db.close()
 
 
+@router.post("/{item_id}/evaluate-confidence", response_model=ApiResponse, status_code=status.HTTP_202_ACCEPTED)
+async def evaluate_confidence_endpoint(
+    item_id: str,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+):
+    db = await get_db()
+    try:
+        ok = await service.trigger_manual_evaluation(db, item_id)
+        if not ok:
+            raise HTTPException(status_code=404, detail="Knowledge not found")
+        return ApiResponse(data={"task_status": "queued", "message": "置信度评估任务已提交"})
+    finally:
+        await db.close()
+
+
 @router.get("/tags/all", response_model=TagListResponse)
 async def get_tags(
     user: Annotated[CurrentUser, Depends(get_current_user)],

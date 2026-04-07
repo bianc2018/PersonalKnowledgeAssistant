@@ -1,11 +1,14 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, Field
+from typing import Annotated
 
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile, status
+from pydantic import BaseModel, Field
 from src.auth.crypto import hash_password, generate_salt
+from src.auth.dependencies import CurrentUser, get_current_user
 from src.config import get_settings
 from src.db.connection import get_db
+from src.system import service as system_service
 
 router = APIRouter(prefix="/api/system", tags=["system"])
 
@@ -16,6 +19,20 @@ class InitRequest(BaseModel):
 
 class InitResponse(BaseModel):
     message: str
+
+
+class ConfigPutRequest(BaseModel):
+    llm_config: dict | None = None
+    embedding_config: dict | None = None
+    search_config: dict | None = None
+    privacy_settings: dict | None = None
+    retry_settings: dict | None = None
+    storage_settings: dict | None = None
+    log_settings: dict | None = None
+
+
+class PasswordRequest(BaseModel):
+    password: str
 
 
 class StatusResponse(BaseModel):
@@ -135,5 +152,86 @@ async def system_status():
             knowledge_count=knowledge_count,
             storage_used_bytes=storage_used,
         )
+    finally:
+        await db.close()
+
+
+@router.get("/config")
+async def get_config(
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        cfg = await system_service.load_config(db)
+        # Mask api keys
+        for key in ("llm_config", "embedding_config", "search_config"):
+            if key in cfg and cfg[key] and isinstance(cfg[key], dict) and cfg[key].get("api_key"):
+                cfg[key]["api_key"] = cfg[key]["api_key"][:4] + "****"
+        return {"data": cfg}
+    finally:
+        await db.close()
+
+
+@router.put("/config")
+async def put_config(
+    body: ConfigPutRequest,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        updates = {k: v for k, v in body.model_dump().items() if v is not None}
+        cfg = await system_service.update_config(db, updates)
+        return {"data": cfg}
+    finally:
+        await db.close()
+
+
+@router.post("/export")
+async def export_system(
+    body: PasswordRequest,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        data = await system_service.export_backup(db, body.password)
+        return Response(
+            content=data,
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": 'attachment; filename="backup.zip.enc"'},
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        await db.close()
+
+
+@router.post("/import")
+async def import_system(
+    file: Annotated[UploadFile, File()],
+    password: Annotated[str, Form()] = "",
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    file_bytes = await file.read()
+    db = await get_db()
+    try:
+        result = await system_service.import_backup(db, file_bytes, password)
+        return {"data": result}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        await db.close()
+
+
+@router.post("/reset")
+async def reset_system(
+    body: PasswordRequest,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        await system_service.reset_system(db, body.password)
+        return {"data": {"message": "系统已重置。所有本地加密数据已清除，请重新初始化并导入备份。"}}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
         await db.close()

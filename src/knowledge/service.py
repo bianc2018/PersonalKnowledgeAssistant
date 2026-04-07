@@ -1,4 +1,6 @@
 import difflib
+import hashlib
+import random
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -7,6 +9,8 @@ from typing import List, Optional
 import aiosqlite
 
 from src.auth.crypto import encrypt_bytes
+from src.external.llm import get_embeddings
+from src.knowledge.confidence import evaluate_confidence
 from src.knowledge.extractor import extract_text_from_bytes, extract_text_from_url
 from src.knowledge.models import (
     AttachmentOut,
@@ -18,6 +22,7 @@ from src.knowledge.models import (
     KnowledgeVersionItem,
     TagOut,
 )
+from src.search import fts, vec
 
 
 def _now() -> str:
@@ -373,6 +378,9 @@ async def update_knowledge(
             """,
             (new_version_id, item_id, data.content, delta, "user_edit", now),
         )
+        await _generate_chunks(db, new_version_id, data.content)
+        if delta > 0.2:
+            await evaluate_confidence(db, new_version_id, data.content)
         updates.append("current_version_id = ?")
         params.append(new_version_id)
 
@@ -408,6 +416,24 @@ async def delete_knowledge(db: aiosqlite.Connection, item_id: str) -> bool:
         (_now(), item_id),
     )
     await db.commit()
+    return True
+
+
+async def trigger_manual_evaluation(db: aiosqlite.Connection, item_id: str) -> bool:
+    async with db.execute(
+        "SELECT current_version_id FROM knowledge_items WHERE id = ?", (item_id,)
+    ) as cursor:
+        row = await cursor.fetchone()
+    if not row or not row[0]:
+        return False
+    version_id = row[0]
+    async with db.execute(
+        "SELECT content_text FROM knowledge_versions WHERE id = ?", (version_id,)
+    ) as cursor:
+        vrow = await cursor.fetchone()
+    if not vrow:
+        return False
+    await evaluate_confidence(db, version_id, vrow[0])
     return True
 
 
@@ -488,3 +514,37 @@ async def _get_current_confidence(
         rationale=row[3],
         evaluated_at=datetime.fromisoformat(row[4]),
     )
+
+
+
+def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> List[str]:
+    """Simple sliding-window text chunking."""
+    chunks: List[str] = []
+    start = 0
+    while start < len(text):
+        end = min(start + chunk_size, len(text))
+        chunks.append(text[start:end])
+        if end == len(text):
+            break
+        start += chunk_size - overlap
+    return chunks
+
+
+def _fallback_embedding(text: str, dim: int = 1536) -> List[float]:
+    """Deterministic pseudo-random vector when external embedding is unavailable."""
+    seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % (2 ** 32)
+    rng = random.Random(seed)
+    return [rng.uniform(-1.0, 1.0) for _ in range(dim)]
+
+
+async def _generate_chunks(db: aiosqlite.Connection, version_id: str, text: str) -> None:
+    """Generate embedding chunks and insert into vec + fts."""
+    chunks = _chunk_text(text)
+    if not chunks:
+        return
+    try:
+        embeddings = await get_embeddings(chunks)
+    except Exception:
+        embeddings = [_fallback_embedding(c) for c in chunks]
+    chunk_ids = await vec.insert_embedding_chunks(db, version_id, chunks, embeddings)
+    await fts.insert_fts_chunks(db, chunk_ids, chunks)

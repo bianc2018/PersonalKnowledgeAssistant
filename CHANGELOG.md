@@ -1,5 +1,23 @@
 # Changelog
 
+## [AI 知识管理助手] - 2026-04-07
+
+### Added
+- 补充 `001-ai-knowledge-assistant` 完整 QA 自动化测试报告（`qa-2026-04-07.md`）
+- 添加扩展 QA 测试脚本 `extended_qa_tests.py`，覆盖 22 个 API 层测试场景
+- 添加测试响应快照（`responses/`），为知识管理、对话查询、调研任务、置信度评估提供可复现证据
+
+### Changed
+- 无
+
+### Fixed
+- 无
+
+### Technical Notes
+- 核心功能实现代码已在此前合并至 main；本条目对应 QA 测试 artifacts 的补充提交
+- 14 项集成测试全部通过，11 项扩展 QA 测试通过、1 项跳过（ASGI transport SSE 流读取限制）
+- 因测试环境未配置外部 LLM，RAG 引用准确性、调研报告质量、置信度评分等 LLM 依赖场景需在配置真实端点后补充验证
+
 ## [Retrospective & Constitution Update] - 2026-04-07
 
 ### Added

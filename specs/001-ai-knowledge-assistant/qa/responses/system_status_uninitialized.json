@@ -1,0 +1,9 @@
+{
+  "initialized": false,
+  "version": "0.1.0",
+  "llm_connected": false,
+  "search_source_available": null,
+  "embedding_available": false,
+  "knowledge_count": 0,
+  "storage_used_bytes": 0
+}

@@ -19,7 +19,7 @@
 
 **Purpose**: Review existing project structure and confirm no structural changes are needed
 
-- [ ] T001 [P] Verify existing project structure matches plan.md (`src/`, `tests/`, `requirements.txt`, `.env` if present)
+- [x] T001 [P] Verify existing project structure matches plan.md (`src/`, `tests/`, `requirements.txt`, `.env` if present)
 
 ---
 
@@ -29,8 +29,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Create `deploy.py` skeleton at repository root with step runner, progress formatter (`[N/5] ... [STATUS]`), and main flow orchestration
-- [ ] T003 Define `DeploymentConfig` dataclass and step execution utilities inside `deploy.py`
+- [x] T002 Create `deploy.py` skeleton at repository root with step runner, progress formatter (`[N/5] ... [STATUS]`), and main flow orchestration
+- [x] T003 Define `DeploymentConfig` dataclass and step execution utilities inside `deploy.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -44,14 +44,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [P] [US1] Implement `check_python_version()` in `deploy.py` (requires >= 3.11, prints actionable error on failure)
-- [ ] T005 [P] [US1] Implement `check_pip_available()` in `deploy.py` (tries `python -m pip`, prints actionable error on failure)
-- [ ] T006 [US1] Implement `install_dependencies()` in `deploy.py` (runs `pip install -r requirements.txt`, retries up to 3 times with 2s delay, prints last error)
-- [ ] T007 [US1] Implement `ensure_env_file()` in `deploy.py` (generates `.env` template matching `src/config.py` fields if missing, then pauses with clear instructions)
-- [ ] T008 [US1] Implement `find_available_port()` in `deploy.py` (probes 8000, 8001, 8002... using `socket.bind`, returns first available port)
-- [ ] T009 [US1] Implement `start_service()` in `deploy.py` (foreground `subprocess.run` launching `uvicorn src.main:app --host 127.0.0.1 --port <port>`)
-- [ ] T010 [P] [US1] Add `ensure_directories()` in `deploy.py` (creates `data/` and `logs/` if missing)
-- [ ] T011 [US1] Wire US1 steps into `deploy.py` main flow with progress output and final URL message
+- [x] T004 [P] [US1] Implement `check_python_version()` in `deploy.py` (requires >= 3.11, prints actionable error on failure)
+- [x] T005 [P] [US1] Implement `check_pip_available()` in `deploy.py` (tries `python -m pip`, prints actionable error on failure)
+- [x] T006 [US1] Implement `install_dependencies()` in `deploy.py` (runs `pip install -r requirements.txt`, retries up to 3 times with 2s delay, prints last error)
+- [x] T007 [US1] Implement `ensure_env_file()` in `deploy.py` (generates `.env` template matching `src/config.py` fields if missing, then pauses with clear instructions)
+- [x] T008 [US1] Implement `find_available_port()` in `deploy.py` (probes 8000, 8001, 8002... using `socket.bind`, returns first available port)
+- [x] T009 [US1] Implement `start_service()` in `deploy.py` (foreground `subprocess.run` launching `uvicorn src.main:app --host 127.0.0.1 --port <port>`)
+- [x] T010 [P] [US1] Add `ensure_directories()` in `deploy.py` (creates `data/` and `logs/` if missing)
+- [x] T011 [US1] Wire US1 steps into `deploy.py` main flow with progress output and final URL message
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -65,8 +65,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Implement `is_service_running()` in `deploy.py` (detects if the application is already listening on the target port using `socket.connect` or process probes)
-- [ ] T013 [US2] Wire re-deployment guard into `deploy.py` main flow: if `is_service_running()` returns true, print error and exit without corrupting data
+- [x] T012 [US2] Implement `is_service_running()` in `deploy.py` (detects if the application is already listening on the target port using `socket.connect` or process probes)
+- [x] T013 [US2] Wire re-deployment guard into `deploy.py` main flow: if `is_service_running()` returns true, print error and exit without corrupting data
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -80,8 +80,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Implement `format_error()` in `deploy.py` with actionable suggestions for each failure category (Python version, pip missing, network failure, config missing, port conflict, process conflict)
-- [ ] T015 [US3] Add per-step error context in `deploy.py` so that any step failure prints: the step name, the root cause, and a concrete fix suggestion matching `contracts/cli-contract.md`
+- [x] T014 [US3] Implement `format_error()` in `deploy.py` with actionable suggestions for each failure category (Python version, pip missing, network failure, config missing, port conflict, process conflict)
+- [x] T015 [US3] Add per-step error context in `deploy.py` so that any step failure prints: the step name, the root cause, and a concrete fix suggestion matching `contracts/cli-contract.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -91,10 +91,10 @@
 
 **Purpose**: Testing, documentation, and cross-cutting reliability improvements
 
-- [ ] T016 [P] Add unit tests for `check_python_version`, `check_pip_available`, `find_available_port`, and `ensure_env_file` in `tests/unit/test_deploy.py`
-- [ ] T017 Add end-to-end validation script for `deploy.py` in `tests/integration/test_deploy_e2e.py` (uses subprocess to verify happy path and guarded re-deploy)
-- [ ] T018 Run quickstart.md validation: execute each scenario in a clean environment and fix discrepancies
-- [ ] T019 Review `deploy.py` against `contracts/cli-contract.md` and fix any output format or exit code mismatches
+- [x] T016 [P] Add unit tests for `check_python_version`, `check_pip_available`, `find_available_port`, and `ensure_env_file` in `tests/unit/test_deploy.py`
+- [x] T017 Add end-to-end validation script for `deploy.py` in `tests/integration/test_deploy_e2e.py` (uses subprocess to verify happy path and guarded re-deploy)
+- [x] T018 Run quickstart.md validation: execute each scenario in a clean environment and fix discrepancies
+- [x] T019 Review `deploy.py` against `contracts/cli-contract.md` and fix any output format or exit code mismatches
 
 ---
 

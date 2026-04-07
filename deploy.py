@@ -221,7 +221,7 @@ def start_service(config: DeploymentConfig, port: int) -> int:
         "uvicorn",
         "src.main:app",
         "--host",
-        "127.0.0.1",
+        "0.0.0.0",
         "--port",
         str(port),
     ]

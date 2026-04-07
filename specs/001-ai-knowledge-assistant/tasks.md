@@ -19,9 +19,9 @@
 
 **Purpose**: 项目初始化与基础目录结构
 
-- [ ] T001 创建项目目录结构：按 plan.md 建立 `src/` 下 `auth/`、`knowledge/`、`chat/`、`research/`、`profile/`、`db/`、`search/`、`external/`、`tasks/` 及 `tests/`
-- [ ] T002 创建 `requirements.txt` 并安装依赖：FastAPI、uvicorn、sqlite-vec、aiosqlite、httpx、pydantic-settings、cryptography、argon2-cffi、pytest、pytest-asyncio
-- [ ] T003 [P] 配置 pytest 异步测试环境：创建 `tests/conftest.py` 并配置内存数据库 fixture
+- [x] T001 创建项目目录结构：按 plan.md 建立 `src/` 下 `auth/`、`knowledge/`、`chat/`、`research/`、`profile/`、`db/`、`search/`、`external/`、`tasks/` 及 `tests/`
+- [x] T002 创建 `requirements.txt` 并安装依赖：FastAPI、uvicorn、sqlite-vec、aiosqlite、httpx、pydantic-settings、cryptography、argon2-cffi、pytest、pytest-asyncio
+- [x] T003 [P] 配置 pytest 异步测试环境：创建 `tests/conftest.py` 并配置内存数据库 fixture
 
 ---
 
@@ -31,14 +31,14 @@
 
 **⚠️ CRITICAL**: 基础层未完成前，禁止开始任何用户故事实现
 
-- [ ] T004 创建完整数据库 Schema：在 `src/db/schema.sql` 中定义所有实体表（KnowledgeItem、KnowledgeVersion、Attachment、Tag、TagLink、EmbeddingChunk、ConfidenceEvaluation、Conversation、Message、MessageCitation、UserProfile、ResearchTask、ResearchSection、ResearchCitation、SystemConfig）及 sqlite-vec / FTS5 虚拟表
-- [ ] T005 [P] 实现 aiosqlite 连接管理：在 `src/db/connection.py` 中封装连接获取、加载 sqlite-vec 扩展、Schema 自动初始化
-- [ ] T006 [P] 实现配置模型：在 `src/config.py` 中使用 Pydantic Settings 定义 LLM、Embedding、搜索、隐私策略、重试、存储、日志配置
-- [ ] T007 [P] 实现加密与密钥派生：在 `src/auth/crypto.py` 中实现 Argon2id 密码派生和 AES-256-GCM 文件加解密
-- [ ] T008 [P] 实现 JWT 鉴权依赖：在 `src/auth/dependencies.py` 中实现 `get_current_user` 依赖与 Token 校验
-- [ ] T009 实现认证路由：在 `src/auth/router.py` 中实现 `POST /api/auth/login`（含 24h / 7 天 Token 切换）
-- [ ] T010 [P] 实现外部请求重试模块：在 `src/external/retry.py` 中实现指数退避（最多 3 次、1s→2s→4s）与超时配置
-- [ ] T011 [P] 实现 LLM API 客户端：在 `src/external/llm.py` 中封装兼容 OpenAI API 的聊天与 Embedding 调用，支持流式响应
+- [x] T004 创建完整数据库 Schema：在 `src/db/schema.sql` 中定义所有实体表（KnowledgeItem、KnowledgeVersion、Attachment、Tag、TagLink、EmbeddingChunk、ConfidenceEvaluation、Conversation、Message、MessageCitation、UserProfile、ResearchTask、ResearchSection、ResearchCitation、SystemConfig）及 sqlite-vec / FTS5 虚拟表
+- [x] T005 [P] 实现 aiosqlite 连接管理：在 `src/db/connection.py` 中封装连接获取、加载 sqlite-vec 扩展、Schema 自动初始化
+- [x] T006 [P] 实现配置模型：在 `src/config.py` 中使用 Pydantic Settings 定义 LLM、Embedding、搜索、隐私策略、重试、存储、日志配置
+- [x] T007 [P] 实现加密与密钥派生：在 `src/auth/crypto.py` 中实现 Argon2id 密码派生和 AES-256-GCM 文件加解密
+- [x] T008 [P] 实现 JWT 鉴权依赖：在 `src/auth/dependencies.py` 中实现 `get_current_user` 依赖与 Token 校验
+- [x] T009 实现认证路由：在 `src/auth/router.py` 中实现 `POST /api/auth/login`（含 24h / 7 天 Token 切换）
+- [x] T010 [P] 实现外部请求重试模块：在 `src/external/retry.py` 中实现指数退避（最多 3 次、1s→2s→4s）与超时配置
+- [x] T011 [P] 实现 LLM API 客户端：在 `src/external/llm.py` 中封装兼容 OpenAI API 的聊天与 Embedding 调用，支持流式响应
 
 **Checkpoint**: 应用可启动，数据库可连接，鉴权链路可跑通
 
@@ -52,10 +52,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] 创建 knowledge Pydantic 模型：在 `src/knowledge/models.py` 中定义请求/响应模型（知识创建、更新、列表、详情、标签）
-- [ ] T013 [P] [US1] 实现多媒体文本提取器：在 `src/knowledge/extractor.py` 中实现文本、PDF、DOCX、HTML 提取，图片 OCR 与音视频转录按最佳 effort 处理并标记失败状态
-- [ ] T014 [US1] 实现知识业务服务层：在 `src/knowledge/service.py` 中实现标签 CRUD、知识条目 CRUD（含版本生成）、软删除、附件加密存储、列表搜索（按关键词/标签）
-- [ ] T015 [US1] 实现知识库路由：在 `src/knowledge/router.py` 中实现 `POST /api/knowledge`、`POST /api/knowledge/upload`、`POST /api/knowledge/url`、`GET /api/knowledge`（搜索列表）、`GET /api/knowledge/{id}`、`PATCH /api/knowledge/{id}`、`DELETE /api/knowledge/{id}`、`GET /api/knowledge/tags`
+- [x] T012 [P] [US1] 创建 knowledge Pydantic 模型：在 `src/knowledge/models.py` 中定义请求/响应模型（知识创建、更新、列表、详情、标签）
+- [x] T013 [P] [US1] 实现多媒体文本提取器：在 `src/knowledge/extractor.py` 中实现文本、PDF、DOCX、HTML 提取，图片 OCR 与音视频转录按最佳 effort 处理并标记失败状态
+- [x] T014 [US1] 实现知识业务服务层：在 `src/knowledge/service.py` 中实现标签 CRUD、知识条目 CRUD（含版本生成）、软删除、附件加密存储、列表搜索（按关键词/标签）
+- [x] T015 [US1] 实现知识库路由：在 `src/knowledge/router.py` 中实现 `POST /api/knowledge`、`POST /api/knowledge/upload`、`POST /api/knowledge/url`、`GET /api/knowledge`（搜索列表）、`GET /api/knowledge/{id}`、`PATCH /api/knowledge/{id}`、`DELETE /api/knowledge/{id}`、`GET /api/knowledge/tags`
 
 **Checkpoint**: US1 独立可用，用户可完成“添加→搜索→查看→删除”闭环
 
@@ -69,12 +69,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] 创建 chat Pydantic 模型：在 `src/chat/models.py` 中定义会话、消息、引用、流式增量响应模型
-- [ ] T017 [P] [US2] 实现 sqlite-vec 向量操作：在 `src/search/vec.py` 中实现 embedding 插入、Top-K 相似度搜索
-- [ ] T018 [P] [US2] 实现 FTS5 全文检索：在 `src/search/fts.py` 中实现文本分片插入、关键词搜索（bm25 排序）
-- [ ] T019 [P] [US2] 实现混合检索排序：在 `src/search/hybrid.py` 中并行召回向量/FTS5 各 Top-15，去重合并后按加权分数取 Top-10
-- [ ] T020 [US2] 实现对话与 RAG 服务层：在 `src/chat/service.py` 中实现会话/消息 CRUD、RAG 上下文组装、LLM 回答生成（含引用解析）、无结果时拒绝回答
-- [ ] T021 [US2] 实现对话路由：在 `src/chat/router.py` 中实现 `GET /api/chat/conversations`、`POST /api/chat/conversations`、`GET /api/chat/conversations/{id}/messages`、`POST /api/chat/conversations/{id}/messages`（含 SSE 流式响应）
+- [x] T016 [P] [US2] 创建 chat Pydantic 模型：在 `src/chat/models.py` 中定义会话、消息、引用、流式增量响应模型
+- [x] T017 [P] [US2] 实现 sqlite-vec 向量操作：在 `src/search/vec.py` 中实现 embedding 插入、Top-K 相似度搜索
+- [x] T018 [P] [US2] 实现 FTS5 全文检索：在 `src/search/fts.py` 中实现文本分片插入、关键词搜索（bm25 排序）
+- [x] T019 [P] [US2] 实现混合检索排序：在 `src/search/hybrid.py` 中并行召回向量/FTS5 各 Top-15，去重合并后按加权分数取 Top-10
+- [x] T020 [US2] 实现对话与 RAG 服务层：在 `src/chat/service.py` 中实现会话/消息 CRUD、RAG 上下文组装、LLM 回答生成（含引用解析）、无结果时拒绝回答
+- [x] T021 [US2] 实现对话路由：在 `src/chat/router.py` 中实现 `GET /api/chat/conversations`、`POST /api/chat/conversations`、`GET /api/chat/conversations/{id}/messages`、`POST /api/chat/conversations/{id}/messages`（含 SSE 流式响应）
 
 **Checkpoint**: US2 独立可用，RAG 查询能正确引用知识库内容
 
@@ -88,12 +88,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] 创建 research Pydantic 模型：在 `src/research/models.py` 中定义任务、章节、引用、决策响应模型
-- [ ] T023 [P] [US3] 实现搜索源适配层：在 `src/external/search.py` 中实现 LLM 自带搜索、独立搜索 API（Tavily/SerpAPI）、HTTP 爬虫三种适配器及优先级回退
-- [ ] T024 [P] [US3] 实现异步任务队列：在 `src/tasks/queue.py` 中实现基于 `asyncio.Queue` 的并发控制、任务状态持久化、`pending_recheck` 自动恢复机制
-- [ ] T025 [P] [US3] 实现调研业务服务层：在 `src/research/service.py` 中实现调研任务 CRUD、进度更新、章节/引用存储、保存到知识库
-- [ ] T026 [US3] 实现调研工作协程：在 `src/research/worker.py` 中实现大纲生成→网络检索→章节撰写→汇总报告流程，支持暂停提问与恢复继续
-- [ ] T027 [US3] 实现调研路由：在 `src/research/router.py` 中实现 `POST /api/research`、`GET /api/research`、`GET /api/research/{id}`、`GET /api/research/{id}/events`（SSE）、`POST /api/research/{id}/respond`、`POST /api/research/{id}/save`
+- [x] T022 [P] [US3] 创建 research Pydantic 模型：在 `src/research/models.py` 中定义任务、章节、引用、决策响应模型
+- [x] T023 [P] [US3] 实现搜索源适配层：在 `src/external/search.py` 中实现 LLM 自带搜索、独立搜索 API（Tavily/SerpAPI）、HTTP 爬虫三种适配器及优先级回退
+- [x] T024 [P] [US3] 实现异步任务队列：在 `src/tasks/queue.py` 中实现基于 `asyncio.Queue` 的并发控制、任务状态持久化、`pending_recheck` 自动恢复机制
+- [x] T025 [P] [US3] 实现调研业务服务层：在 `src/research/service.py` 中实现调研任务 CRUD、进度更新、章节/引用存储、保存到知识库
+- [x] T026 [US3] 实现调研工作协程：在 `src/research/worker.py` 中实现大纲生成→网络检索→章节撰写→汇总报告流程，支持暂停提问与恢复继续
+- [x] T027 [US3] 实现调研路由：在 `src/research/router.py` 中实现 `POST /api/research`、`GET /api/research`、`GET /api/research/{id}`、`GET /api/research/{id}/events`（SSE）、`POST /api/research/{id}/respond`、`POST /api/research/{id}/save`
 
 **Checkpoint**: US3 独立可用，异步调研全链路跑通，SSE 进度正常，人机决策可恢复
 
@@ -107,9 +107,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T028 [P] [US4] 实现置信度评估服务：在 `src/knowledge/confidence.py` 中实现调用 LLM 进行验证，输出 `score_level`（high/medium/low）、`method`、`rationale`
-- [ ] T029 [US4] 集成自动评估触发：在 `src/knowledge/service.py` 的知识入库/更新逻辑中，当 `content_delta > 0.2` 时自动调用置信度评估
-- [ ] T030 [US4] 添加手动触发端点：在 `src/knowledge/router.py` 中实现 `POST /api/knowledge/{id}/evaluate-confidence`
+- [x] T028 [P] [US4] 实现置信度评估服务：在 `src/knowledge/confidence.py` 中实现调用 LLM 进行验证，输出 `score_level`（high/medium/low）、`method`、`rationale`
+- [x] T029 [US4] 集成自动评估触发：在 `src/knowledge/service.py` 的知识入库/更新逻辑中，当 `content_delta > 0.2` 时自动调用置信度评估
+- [x] T030 [US4] 添加手动触发端点：在 `src/knowledge/router.py` 中实现 `POST /api/knowledge/{id}/evaluate-confidence`
 
 **Checkpoint**: US4 独立可用，自动与手动评估均正常工作，历史版本评估隔离
 
@@ -119,14 +119,14 @@
 
 **Purpose**: 系统级功能完善与跨用户故事增强
 
-- [ ] T031 [P] 创建 profile Pydantic 模型：在 `src/profile/models.py` 中定义 UserProfile 模型
-- [ ] T032 [P] 实现用户画像服务：在 `src/profile/service.py` 中实现基于对话历史提取领域偏好与知识水平，每 5 轮或新领域触发更新
-- [ ] T033 [P] 实现系统路由：在 `src/system/router.py` 中实现 `POST /api/system/init`、`GET /api/system/status`、`GET/PUT /api/system/config`、`POST /api/system/export`、`POST /api/system/import`、`POST /api/system/reset`
-- [ ] T034 [P] 实现系统级业务逻辑：在 `src/system/service.py` 中实现配置读写、ZIP 导出/导入（含 metadata.json、跳过损坏文件、重算向量）、版本保留策略与日志清理
-- [ ] T035 [P] 实现降级与容错逻辑：在 `src/external/llm.py` 和 `src/external/search.py` 中检测外部服务不可用，自动切换本地模型并提示“降级模式”；维护 `pending_recheck` 与恢复重跑
-- [ ] T036 [P] 实现旧媒体归档压缩：在 `src/knowledge/service.py`（或新建 `src/knowledge/archive.py`）中实现超过磁盘阈值时对旧附件自动 gzip 归档
-- [ ] T037 配置日志与全局错误处理：在 `src/main.py` 中配置应用日志、静态文件挂载、全局异常处理器
-- [ ] T038 [P] 运行端到端验证：按 `quickstart.md` 完成安装→启动→添加知识→对话→调研→导出流程，验证 SC-001 ~ SC-005
+- [x] T031 [P] 创建 profile Pydantic 模型：在 `src/profile/models.py` 中定义 UserProfile 模型
+- [x] T032 [P] 实现用户画像服务：在 `src/profile/service.py` 中实现基于对话历史提取领域偏好与知识水平，每 5 轮或新领域触发更新
+- [x] T033 [P] 实现系统路由：在 `src/system/router.py` 中实现 `POST /api/system/init`、`GET /api/system/status`、`GET/PUT /api/system/config`、`POST /api/system/export`、`POST /api/system/import`、`POST /api/system/reset`
+- [x] T034 [P] 实现系统级业务逻辑：在 `src/system/service.py` 中实现配置读写、ZIP 导出/导入（含 metadata.json、跳过损坏文件、重算向量）、版本保留策略与日志清理
+- [x] T035 [P] 实现降级与容错逻辑：在 `src/external/llm.py` 和 `src/external/search.py` 中检测外部服务不可用，自动切换本地模型并提示“降级模式”；维护 `pending_recheck` 与恢复重跑
+- [x] T036 [P] 实现旧媒体归档压缩：在 `src/knowledge/service.py`（或新建 `src/knowledge/archive.py`）中实现超过磁盘阈值时对旧附件自动 gzip 归档
+- [x] T037 配置日志与全局错误处理：在 `src/main.py` 中配置应用日志、静态文件挂载、全局异常处理器
+- [x] T038 [P] 运行端到端验证：按 `quickstart.md` 完成安装→启动→添加知识→对话→调研→导出流程，验证 SC-001 ~ SC-005
 
 ---
 

@@ -38,7 +38,6 @@ async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aios
 
     # Recreate virtual tables if schema changed (safe for MVP lifecycle)
     await conn.execute("DROP TABLE IF EXISTS vec_chunks")
-    await conn.execute("DROP TABLE IF EXISTS vec_chunks_fts")
     await conn.execute("DROP TABLE IF EXISTS embedding_chunks_fts")
 
     # Create sqlite-vec virtual table for embeddings only

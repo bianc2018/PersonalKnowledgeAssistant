@@ -214,6 +214,25 @@ def is_service_running(port: int) -> bool:
     return False
 
 
+def is_app_running() -> bool:
+    """通过扫描 /proc/*/cmdline 检测是否有本应用（uvicorn src.main:app）正在运行。"""
+    try:
+        for proc_dir in Path("/proc").glob("[0-9]*"):
+            cmdline_file = proc_dir / "cmdline"
+            try:
+                cmdline = cmdline_file.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            parts = cmdline.split("\x00")
+            has_uvicorn = any("uvicorn" in part for part in parts)
+            has_app = any("src.main:app" in part for part in parts)
+            if has_uvicorn and has_app:
+                return True
+    except OSError:
+        pass
+    return False
+
+
 def start_service(config: DeploymentConfig, port: int) -> int:
     cmd = [
         config.python_executable,
@@ -221,7 +240,7 @@ def start_service(config: DeploymentConfig, port: int) -> int:
         "uvicorn",
         "src.main:app",
         "--host",
-        "0.0.0.0",
+        "127.0.0.1",
         "--port",
         str(port),
     ]
@@ -238,6 +257,15 @@ def _print_error(error: DeployError) -> None:
 
 
 def main() -> int:
+    if len(sys.argv) > 1:
+        if sys.argv[1] in ("-h", "--help"):
+            print("Usage: python deploy.py")
+            print("\n一键部署脚本：自动完成环境检查、依赖安装、配置检查并启动服务。")
+            return 0
+        print(f"错误: 未识别的参数: {sys.argv[1]}")
+        print("提示: 运行 python deploy.py --help 查看用法")
+        return 1
+
     config = DeploymentConfig()
     total_steps = 5
 
@@ -252,18 +280,17 @@ def main() -> int:
 
         ensure_directories(config)
 
-        actual_port = find_available_port(config.target_port)
+        actual_port = config.target_port
 
-        run_step(
-            4,
-            total_steps,
-            "检查端口与进程冲突",
-            lambda: (
+        def _check_port_and_process() -> None:
+            if is_app_running():
+                _raise_if_app_running()
+            nonlocal actual_port
+            actual_port = find_available_port(config.target_port)
+            if is_service_running(actual_port):
                 _raise_if_running(actual_port)
-                if is_service_running(actual_port)
-                else None
-            ),
-        )
+
+        run_step(4, total_steps, "检查端口与进程冲突", _check_port_and_process)
 
         run_step(5, total_steps, "启动服务", lambda: None)
         return start_service(config, actual_port)
@@ -278,6 +305,14 @@ def _raise_if_running(port: int) -> None:
         step="检查端口与进程冲突",
         reason=f"检测到应用服务已在运行\n端口 {port} 当前被占用。",
         suggestion="请先停止现有进程，然后再次运行 python deploy.py\n提示: 在终端中按下 Ctrl+C 即可停止前台运行的服务",
+    )
+
+
+def _raise_if_app_running() -> None:
+    raise DeployError(
+        step="检查端口与进程冲突",
+        reason="检测到应用服务已在运行。",
+        suggestion="请先停止现有进程，然后再次运行 python deploy.py。\n提示: 在终端中按下 Ctrl+C 即可停止前台运行的服务",
     )
 
 

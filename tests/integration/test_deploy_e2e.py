@@ -77,7 +77,21 @@ class TestDeployGuards:
     @pytest.mark.timeout(30)
     def test_detects_running_service(self, tmp_path, monkeypatch):
         free_port = _find_free_port()
-        blocker = _occupy_port(free_port)
+
+        # 创建最小 FastAPI 应用，使 uvicorn 可以正常启动
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        (src_dir / "main.py").write_text(
+            "from fastapi import FastAPI\napp = FastAPI()\n", encoding="utf-8"
+        )
+
+        # 在后台启动 uvicorn，模拟已有服务实例
+        blocker = subprocess.Popen(
+            [sys.executable, "-m", "uvicorn", "src.main:app", "--host", "127.0.0.1", "--port", str(free_port)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            cwd=str(tmp_path),
+        )
         try:
             deploy_tmp = tmp_path / "deploy.py"
             deploy_tmp.write_text(DEPLOY_PY.read_text(), encoding="utf-8")
@@ -96,6 +110,11 @@ class TestDeployGuards:
 
             assert result.returncode == 1
             combined = result.stdout + result.stderr
-            assert "检测到应用服务已在运行" in combined or "被占用" in combined
+            assert "检测到应用服务已在运行" in combined
         finally:
-            blocker.close()
+            blocker.terminate()
+            try:
+                blocker.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                blocker.kill()
+                blocker.wait()

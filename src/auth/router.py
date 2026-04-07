@@ -22,10 +22,14 @@ class LoginRequest(BaseModel):
     remember_me: bool = False
 
 
-class LoginResponse(BaseModel):
+class LoginData(BaseModel):
     token: str
     token_type: str = "bearer"
     expires_in: int
+
+
+class LoginResponse(BaseModel):
+    data: LoginData
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -62,8 +66,10 @@ async def login(body: LoginRequest):
         cache_master_key(token, master_key)
 
         return LoginResponse(
-            token=token,
-            expires_in=int(expires_delta.total_seconds()),
+            data=LoginData(
+                token=token,
+                expires_in=int(expires_delta.total_seconds()),
+            )
         )
     finally:
         await db.close()

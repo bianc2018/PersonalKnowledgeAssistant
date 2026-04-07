@@ -195,13 +195,23 @@ def find_available_port(start_port: int = 8000, max_attempts: int = 100) -> int:
 
 
 def is_service_running(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(1)
+    """通过 /proc/net/tcp 检测端口是否处于监听状态，避免被 proxychains 等 LD_PRELOAD 代理劫持。"""
+    hex_port = f"{port:04X}"
+    for proc_file in ("/proc/net/tcp", "/proc/net/tcp6"):
         try:
-            sock.connect(("127.0.0.1", port))
-            return True
-        except OSError:
-            return False
+            with open(proc_file, "r", encoding="utf-8") as f:
+                next(f)  # skip header
+                for line in f:
+                    parts = line.strip().split()
+                    if not parts:
+                        continue
+                    local_address = parts[1]
+                    state = parts[3]
+                    if state == "0A" and local_address.endswith(f":{hex_port}"):
+                        return True
+        except (OSError, StopIteration):
+            continue
+    return False
 
 
 def start_service(config: DeploymentConfig, port: int) -> int:

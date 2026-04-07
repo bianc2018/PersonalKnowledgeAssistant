@@ -10,6 +10,7 @@ import aiosqlite
 
 from src.auth.crypto import encrypt_bytes
 from src.external.llm import get_embeddings
+from src.knowledge.archive import archive_old_attachments
 from src.knowledge.confidence import evaluate_confidence
 from src.knowledge.extractor import extract_text_from_bytes, extract_text_from_url
 from src.knowledge.models import (
@@ -204,6 +205,7 @@ async def create_knowledge_upload(
         )
     await _generate_chunks(db, version_id, text)
     await db.commit()
+    await archive_old_attachments(db)
     return item_id
 
 

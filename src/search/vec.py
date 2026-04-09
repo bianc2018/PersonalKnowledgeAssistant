@@ -1,3 +1,4 @@
+import json
 from typing import List, Tuple
 
 import aiosqlite
@@ -25,7 +26,7 @@ async def insert_embedding_chunks(
 
         # Insert into sqlite-vec virtual table
         # sqlite-vec supports JSON array syntax for vectors
-        emb_json = str(embedding).replace("'", "''")
+        emb_json = json.dumps(embedding)
         await db.execute(
             "INSERT INTO vec_chunks (chunk_id, embedding) VALUES (?, ?)",
             (chunk_id, emb_json),
@@ -44,20 +45,20 @@ async def search_similar(
     Distance from vec_distance_l2 is lower = more similar.
     We normalize later in hybrid layer if needed.
     """
-    emb_json = str(embedding).replace("'", "''")
-    query = f"""
+    emb_json = json.dumps(embedding)
+    query = """
         SELECT
             vc.chunk_id,
             ec.version_id,
             ec.chunk_text,
-            vec_distance_l2(vc.embedding, '{emb_json}') as distance
+            vec_distance_l2(vc.embedding, ?) as distance
         FROM vec_chunks vc
         JOIN embedding_chunks ec ON ec.id = vc.chunk_id
         ORDER BY distance
         LIMIT ?
     """
     results: List[Tuple[str, str, str, float]] = []
-    async with db.execute(query, (top_k,)) as cursor:
+    async with db.execute(query, (emb_json, top_k)) as cursor:
         async for row in cursor:
             results.append((row[0], row[1], row[2], float(row[3])))
     return results

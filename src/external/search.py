@@ -6,6 +6,7 @@ import httpx
 from src.config import get_settings
 from src.external.llm import chat_completion
 from src.external.retry import retry_with_backoff
+from src.utils import validate_url
 
 
 async def search_web(query: str) -> List[dict]:
@@ -88,6 +89,10 @@ async def fetch_url(url: str) -> Tuple[str, str | None]:
 
     Returns (text, error).
     """
+    error = validate_url(url)
+    if error:
+        return "", error
+
     settings = get_settings()
 
     async def _call():

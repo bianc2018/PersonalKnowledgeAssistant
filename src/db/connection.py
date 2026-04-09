@@ -36,10 +36,6 @@ async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aios
         async with conn.executescript(schema_path.read_text("utf-8")):
             pass
 
-    # Recreate virtual tables if schema changed (safe for MVP lifecycle)
-    await conn.execute("DROP TABLE IF EXISTS vec_chunks")
-    await conn.execute("DROP TABLE IF EXISTS embedding_chunks_fts")
-
     # Create sqlite-vec virtual table for embeddings only
     await conn.execute(
         f"""

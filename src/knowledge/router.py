@@ -57,7 +57,14 @@ async def upload_knowledge(
     if master_key is None:
         raise HTTPException(status_code=401, detail="Session expired")
 
+    MAX_FILE_SIZE = 1024 * 1024 * 1024  # 1GB
+    if file.size is not None and file.size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="文件大小超过 1GB 限制")
+
     file_bytes = await file.read()
+    if len(file_bytes) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="文件大小超过 1GB 限制")
+
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
     db = await get_db()

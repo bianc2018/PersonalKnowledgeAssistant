@@ -310,7 +310,8 @@ async def stream_message(
     full_text = ""
     async for delta in stream:
         full_text += delta
-        yield f'event: delta\ndata: {{"delta": "{delta}"}}\n\n'
+        payload = json.dumps({"delta": delta}, ensure_ascii=False)
+        yield f"event: delta\ndata: {payload}\n\n"
 
     # After stream ends, parse citations
     used_indices = sorted(

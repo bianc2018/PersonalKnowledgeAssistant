@@ -179,10 +179,17 @@ async def export_backup(db: aiosqlite.Connection, password: str) -> bytes:
     }
 
     zip_buffer = io.BytesIO()
+    files_dir = get_settings().files_dir.resolve()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("metadata.json", json.dumps(metadata, ensure_ascii=False, indent=2))
         for att in attachments:
             path = Path(att["storage_path"])
+            # Prevent path traversal: only include files under files_dir
+            try:
+                if not path.resolve().is_relative_to(files_dir):
+                    continue
+            except Exception:
+                continue
             if path.exists():
                 arcname = path.as_posix()
                 zf.write(path, arcname)
@@ -321,7 +328,13 @@ async def import_backup(
         except Exception:
             pass
 
+    files_dir = get_settings().files_dir
     for att in metadata.get("attachments", []):
+        storage_path = att.get("storage_path", "")
+        # Reject path traversal attempts and absolute paths
+        if ".." in storage_path or Path(storage_path).is_absolute():
+            skipped_files.append(f"{storage_path}: 路径非法")
+            continue
         try:
             await db.execute(
                 """
@@ -338,15 +351,15 @@ async def import_backup(
                     att["item_id"],
                     att["filename"],
                     att["mime_type"],
-                    att["storage_path"],
+                    storage_path,
                     att["size_bytes"],
                     att["extraction_status"],
                     att.get("extraction_error"),
                     att["created_at"],
                 ),
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            skipped_files.append(f"{storage_path}: {exc}")
 
     await db.commit()
 
@@ -416,36 +429,6 @@ async def reset_system(db: aiosqlite.Connection, password: str) -> None:
         files_dir.mkdir(parents=True, exist_ok=True)
 
 
-async def archive_old_attachments() -> int:
-    settings = get_settings()
-    threshold_gb = settings.storage_settings.archive_threshold_gb
-    files_dir = settings.files_dir
-    if not files_dir.exists():
-        return 0
-
-    total_bytes = sum(f.stat().st_size for f in files_dir.rglob("*") if f.is_file())
-    if total_bytes < threshold_gb * 1024 * 1024 * 1024:
-        return 0
-
-    # Gzip oldest 20% of .enc files
-    all_files = sorted(
-        [f for f in files_dir.rglob("*.enc") if f.is_file()],
-        key=lambda p: p.stat().st_mtime,
-    )
-    to_archive = all_files[: max(1, len(all_files) // 5)]
-    archived = 0
-    for f in to_archive:
-        if f.suffix == ".gz":
-            continue
-        gz_path = f.with_suffix(".enc.gz")
-        with open(f, "rb") as src:
-            with gzip.open(gz_path, "wb") as dst:
-                shutil.copyfileobj(src, dst)
-        f.unlink()
-        archived += 1
-    return archived
-
-
 async def cleanup_old_versions(db: aiosqlite.Connection) -> int:
     settings = get_settings()
     policy = settings.storage_settings.version_retention_policy
@@ -479,8 +462,9 @@ async def cleanup_old_versions(db: aiosqlite.Connection) -> int:
     elif ptype == "days":
         cutoff = (datetime.now(timezone.utc) - timedelta(days=value)).isoformat()
         await db.execute("DELETE FROM knowledge_versions WHERE created_at < ?", (cutoff,))
-        # aiosqlite total_changes may wrap across awaits; count deletions separately
-        removed = getattr(db, "_last_row_count", 0)
+        async with db.execute("SELECT changes()") as cursor:
+            row = await cursor.fetchone()
+            removed = row[0] if row else 0
     elif ptype == "gb":
         threshold_bytes = value * 1024 * 1024 * 1024
         async with db.execute(

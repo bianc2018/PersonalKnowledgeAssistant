@@ -11,7 +11,7 @@ phases:
   tasks: completed
   pre_impl_review: skipped
   implement: completed
-  code_review: pending
+  code_review: completed
   verify: completed
   test_plan: completed
   test_run: completed
@@ -97,6 +97,13 @@ gates:
     timestamp: "2026-04-07T00:00:00Z"
     notes: "release-2026-04-07.md 已生成，PR #41 已创建"
     conditions: []
+    sync_result: "clean"
+  - phase: "code_review"
+    decision: "approved"
+    timestamp: "2026-04-09T10:00:00Z"
+    notes: "Phase 6B 代码审查完成；3 CRITICAL / 3 HIGH 已修复，0 阻塞项"
+    conditions:
+      - "MEDIUM/LOW 项作为后续改进跟踪"
     sync_result: "clean"
   - phase: "verify"
     decision: "approved"

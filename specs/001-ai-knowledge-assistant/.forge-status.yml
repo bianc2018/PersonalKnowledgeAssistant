@@ -12,7 +12,7 @@ phases:
   pre_impl_review: skipped
   implement: completed
   code_review: pending
-  verify: in_progress
+  verify: completed
   test_plan: completed
   test_run: completed
   release_readiness: completed
@@ -98,6 +98,12 @@ gates:
     notes: "release-2026-04-07.md 已生成，PR #41 已创建"
     conditions: []
     sync_result: "clean"
+  - phase: "verify"
+    decision: "approved"
+    timestamp: "2026-04-09T00:00:00Z"
+    notes: "Phase 7 重新验证通过；FR-006a、FR-014、FR-016、FR-022 及文档漂移已全部修复"
+    conditions: []
+    sync_result: "clean"
 sync_runs:
   last_run: ""
   total_runs: 0
@@ -105,4 +111,4 @@ sync_runs:
   last_critical_count: 0
   last_verdict: ""
 change_requests: []
-last_updated: "2026-04-09T00:00:00Z"
+last_updated: "2026-04-09T10:00:00Z"

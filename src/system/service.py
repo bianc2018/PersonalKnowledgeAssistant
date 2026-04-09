@@ -5,7 +5,7 @@ import os
 import shutil
 import uuid
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -444,6 +444,69 @@ async def archive_old_attachments() -> int:
         f.unlink()
         archived += 1
     return archived
+
+
+async def cleanup_old_versions(db: aiosqlite.Connection) -> int:
+    settings = get_settings()
+    policy = settings.storage_settings.version_retention_policy
+    if not policy:
+        return 0
+    ptype = policy.get("type")
+    value = policy.get("value")
+    if not ptype or value is None:
+        return 0
+
+    removed = 0
+    if ptype == "count":
+        async with db.execute("SELECT DISTINCT item_id FROM knowledge_versions") as cursor:
+            items = [r[0] async for r in cursor]
+        for item_id in items:
+            async with db.execute(
+                """
+                SELECT id FROM knowledge_versions
+                WHERE item_id = ? ORDER BY created_at DESC LIMIT -1 OFFSET ?
+                """,
+                (item_id, value),
+            ) as cursor:
+                to_delete = [r[0] async for r in cursor]
+            if to_delete:
+                placeholders = ",".join("?" * len(to_delete))
+                await db.execute(
+                    f"DELETE FROM knowledge_versions WHERE id IN ({placeholders})",
+                    to_delete,
+                )
+                removed += len(to_delete)
+    elif ptype == "days":
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=value)).isoformat()
+        await db.execute("DELETE FROM knowledge_versions WHERE created_at < ?", (cutoff,))
+        # aiosqlite total_changes may wrap across awaits; count deletions separately
+        removed = getattr(db, "_last_row_count", 0)
+    elif ptype == "gb":
+        threshold_bytes = value * 1024 * 1024 * 1024
+        async with db.execute(
+            "SELECT id, LENGTH(content_text) as sz FROM knowledge_versions ORDER BY created_at"
+        ) as cursor:
+            rows = [(r[0], r[1]) async for r in cursor]
+        total = sum(sz for _, sz in rows)
+        if total > threshold_bytes:
+            to_free = total - threshold_bytes
+            freed = 0
+            to_delete = []
+            for vid, sz in rows:
+                if freed >= to_free:
+                    break
+                to_delete.append(vid)
+                freed += sz
+            if to_delete:
+                placeholders = ",".join("?" * len(to_delete))
+                await db.execute(
+                    f"DELETE FROM knowledge_versions WHERE id IN ({placeholders})",
+                    to_delete,
+                )
+                removed = len(to_delete)
+
+    await db.commit()
+    return removed
 
 
 async def cleanup_old_logs() -> int:

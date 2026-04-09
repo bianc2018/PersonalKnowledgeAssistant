@@ -7,6 +7,7 @@ import httpx
 from openai import AsyncOpenAI
 
 from src.config import get_settings
+from src.external.retry import retry_with_backoff
 
 
 def _get_llm_client() -> AsyncOpenAI | None:
@@ -42,13 +43,20 @@ async def chat_completion(
             return _stream()
         return _DEGRADED_MSG
 
-    try:
-        response = await client.chat.completions.create(
+    async def _call():
+        return await client.chat.completions.create(
             model=get_settings().llm_config.model,
             messages=messages,
             stream=stream,
             temperature=temperature,
             tools=tools,
+        )
+
+    try:
+        response = await retry_with_backoff(
+            _call,
+            max_retries=get_settings().retry_settings.retry_times,
+            timeout=get_settings().retry_settings.timeout_seconds,
         )
     except Exception:
         if stream:
@@ -79,12 +87,19 @@ async def get_embeddings(texts: list[str]) -> list[list[float]]:
     if client is None:
         return [_fallback_embedding(t) for t in texts]
 
-    try:
-        response = await client.embeddings.create(
+    async def _call():
+        resp = await client.embeddings.create(
             model=get_settings().embedding_config.model,
             input=texts,
         )
-        return [item.embedding for item in response.data]
+        return [item.embedding for item in resp.data]
+
+    try:
+        return await retry_with_backoff(
+            _call,
+            max_retries=get_settings().retry_settings.retry_times,
+            timeout=get_settings().retry_settings.timeout_seconds,
+        )
     except Exception:
         return [_fallback_embedding(t) for t in texts]
 

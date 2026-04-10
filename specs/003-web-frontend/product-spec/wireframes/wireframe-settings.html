@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe - Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; color: #333; padding: 1rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; padding: .5rem; background: #fff; border: 1px dashed #999; }
+    .nav a { text-decoration: none; color: #555; font-size: .85rem; padding: .25rem .5rem; border: 1px solid #ccc; background: #fafafa; }
+    .nav a.active { border: 2px solid #333; background: #eee; }
+    .screen-title { font-size: .9rem; color: #666; margin-bottom: 1rem; }
+    .app { display: flex; gap: 1rem; max-width: 1200px; margin: 0 auto; }
+    .sidebar { width: 180px; flex-shrink: 0; background: #fff; border: 2px solid #666; padding: 1rem; }
+    .nav-item { padding: .5rem; margin-bottom: .25rem; border: 1px solid #ddd; font-size: .85rem; color: #555; }
+    .nav-item.active { border: 2px solid #333; background: #eee; font-weight: bold; }
+    .main { flex: 1; background: #fff; border: 2px solid #333; padding: 1.5rem; }
+    .section { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; }
+    .section-title { font-weight: bold; margin-bottom: .75rem; font-size: .9rem; }
+    .field { margin-bottom: .75rem; }
+    .label { font-size: .8rem; font-weight: bold; display: block; margin-bottom: .25rem; }
+    .input, .select { width: 100%; padding: .5rem; border: 1px solid #999; background: #fafafa; }
+    .hint { font-size: .75rem; color: #777; margin-top: .25rem; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; padding: .5rem 0; border-bottom: 1px dashed #ddd; }
+    .switch-row:last-child { border-bottom: none; }
+    .switch-label { font-size: .85rem; }
+    .switch { width: 40px; height: 20px; border: 2px solid #666; border-radius: 10px; position: relative; }
+    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; border: 1px solid #666; background: #fff; }
+    .switch.on::after { left: auto; right: 2px; background: #eee; }
+    .btn-group { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+    .btn { padding: .5rem .75rem; border: 2px solid #333; background: #fff; font-weight: bold; font-size: .8rem; cursor: pointer; }
+    .btn.danger { border: 2px solid #999; color: #555; }
+    .annotation { margin-top: 1rem; padding: .75rem; border: 1px dashed #999; background: #fafafa; font-size: .8rem; color: #555; }
+    .callout { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; border: 1px solid #333; font-size: .7rem; margin-right: .25rem; }
+    .responsive-note { margin-top: 1rem; font-size: .75rem; color: #777; border-top: 1px dashed #ccc; padding-top: .5rem; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <span style="font-size:.8rem;color:#999;margin-right:.5rem;">导航:</span>
+    <a href="wireframe-login.html">登录/初始化</a>
+    <a href="wireframe-dashboard.html">仪表盘</a>
+    <a href="wireframe-knowledge-list.html">知识列表</a>
+    <a href="wireframe-knowledge-detail.html">知识详情</a>
+    <a href="wireframe-chat.html">聊天</a>
+    <a href="wireframe-research-list.html">研究列表</a>
+    <a href="wireframe-research-detail.html">研究详情</a>
+    <a class="active" href="wireframe-settings.html">设置</a>
+  </div>
+
+  <div class="screen-title">屏幕: Settings - LLM / Embedding / 搜索 API / 隐私 / 导出导入</div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="nav-item">仪表盘</div>
+      <div class="nav-item">知识库</div>
+      <div class="nav-item">聊天</div>
+      <div class="nav-item">研究任务</div>
+      <div class="nav-item active">设置</div>
+    </aside>
+
+    <main class="main">
+      <div class="section">
+        <div class="section-title">LLM 配置</div>
+        <div class="field">
+          <label class="label">提供商</label>
+          <select class="select">
+            <option>OpenAI</option>
+            <option>Anthropic</option>
+            <option>本地 Ollama</option>
+            <option>自定义 API</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">API Key</label>
+          <input class="input" type="password" placeholder="sk-..." readonly>
+          <div class="hint">仅存储在本地 SQLite 中，使用 AES-256-GCM 加密</div>
+        </div>
+        <div class="field">
+          <label class="label">模型名称</label>
+          <input class="input" value="claude-3-5-sonnet" readonly>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Embedding 配置</div>
+        <div class="field">
+          <label class="label">Embedding 模型</label>
+          <input class="input" value="text-embedding-3-small" readonly>
+        </div>
+        <div class="field">
+          <label class="label">向量维度</label>
+          <input class="input" value="1536" readonly>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">搜索 API</div>
+        <div class="field">
+          <label class="label">外部搜索提供商</label>
+          <select class="select">
+            <option>无</option>
+            <option>Serper</option>
+            <option>Bing Search</option>
+            <option> Tavily</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">搜索 API Key</label>
+          <input class="input" type="password" placeholder="可选" readonly>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">隐私设置 (3 个开关)</div>
+        <div class="switch-row">
+          <span class="switch-label">启用本地日志记录</span>
+          <span class="switch on"></span>
+        </div>
+        <div class="switch-row">
+          <span class="switch-label">允许上传文件建立向量化索引</span>
+          <span class="switch on"></span>
+        </div>
+        <div class="switch-row">
+          <span class="switch-label">启用自动导出备份</span>
+          <span class="switch"></span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">数据保留策略</div>
+        <div class="field">
+          <label class="label">聊天记录保留天数</label>
+          <input class="input" value="30" readonly>
+          <div class="hint">0 表示永久保留</div>
+        </div>
+        <div class="field">
+          <label class="label">研究任务保留天数</label>
+          <input class="input" value="90" readonly>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">导入 / 导出 / 重置</div>
+        <div class="btn-group">
+          <button class="btn">导出全部数据</button>
+          <button class="btn">导入备份</button>
+          <button class="btn danger">重置系统</button>
+        </div>
+      </div>
+
+      <div class="annotation">
+        <p><span class="callout">1</span><strong>配置保存:</strong> 各表单区块支持独立保存，通过 HTMX 局部提交，成功后在该区块顶部短暂显示 "已保存" 提示。</p>
+        <p style="margin-top:.5rem;"><span class="callout">2</span><strong>隐私开关:</strong> 3 个 Alpine.js 绑定状态的开关，切换即时生效并保存到后端。</p>
+        <p style="margin-top:.5rem;"><span class="callout">3</span><strong>导入/导出:</strong> "导出" 生成 JSON 备份文件；"导入" 弹出文件选择并校验版本兼容性；"重置" 需二次确认弹窗。</p>
+      </div>
+
+      <div class="responsive-note">
+        移动端适配: 设置项堆叠为单列，每个 section 占满宽度，开关行保持左右对齐但字体缩小。
+      </div>
+    </main>
+  </div>
+</body>
+</html>

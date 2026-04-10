@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe - Login / Init</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; color: #333; padding: 1rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; padding: .5rem; background: #fff; border: 1px dashed #999; }
+    .nav a { text-decoration: none; color: #555; font-size: .85rem; padding: .25rem .5rem; border: 1px solid #ccc; background: #fafafa; }
+    .nav a.active { border: 2px solid #333; background: #eee; }
+    .screen-title { font-size: .9rem; color: #666; margin-bottom: 1rem; }
+    .container { max-width: 400px; margin: 0 auto; padding: 2rem; background: #fff; border: 2px solid #333; }
+    .brand { text-align: center; margin-bottom: 2rem; }
+    .logo { width: 64px; height: 64px; margin: 0 auto .5rem; border: 2px solid #666; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; color: #666; }
+    .h1 { font-size: 1.25rem; font-weight: bold; text-align: center; margin-bottom: .25rem; }
+    .sub { text-align: center; font-size: .85rem; color: #666; margin-bottom: 1.5rem; }
+    .field { margin-bottom: 1rem; }
+    .label { font-size: .8rem; font-weight: bold; margin-bottom: .25rem; display: block; }
+    .input { width: 100%; padding: .5rem; border: 1px solid #999; background: #fafafa; }
+    .hint { font-size: .75rem; color: #777; margin-top: .25rem; }
+    .btn { width: 100%; padding: .6rem; border: 2px solid #333; background: #fff; font-weight: bold; cursor: pointer; }
+    .annotation { margin-top: 1.5rem; padding: .75rem; border: 1px dashed #999; background: #fafafa; font-size: .8rem; color: #555; }
+    .annotation strong { color: #333; }
+    .callout { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; border: 1px solid #333; font-size: .7rem; margin-right: .25rem; }
+    .responsive-note { margin-top: 1rem; font-size: .75rem; color: #777; border-top: 1px dashed #ccc; padding-top: .5rem; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <span style="font-size:.8rem;color:#999;margin-right:.5rem;">导航:</span>
+    <a class="active" href="wireframe-login.html">登录/初始化</a>
+    <a href="wireframe-dashboard.html">仪表盘</a>
+    <a href="wireframe-knowledge-list.html">知识列表</a>
+    <a href="wireframe-knowledge-detail.html">知识详情</a>
+    <a href="wireframe-chat.html">聊天</a>
+    <a href="wireframe-research-list.html">研究列表</a>
+    <a href="wireframe-research-detail.html">研究详情</a>
+    <a href="wireframe-settings.html">设置</a>
+  </div>
+
+  <div class="screen-title">屏幕: Login / System Init (首次使用密码设置)</div>
+
+  <div class="container">
+    <div class="brand">
+      <div class="logo">LOGO</div>
+      <div class="h1">Personal Knowledge Assistant</div>
+      <div class="sub">本地 AI 知识助手</div>
+    </div>
+
+    <div class="sub" style="margin-bottom:1.5rem;">首次使用，请设置管理员密码</div>
+
+    <div class="field">
+      <label class="label">密码</label>
+      <input class="input" type="password" value="" placeholder="••••••••" readonly>
+      <div class="hint">至少 8 位，建议包含字母和数字</div>
+    </div>
+
+    <div class="field">
+      <label class="label">确认密码</label>
+      <input class="input" type="password" value="" placeholder="••••••••" readonly>
+    </div>
+
+    <button class="btn">初始化系统</button>
+
+    <div class="annotation">
+      <p><span class="callout">1</span><strong>首次检测:</strong> 后端检测到系统未初始化时，自动显示密码设置界面；已初始化则显示登录表单（仅密码输入框 + 登录按钮）。</p>
+      <p style="margin-top:.5rem;"><span class="callout">2</span><strong>交互:</strong> 点击初始化/登录后，HTMX 提交表单，成功后跳转到 <code>#/dashboard</code>。</p>
+    </div>
+
+    <div class="responsive-note">
+      移动端适配: 表单宽度自适应，输入框字体不小于 16px 以防止缩放。
+    </div>
+  </div>
+</body>
+</html>

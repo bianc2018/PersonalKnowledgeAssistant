@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe - Knowledge Detail</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; color: #333; padding: 1rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; padding: .5rem; background: #fff; border: 1px dashed #999; }
+    .nav a { text-decoration: none; color: #555; font-size: .85rem; padding: .25rem .5rem; border: 1px solid #ccc; background: #fafafa; }
+    .nav a.active { border: 2px solid #333; background: #eee; }
+    .screen-title { font-size: .9rem; color: #666; margin-bottom: 1rem; }
+    .app { display: flex; gap: 1rem; max-width: 1200px; margin: 0 auto; }
+    .sidebar { width: 180px; flex-shrink: 0; background: #fff; border: 2px solid #666; padding: 1rem; }
+    .nav-item { padding: .5rem; margin-bottom: .25rem; border: 1px solid #ddd; font-size: .85rem; color: #555; }
+    .nav-item.active { border: 2px solid #333; background: #eee; font-weight: bold; }
+    .main { flex: 1; background: #fff; border: 2px solid #333; padding: 1.5rem; }
+    .header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .title { font-size: 1.2rem; font-weight: bold; }
+    .badge { font-size: .75rem; padding: .2rem .5rem; border: 1px solid #666; }
+    .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; }
+    .btn { padding: .4rem .7rem; border: 2px solid #333; background: #fff; font-size: .8rem; font-weight: bold; cursor: pointer; }
+    .field { margin-bottom: 1rem; }
+    .label { font-size: .8rem; font-weight: bold; display: block; margin-bottom: .25rem; }
+    .input, .textarea { width: 100%; padding: .5rem; border: 1px solid #999; background: #fafafa; }
+    .textarea { min-height: 160px; resize: vertical; }
+    .tags-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .tag { font-size: .75rem; padding: .2rem .5rem; border: 1px solid #666; }
+    .panel { border: 1px solid #ccc; padding: .75rem; margin-bottom: 1rem; }
+    .panel-title { font-size: .85rem; font-weight: bold; margin-bottom: .5rem; }
+    .list { list-style: none; }
+    .list li { padding: .4rem 0; border-bottom: 1px dashed #ddd; font-size: .8rem; }
+    .annotation { margin-top: 1rem; padding: .75rem; border: 1px dashed #999; background: #fafafa; font-size: .8rem; color: #555; }
+    .callout { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; border: 1px solid #333; font-size: .7rem; margin-right: .25rem; }
+    .responsive-note { margin-top: 1rem; font-size: .75rem; color: #777; border-top: 1px dashed #ccc; padding-top: .5rem; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <span style="font-size:.8rem;color:#999;margin-right:.5rem;">导航:</span>
+    <a href="wireframe-login.html">登录/初始化</a>
+    <a href="wireframe-dashboard.html">仪表盘</a>
+    <a href="wireframe-knowledge-list.html">知识列表</a>
+    <a class="active" href="wireframe-knowledge-detail.html">知识详情</a>
+    <a href="wireframe-chat.html">聊天</a>
+    <a href="wireframe-research-list.html">研究列表</a>
+    <a href="wireframe-research-detail.html">研究详情</a>
+    <a href="wireframe-settings.html">设置</a>
+  </div>
+
+  <div class="screen-title">屏幕: Knowledge Detail - 查看 / 编辑 / 版本 / 附件</div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="nav-item">仪表盘</div>
+      <div class="nav-item active">知识库</div>
+      <div class="nav-item">聊天</div>
+      <div class="nav-item">研究任务</div>
+      <div class="nav-item">设置</div>
+    </aside>
+
+    <main class="main">
+      <div class="header">
+        <div class="title">sqlite-vec 使用指南</div>
+        <span class="badge">置信度: 高</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn">保存</button>
+        <button class="btn">编辑模式</button>
+        <button class="btn">删除</button>
+        <button class="btn">返回列表</button>
+      </div>
+
+      <div class="field">
+        <label class="label">标题</label>
+        <input class="input" value="sqlite-vec 使用指南" readonly>
+      </div>
+
+      <div class="field">
+        <label class="label">内容</label>
+        <textarea class="textarea" readonly>sqlite-vec 是一个用于 SQLite 的向量搜索扩展...
+1. 安装
+2. 创建虚拟表
+3. 插入向量
+4. 相似性搜索
+</textarea>
+      </div>
+
+      <div class="field">
+        <label class="label">标签</label>
+        <div class="tags-row">
+          <span class="tag">技术</span>
+          <span class="tag">数据库</span>
+          <span class="tag" style="border-style:dashed;color:#888;">+ 添加标签</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">版本历史</div>
+        <ul class="list">
+          <li>v2 (2024-06-10 14:30) - 补充索引优化说明</li>
+          <li>v1 (2024-06-09 09:15) - 初始创建</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">附件</div>
+        <ul class="list">
+          <li>sqlite-vec-cheatsheet.pdf <a href="#" style="margin-left:.5rem;">下载</a> <a href="#" style="margin-left:.5rem;">删除</a></li>
+        </ul>
+      </div>
+
+      <div class="annotation">
+        <p><span class="callout">1</span><strong>编辑模式:</strong> 切换后 input/textarea 变为可编辑，标题栏出现 "保存" 和 "取消" 按钮，标签支持输入添加。</p>
+        <p style="margin-top:.5rem;"><span class="callout">2</span><strong>版本历史:</strong> 点击历史版本可对比内容差异或一键回滚。</p>
+        <p style="margin-top:.5rem;"><span class="callout">3</span><strong>附件:</strong> 支持拖拽上传新附件，文件按 <code>files/AB/CD/&lt;item-id&gt;/</code> 存储。</p>
+      </div>
+
+      <div class="responsive-note">
+        移动端适配: 工具栏按钮垂直堆叠，面板依次堆叠，编辑区全宽显示。
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+/* Minimal app styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#app {
+  min-height: 100%;
+}

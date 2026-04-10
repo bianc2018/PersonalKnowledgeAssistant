@@ -30,6 +30,10 @@ class ChatRequest(BaseModel):
     stream: bool = False
 
 
+class RenameRequest(BaseModel):
+    title: str
+
+
 @router.get("/conversations", response_model=ConversationsListResponse)
 async def list_conversations(
     offset: int = Query(default=0, ge=0),
@@ -55,6 +59,37 @@ async def create_conversation(
     try:
         conv_id = await service.create_conversation(db)
         return ApiResponse(data={"id": conv_id, "title": "新会话"})
+    finally:
+        await db.close()
+
+
+@router.patch("/conversations/{conversation_id}", response_model=ApiResponse)
+async def patch_conversation(
+    conversation_id: str,
+    body: RenameRequest,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        ok = await service.rename_conversation(db, conversation_id, body.title)
+        if not ok:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        return ApiResponse(data={"id": conversation_id, "title": body.title})
+    finally:
+        await db.close()
+
+
+@router.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_conversation(
+    conversation_id: str,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        ok = await service.delete_conversation(db, conversation_id)
+        if not ok:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        return None
     finally:
         await db.close()
 

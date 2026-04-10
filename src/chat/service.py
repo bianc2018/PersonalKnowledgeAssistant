@@ -260,6 +260,29 @@ async def send_message(
     )
 
 
+async def rename_conversation(db: aiosqlite.Connection, conversation_id: str, title: str) -> bool:
+    async with db.execute("SELECT id FROM conversations WHERE id = ?", (conversation_id,)) as cursor:
+        row = await cursor.fetchone()
+    if not row:
+        return False
+    await db.execute(
+        "UPDATE conversations SET title = ?, updated_at = ? WHERE id = ?",
+        (title, _now(), conversation_id),
+    )
+    await db.commit()
+    return True
+
+
+async def delete_conversation(db: aiosqlite.Connection, conversation_id: str) -> bool:
+    async with db.execute("SELECT id FROM conversations WHERE id = ?", (conversation_id,)) as cursor:
+        row = await cursor.fetchone()
+    if not row:
+        return False
+    await db.execute("DELETE FROM conversations WHERE id = ?", (conversation_id,))
+    await db.commit()
+    return True
+
+
 async def stream_message(
     db: aiosqlite.Connection,
     conversation_id: str,

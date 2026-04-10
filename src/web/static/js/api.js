@@ -1,4 +1,5 @@
-import { getToken, clearToken, addToast } from './store.js';
+import { getToken, clearToken } from './store.js';
+import { showToast } from './ui.js';
 
 const BASE = '/api';
 
@@ -13,7 +14,7 @@ function getHeaders(isJson = true) {
 async function handleResponse(res) {
   if (res.status === 401) {
     clearToken();
-    addToast('登录已过期，请重新登录', 'error');
+    showToast('登录已过期，请重新登录', 'error');
     const current = window.location.hash.slice(1) || '';
     const redirect = current && current !== 'login' ? `?redirect=${encodeURIComponent(current)}` : '';
     window.location.hash = `#/login${redirect}`;
@@ -67,6 +68,15 @@ export async function apiPatch(path, body) {
   return handleResponse(res);
 }
 
+export async function apiPut(path, body) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'PUT',
+    headers: getHeaders(true),
+    body: JSON.stringify(body)
+  });
+  return handleResponse(res);
+}
+
 export async function apiDelete(path) {
   const res = await fetch(`${BASE}${path}`, {
     method: 'DELETE',
@@ -94,7 +104,7 @@ export async function apiExport(path, body) {
   });
   if (res.status === 401) {
     clearToken();
-    addToast('登录已过期，请重新登录', 'error');
+    showToast('登录已过期，请重新登录', 'error');
     const current = window.location.hash.slice(1) || '';
     const redirect = current && current !== 'login' ? `?redirect=${encodeURIComponent(current)}` : '';
     window.location.hash = `#/login${redirect}`;

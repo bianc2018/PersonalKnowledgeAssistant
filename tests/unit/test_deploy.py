@@ -1,4 +1,6 @@
+import os
 import socket
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -110,3 +112,95 @@ class TestIsServiceRunning:
             assert deploy.is_service_running(port)
         finally:
             sock.close()
+
+
+class TestStateFile:
+    def test_write_and_read(self, tmp_path):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        deploy.write_state_file(config, 12345, 8080)
+        assert config.state_file.exists()
+        content = config.state_file.read_text(encoding="utf-8")
+        assert content.strip() == "12345\n8080"
+        result = deploy.read_state_file(config)
+        assert result == (12345, 8080)
+
+    def test_read_missing_returns_none(self, tmp_path):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        assert deploy.read_state_file(config) is None
+
+    def test_remove_stale(self, tmp_path):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        deploy.write_state_file(config, 1, 2)
+        deploy.remove_state_file(config)
+        assert not config.state_file.exists()
+
+
+class TestIsPidAlive:
+    def test_self_alive(self):
+        assert deploy.is_pid_alive(os.getpid())
+
+    def test_nonexistent_dead(self):
+        assert not deploy.is_pid_alive(99999)
+
+
+class TestStopService:
+    def test_no_state_file_returns_false(self, tmp_path):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        assert deploy.stop_service(config) is False
+
+    def test_stale_pid_cleaned_up(self, tmp_path):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        deploy.write_state_file(config, 99999, 8000)
+        assert deploy.stop_service(config) is False
+        assert not config.state_file.exists()
+
+    def test_stop_running_process(self, tmp_path):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        proc = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+        try:
+            deploy.write_state_file(config, proc.pid, 8000)
+            assert deploy.stop_service(config) is True
+            assert not config.state_file.exists()
+            # 确保进程已终止
+            proc.poll()
+            assert proc.returncode is not None or not deploy.is_pid_alive(proc.pid)
+        finally:
+            proc.kill()
+            proc.wait()
+
+
+class TestStatusCommand:
+    @patch.object(deploy, "read_state_file", return_value=(1234, 8000))
+    @patch.object(deploy, "is_pid_alive", return_value=True)
+    def test_status_running(self, mock_alive, mock_read, capsys):
+        config = deploy.DeploymentConfig()
+        result = deploy.cmd_status(config)
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "运行中" in captured.out
+        assert "1234" in captured.out
+        assert "8000" in captured.out
+
+    @patch.object(deploy, "read_state_file", return_value=None)
+    @patch.object(deploy, "is_app_running", return_value=True)
+    def test_status_foreground(self, mock_app, mock_read, capsys):
+        config = deploy.DeploymentConfig()
+        result = deploy.cmd_status(config)
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "前台模式" in captured.out
+
+    @patch.object(deploy, "read_state_file", return_value=None)
+    @patch.object(deploy, "is_app_running", return_value=False)
+    def test_status_stopped(self, mock_app, mock_read, capsys):
+        config = deploy.DeploymentConfig()
+        result = deploy.cmd_status(config)
+        assert result == 0
+        captured = capsys.readouterr()
+        assert "未运行" in captured.out

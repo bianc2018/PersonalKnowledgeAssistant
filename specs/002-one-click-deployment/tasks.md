@@ -104,23 +104,23 @@
 
 ### User Story 4 — Background Daemon
 
-- [ ] T020 [P] [US4] Implement `daemonize()` using `os.fork()` + `os.setsid()` + second fork inside `deploy.py`
-- [ ] T021 [US4] Implement PID file helpers (`read_pid_file`, `write_pid_file`, `remove_pid_file`, `is_pid_alive`, `cleanup_stale_pid`) in `deploy.py`
-- [ ] T022 [US4] Implement `start` subcommand flow in `deploy.py`: environmental checks → install deps → ensure `.env` → find port → daemonize → start uvicorn with stdout/stderr redirected to `logs/deploy.log`
-- [ ] T025 [US4] Redirect daemon stdout/stderr to `logs/deploy.log` using `subprocess.DEVNULL` and log file dup2 or `Popen(stdout=..., stderr=...)`
+- [x] T020 [P] [US4] Implement `daemonize()` using `os.fork()` + `os.setsid()` + second fork inside `deploy.py`
+- [x] T021 [US4] Implement PID file helpers (`read_pid_file`, `write_pid_file`, `remove_pid_file`, `is_pid_alive`, `cleanup_stale_pid`) in `deploy.py`
+- [x] T022 [US4] Implement `start` subcommand flow in `deploy.py`: environmental checks → install deps → ensure `.env` → find port → daemonize → start uvicorn with stdout/stderr redirected to `logs/deploy.log`
+- [x] T025 [US4] Redirect daemon stdout/stderr to `logs/deploy.log` using `subprocess.DEVNULL` and log file dup2 or `Popen(stdout=..., stderr=...)`
 
 ### User Story 5 — Status
 
-- [ ] T023 [P] [US5] Implement `status` subcommand in `deploy.py`: print running (pid + port + url) or stopped state
+- [x] T023 [P] [US5] Implement `status` subcommand in `deploy.py`: print running (pid + port + url) or stopped state
 
 ### User Story 6 — Restart
 
-- [ ] T024 [US6] Implement `restart` subcommand in `deploy.py`: stop old process (SIGTERM wait 5s → SIGKILL), clean PID file, then start new daemon
+- [x] T024 [US6] Implement `restart` subcommand in `deploy.py`: stop old process (SIGTERM wait 5s → SIGKILL), clean PID file, then start new daemon
 
 ### Testing & Validation
 
-- [ ] T026 [P] Update unit tests for PID helpers and stale PID detection in `tests/unit/test_deploy.py`
-- [ ] T027 Add daemon workflow integration test in `tests/integration/test_deploy_daemon.py` (start → status → restart → status)
+- [x] T026 [P] Update unit tests for PID helpers and stale PID detection in `tests/unit/test_deploy.py`
+- [x] T027 Add daemon workflow integration test in `tests/integration/test_deploy_daemon.py` (start → status → restart → status)
 
 ---
 

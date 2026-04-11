@@ -4,13 +4,13 @@ created_at: "2026-04-07"
 phases:
   problem_discovery: skipped
   research: completed
-  product_spec: completed
+  product_spec: in_progress
   revalidation: skipped
   bridge: completed
   plan: completed
-  tasks: completed
+  tasks: pending
   pre_impl_review: skipped
-  implement: completed
+  implement: pending
   code_review: pending
   verify: pending
   test_plan: pending
@@ -24,12 +24,22 @@ testing:
   bugs_fixed: 0
   bugs_deferred: 0
   test_runs_total: 0
-gates: []
+gates:
+  - phase: "scope_change"
+    decision: "approved"
+    timestamp: "2026-04-11T00:00:00Z"
+    notes: "用户明确要求：后台异步启动、状态查看、强制重启。同意更新 spec.md + tasks.md 后重新实现。"
+    conditions: []
+    sync_result: "clean"
 sync_runs:
   last_run: ""
   total_runs: 0
   last_drift_count: 0
   last_critical_count: 0
   last_verdict: ""
-change_requests: []
+change_requests:
+  - id: CR-001
+    description: "deploy.py 增加后台守护进程模式、status/restart 子命令"
+    status: accepted
+    created_at: "2026-04-11T00:00:00Z"
 last_updated: "2026-04-11T00:00:00Z"

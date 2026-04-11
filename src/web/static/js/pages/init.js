@@ -1,6 +1,13 @@
 import { apiPost } from '../api.js';
+import { apiGet } from '../api.js';
 
-export function render() {
+export async function render() {
+  const statusRes = await apiGet('/system/status');
+  const alreadyInit = statusRes.ok && statusRes.data && statusRes.data.initialized;
+  if (alreadyInit) {
+    window.location.hash = '#/login';
+    return;
+  }
   const app = document.getElementById('app');
   app.innerHTML = `
     <div class="min-h-screen flex items-center justify-center p-4">

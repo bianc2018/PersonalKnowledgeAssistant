@@ -151,9 +151,23 @@ export async function render(convId) {
     return div.innerHTML;
   }
 
-  app.querySelector('#btn-new-conv').addEventListener('click', () => { window.location.hash = '#/chat'; });
+  app.querySelector('#btn-new-conv').addEventListener('click', async () => {
+    const r = await apiPost('/chat/conversations');
+    if (r.ok && r.data && r.data.data && r.data.data.id) {
+      window.location.hash = `#/chat/${r.data.data.id}`;
+    } else {
+      showToast('创建会话失败', 'error');
+    }
+  });
   const mobileNew = app.querySelector('#btn-new-conv-mobile');
-  if (mobileNew) mobileNew.addEventListener('click', () => { window.location.hash = '#/chat'; });
+  if (mobileNew) mobileNew.addEventListener('click', async () => {
+    const r = await apiPost('/chat/conversations');
+    if (r.ok && r.data && r.data.data && r.data.data.id) {
+      window.location.hash = `#/chat/${r.data.data.id}`;
+    } else {
+      showToast('创建会话失败', 'error');
+    }
+  });
   const toggleSidebar = app.querySelector('#btn-toggle-sidebar');
   if (toggleSidebar) {
     toggleSidebar.addEventListener('click', () => {

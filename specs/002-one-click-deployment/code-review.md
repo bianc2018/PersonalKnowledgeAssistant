@@ -8,11 +8,11 @@
 
 | Dimension | CRITICAL | HIGH | MEDIUM | LOW | Total |
 |-----------|:--------:|:----:|:------:|:---:|:-----:|
-| Quality | 0 | 0 | 3 | 1 | 4 |
-| Security | 0 | 0 | 1 | 0 | 1 |
-| Patterns | 0 | 0 | 0 | 1 | 1 |
-| Tests | 0 | 0 | 2 | 1 | 3 |
-| **Total** | **0** | **0** | **6** | **3** | **9** |
+| Quality | 0 | 0 | 0 | 0 | 0 |
+| Security | 0 | 0 | 0 | 0 | 0 |
+| Patterns | 0 | 0 | 0 | 0 | 0 |
+| Tests | 0 | 0 | 0 | 0 | 0 |
+| **Total** | **0** | **0** | **0** | **0** | **0** |
 
 **Recommendation:** APPROVED — all HIGH findings fixed
 
@@ -265,14 +265,14 @@ with urllib.request.urlopen(url, timeout=5) as resp:
 - [x] **REV-002**: Fix `os.umask(0)` in `_daemonize` to a safe value (e.g., `0o022`).
 - [x] **REV-003**: Remove redundant `stop_service()` retry in `cmd_restart`.
 
-## Suggested Improvements (Optional)
+## Optional Improvements (Fixed)
 
-- [ ] **REV-004**: Reduce false positives in `is_app_running()` by checking `cwd`.
-- [ ] **REV-005**: Restrict `.deploy.state` file permissions to `0o600`.
-- [ ] **REV-006**: Close non-std file descriptors before `os.execvp`.
-- [ ] **REV-007**: Add unit test for `cmd_start` guard.
-- [ ] **REV-008**: Remove unused `import shutil`.
-- [ ] **REV-009**: Add HTTP health check to daemon integration test.
+- [x] **REV-004**: Reduced false positives in `is_app_running()` by checking `cwd`.
+- [x] **REV-005**: Restricted `.deploy.state` file permissions to `0o600`.
+- [x] **REV-006**: Closed non-std file descriptors before `os.execvp` via `os.closerange`.
+- [x] **REV-007**: Added `TestCmdStart.test_start_guard_when_app_running` unit test.
+- [x] **REV-008**: Removed unused `import shutil`.
+- [x] **REV-009**: Added HTTP health check (`urllib.request.urlopen`) to daemon integration test.
 
 ---
 

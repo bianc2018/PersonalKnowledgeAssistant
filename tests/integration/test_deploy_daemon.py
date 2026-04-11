@@ -6,6 +6,7 @@ start → status → restart → status → stop
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 
 import pytest
@@ -41,6 +42,18 @@ def _cleanup():
     subprocess.run(DEPLOY + ["stop"], capture_output=True)
 
 
+def _extract_url_from_output(stdout: str) -> str | None:
+    for line in stdout.splitlines():
+        if line.startswith("访问地址:"):
+            return line.split(": ", 1)[1]
+    return None
+
+
+def _probe_url(url: str) -> int:
+    with urllib.request.urlopen(url, timeout=5) as resp:
+        return resp.status
+
+
 def test_daemon_lifecycle():
     try:
         # 1. start
@@ -52,6 +65,10 @@ def test_daemon_lifecycle():
         assert result.returncode == 0, f"start failed: {result.stdout}\n{result.stderr}"
         assert "服务已在后台启动" in result.stdout
         assert "http://127.0.0.1:" in result.stdout
+
+        url = _extract_url_from_output(result.stdout)
+        assert url is not None
+        assert _probe_url(url) == 200, f"service not healthy at {url}"
 
         # 2. status - 应该显示运行中
         assert _wait_for_status("运行中"), "status did not report running in time"
@@ -67,6 +84,10 @@ def test_daemon_lifecycle():
         )
         assert restart_result.returncode == 0, f"restart failed: {restart_result.stdout}\n{restart_result.stderr}"
         assert "服务已在后台启动" in restart_result.stdout
+
+        restart_url = _extract_url_from_output(restart_result.stdout)
+        assert restart_url is not None
+        assert _probe_url(restart_url) == 200, f"service not healthy after restart at {restart_url}"
 
         # 再次确认运行中
         assert _wait_for_status("运行中"), "status did not report running after restart"

@@ -176,6 +176,15 @@ class TestStopService:
             proc.wait()
 
 
+class TestCmdStart:
+    @patch.object(deploy, "is_app_running", return_value=True)
+    def test_start_guard_when_app_running(self, mock_app):
+        config = deploy.DeploymentConfig()
+        with pytest.raises(deploy.DeployError) as exc_info:
+            deploy.cmd_start(config)
+        assert "检测到应用服务已在运行" in str(exc_info.value)
+
+
 class TestStatusCommand:
     @patch.object(deploy, "read_state_file", return_value=(1234, 8000))
     @patch.object(deploy, "is_pid_alive", return_value=True)

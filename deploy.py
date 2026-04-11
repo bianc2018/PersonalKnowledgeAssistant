@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import errno
 import os
-import shutil
 import signal
 import socket
 import subprocess
@@ -235,17 +234,21 @@ def is_service_running(port: int) -> bool:
 
 def is_app_running() -> bool:
     """通过扫描 /proc/*/cmdline 检测是否有本应用（uvicorn src.main:app）正在运行。"""
+    project_root = Path(__file__).resolve().parent
     try:
         for proc_dir in Path("/proc").glob("[0-9]*"):
             cmdline_file = proc_dir / "cmdline"
+            cwd_link = proc_dir / "cwd"
             try:
                 cmdline = cmdline_file.read_text(encoding="utf-8")
+                cwd = os.readlink(str(cwd_link))
             except OSError:
                 continue
             parts = cmdline.split("\x00")
             has_uvicorn = any("uvicorn" in part for part in parts)
             has_app = any("src.main:app" in part for part in parts)
-            if has_uvicorn and has_app:
+            same_project = Path(cwd).resolve() == project_root
+            if has_uvicorn and has_app and same_project:
                 return True
     except OSError:
         pass
@@ -284,9 +287,18 @@ def _daemonize(config: DeploymentConfig) -> None:
     if log_fd > 2:
         os.close(log_fd)
 
+    # 关闭其余非标准文件描述符，避免泄漏给 uvicorn 子进程
+    try:
+        max_fd = os.sysconf("SC_OPEN_MAX")
+    except ValueError:
+        max_fd = 1024
+    os.closerange(3, max_fd)
+
 
 def write_state_file(config: DeploymentConfig, pid: int, port: int) -> None:
-    config.state_file.write_text(f"{pid}\n{port}\n", encoding="utf-8")
+    fd = os.open(str(config.state_file), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        f.write(f"{pid}\n{port}\n")
 
 
 def read_state_file(config: DeploymentConfig) -> tuple[int, int] | None:

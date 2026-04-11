@@ -67,9 +67,18 @@ async def system_init(body: InitRequest):
                 detail="Password must contain at least one letter and one digit",
             )
 
+        import json
         salt = generate_salt()
         password_hash = hash_password(body.password)
         now = datetime.now(timezone.utc).isoformat()
+
+        llm_cfg = settings.llm_config.model_dump()
+        emb_cfg = settings.embedding_config.model_dump()
+        srch_cfg = settings.search_config.model_dump() if settings.search_config else {}
+        priv_cfg = settings.privacy_settings.model_dump()
+        retry_cfg = settings.retry_settings.model_dump()
+        store_cfg = settings.storage_settings.model_dump()
+        log_cfg = settings.log_settings.model_dump()
 
         await db.execute(
             """
@@ -88,13 +97,13 @@ async def system_init(body: InitRequest):
                 1,
                 password_hash,
                 salt,
-                "{}",
-                "{}",
-                "{}",
-                '{"allow_full_content": false, "allow_web_search": true, "allow_log_upload": false}',
-                '{"retry_times": 3, "timeout_seconds": 30}',
-                '{"archive_threshold_gb": 10.0, "research_concurrency_limit": 2, "version_retention_policy": null}',
-                '{"level": "INFO", "retention_days": 30}',
+                json.dumps(llm_cfg),
+                json.dumps(emb_cfg),
+                json.dumps(srch_cfg),
+                json.dumps(priv_cfg),
+                json.dumps(retry_cfg),
+                json.dumps(store_cfg),
+                json.dumps(log_cfg),
                 now,
             ),
         )
@@ -130,8 +139,8 @@ async def system_status():
                 llm_cfg = json.loads(cfg_row[0]) if cfg_row[0] else {}
                 emb_cfg = json.loads(cfg_row[1]) if cfg_row[1] else {}
                 srch_cfg = json.loads(cfg_row[2]) if cfg_row[2] else {}
-                llm_connected = bool(llm_cfg.get("base_url") and llm_cfg.get("api_key") and llm_cfg.get("model"))
-                embedding_available = bool(emb_cfg.get("base_url") and emb_cfg.get("api_key") and emb_cfg.get("model"))
+                llm_connected = bool(llm_cfg.get("base_url") and llm_cfg.get("model"))
+                embedding_available = bool(emb_cfg.get("base_url") and emb_cfg.get("model"))
                 search_source = srch_cfg.get("provider") if srch_cfg else None
 
         async with db.execute(

@@ -13,17 +13,17 @@ from src.external.retry import retry_with_backoff
 def _get_llm_client() -> AsyncOpenAI | None:
     settings = get_settings()
     cfg = settings.llm_config
-    if not (cfg.base_url and cfg.api_key and cfg.model):
+    if not (cfg.base_url and cfg.model):
         return None
-    return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key)
+    return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
 
 
 def _get_embedding_client() -> AsyncOpenAI | None:
     settings = get_settings()
     cfg = settings.embedding_config
-    if not (cfg.base_url and cfg.api_key and cfg.model):
+    if not (cfg.base_url and cfg.model):
         return None
-    return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key)
+    return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
 
 
 _DEGRADED_MSG = "【降级模式】当前 LLM 服务不可用，请检查配置或网络连接后重试。"
@@ -76,7 +76,7 @@ async def chat_completion(
     return response.choices[0].message.content or ""
 
 
-def _fallback_embedding(text: str, dim: int = 1536) -> list[float]:
+def _fallback_embedding(text: str, dim: int = 768) -> list[float]:
     seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % (2 ** 32)
     rng = random.Random(seed)
     return [rng.uniform(-1.0, 1.0) for _ in range(dim)]

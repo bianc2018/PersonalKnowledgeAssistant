@@ -545,7 +545,7 @@ def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> List[str
     return chunks
 
 
-def _fallback_embedding(text: str, dim: int = 1536) -> List[float]:
+def _fallback_embedding(text: str, dim: int = 768) -> List[float]:
     """Deterministic pseudo-random vector when external embedding is unavailable."""
     seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % (2 ** 32)
     rng = random.Random(seed)

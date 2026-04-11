@@ -26,10 +26,10 @@ async def _update_task_status(
     await db.execute(
         """
         UPDATE research_tasks
-        SET status = ?, progress_percent = ?, error_message = ?, search_source_used = ?, updated_at = ?
+        SET status = ?, progress_percent = ?, error_message = ?, search_source_used = ?
         WHERE id = ?
         """,
-        (status, progress, error, source, _now(), task_id),
+        (status, progress, error, source, task_id),
     )
     await db.commit()
     tq.publish_event(task_id, "status", {"status": status})
@@ -75,8 +75,8 @@ async def _save_citation(
 ) -> None:
     await db.execute(
         """
-        INSERT INTO research_citations (id, task_id, source_title, source_url, source_summary, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO research_citations (id, task_id, source_title, source_url, source_summary)
+        VALUES (?, ?, ?, ?, ?)
         """,
         (
             str(uuid.uuid4()),
@@ -84,7 +84,6 @@ async def _save_citation(
             source.get("title", ""),
             source.get("url", ""),
             source.get("summary", ""),
-            _now(),
         ),
     )
     await db.commit()
@@ -132,7 +131,7 @@ async def run_research_task(task_id: str) -> None:
             outline_raw = await chat_completion(
                 [{"role": "user", "content": outline_prompt}], stream=False
             )
-        except Exception as e:
+        except Exception:
             outline_raw = ""
 
         outline_data = _safe_json_parse(outline_raw)
@@ -208,10 +207,13 @@ async def run_research_task(task_id: str) -> None:
         await db.commit()
 
         # Stage 3: write sections
+        _VALID_SECTION_TYPES = {"background", "key_points", "trends", "conclusion", "summary"}
         total_sections = len(outline)
         for idx, sec in enumerate(outline):
             progress = 40 + int((idx / total_sections) * 40)
             stype = sec.get("type", "summary")
+            if stype not in _VALID_SECTION_TYPES:
+                stype = "summary"
             title = sec.get("title", "未命名章节")
             tq.publish_event(
                 task_id, "progress", {"percent": progress, "stage": f"正在撰写：{title}..."}

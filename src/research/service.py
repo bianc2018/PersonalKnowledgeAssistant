@@ -128,14 +128,11 @@ async def get_task_detail(db: aiosqlite.Connection, task_id: str) -> Optional[Re
 
 
 async def respond_to_task(task_id: str, answer: str) -> bool:
-    from src.research.worker import run_research_task
-
     ok = tq.provide_response(task_id, answer)
     if not ok:
         return False
-    # Resume task by re-queueing it. Worker will pick it up as long as status
-    # transitions back to running in the worker loop.
-    await tq.submit_task(task_id)
+    # The running worker will wake from wait_for_response and continue;
+    # no need to re-queue.
     return True
 
 

@@ -22,10 +22,11 @@ async def _init_connection(conn: aiosqlite.Connection) -> None:
         pass
 
 
-async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aiosqlite.Connection:
+async def init_db(db_path: str | None = None, embedding_dim: int | None = None) -> aiosqlite.Connection:
     """Initialize database schema and virtual tables."""
     settings = get_settings()
     path = db_path or settings.database_url
+    dim = embedding_dim if embedding_dim is not None else settings.embedding_config.dimension
     Path(path).parent.mkdir(parents=True, exist_ok=True)
 
     conn = await aiosqlite.connect(path)
@@ -41,7 +42,7 @@ async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aios
         f"""
         CREATE VIRTUAL TABLE IF NOT EXISTS vec_chunks USING vec0(
             chunk_id TEXT PRIMARY KEY,
-            embedding FLOAT[{embedding_dim}]
+            embedding FLOAT[{dim}]
         )
         """
     )

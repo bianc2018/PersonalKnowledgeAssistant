@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Chat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: #f8fafc;
+      color: #334155;
+    }
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+    }
+    .nav-brand { font-weight: 700; color: #0f172a; text-decoration: none; }
+    .nav-links { margin-left: auto; display: flex; gap: 12px; }
+    .nav-links a { font-size: 13px; color: #475569; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .nav-links a:hover { background: #f1f5f9; color: #0f172a; }
+    .nav-links a.active { background: #eef2ff; color: #4f46e5; }
+
+    .layout { display: grid; grid-template-columns: 260px 1fr; height: calc(100vh - 56px); }
+    @media (max-width: 920px) { .layout { grid-template-columns: 1fr; } }
+
+    .sidebar {
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 16px;
+      overflow: auto;
+    }
+    .sidebar h3 { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px; }
+    .session {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .session:hover { background: #f8fafc; }
+    .session.active { background: #eef2ff; color: #4f46e5; }
+    .btn { padding: 8px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #4f46e5; color: #fff; width: 100%; margin-bottom: 12px; }
+
+    .chat { display: flex; flex-direction: column; }
+    .messages { flex: 1; overflow: auto; padding: 24px; }
+    .msg { max-width: 760px; margin: 0 auto 18px; display: flex; gap: 12px; }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: grid; place-items: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-avatar { background: #e2e8f0; color: #334155; }
+    .ai-avatar { background: #eef2ff; color: #4f46e5; }
+    .bubble { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.65; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+    .msg.user .bubble { background: #f1f5f9; border-color: #e2e8f0; }
+    .msg-meta { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+
+    .composer {
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+      padding: 16px 24px;
+    }
+    .composer-inner { max-width: 760px; margin: 0 auto; display: flex; gap: 10px; }
+    .composer input {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+    .composer input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    .composer .btn { padding: 0 18px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-brand" href="index.html">PKA Mockups</a>
+    <div class="nav-links">
+      <a href="mockup-dashboard.html">Dashboard</a>
+      <a href="mockup-knowledge-list.html">Knowledge</a>
+      <a class="active" href="mockup-chat.html">Chat</a>
+      <a href="mockup-research-list.html">Research</a>
+      <a href="mockup-settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="btn btn-primary">+ New chat</button>
+      <h3>Recent</h3>
+      <div class="session active">
+        <span>FastAPI streaming tips</span>
+        <span style="font-size:12px;color:#94a3b8">•</span>
+      </div>
+      <div class="session">
+        <span>Compare vector DBs</span>
+      </div>
+      <div class="session">
+        <span>Security checklist</span>
+      </div>
+      <div class="session">
+        <span>Obsidian plugin ideas</span>
+      </div>
+      <h3 style="margin-top:14px">Yesterday</h3>
+      <div class="session">
+        <span>Hosting LLMs cost</span>
+      </div>
+      <div class="session">
+        <span>Async SQLite patterns</span>
+      </div>
+    </aside>
+
+    <main class="chat">
+      <div class="messages">
+        <div class="msg user">
+          <div class="avatar user-avatar">U</div>
+          <div>
+            <div class="bubble">What are the best practices for SSE in FastAPI?</div>
+            <div class="msg-meta">10:23 AM</div>
+          </div>
+        </div>
+        <div class="msg">
+          <div class="avatar ai-avatar">AI</div>
+          <div>
+            <div class="bubble">
+              Here are a few practical tips for using Server-Sent Events in FastAPI:<br/><br/>
+              1. Use a long-lived async generator and handle client disconnects with <code>Request.is_disconnected()</code>.<br/>
+              2. Set proper headers: <code>Cache-Control: no-cache</code> and <code>Connection: keep-alive</code>.<br/>
+              3. If you need structured events, use the <code>text/event-stream</code> format with event IDs and retry fields.<br/>
+              4. Consider <code>sse-starlette</code> for a clean abstraction.
+            </div>
+            <div class="msg-meta">10:24 AM · Based on 3 sources</div>
+          </div>
+        </div>
+        <div class="msg user">
+          <div class="avatar user-avatar">U</div>
+          <div>
+            <div class="bubble">Can I mix SSE with background tasks?</div>
+            <div class="msg-meta">10:25 AM</div>
+          </div>
+        </div>
+        <div class="msg">
+          <div class="avatar ai-avatar">AI</div>
+          <div>
+            <div class="bubble">
+              Yes, but keep the lifecycle clear. Streaming happens in the foreground path, while background tasks run after the response is sent. If you need mid-stream side effects, run them inside the generator instead of <code>BackgroundTask</code>.
+            </div>
+            <div class="msg-meta">10:25 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="composer-inner">
+          <input placeholder="Ask anything about your knowledge..." />
+          <button class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

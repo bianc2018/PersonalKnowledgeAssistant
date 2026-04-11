@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Research Detail</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: #f8fafc;
+      color: #334155;
+    }
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+    }
+    .nav-brand { font-weight: 700; color: #0f172a; text-decoration: none; }
+    .nav-links { margin-left: auto; display: flex; gap: 12px; }
+    .nav-links a { font-size: 13px; color: #475569; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .nav-links a:hover { background: #f1f5f9; color: #0f172a; }
+    .nav-links a.active { background: #eef2ff; color: #4f46e5; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+    .breadcrumbs { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+    .breadcrumbs a { color: #4f46e5; text-decoration: none; }
+
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    h1 { font-size: 26px; color: #0f172a; }
+    .actions { display: flex; gap: 8px; }
+    .btn { padding: 8px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+
+    .status-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .tag { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+    .tag-done { background: #ecfdf5; color: #059669; }
+    .meta { font-size: 13px; color: #64748b; }
+
+    .content { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); min-height: 320px; }
+    .content h2 { font-size: 18px; color: #0f172a; margin: 20px 0 8px; }
+    .content h2:first-child { margin-top: 0; }
+    .content p { margin-bottom: 12px; line-height: 1.7; }
+    .content ul { margin: 0 0 12px 18px; }
+    .content li { margin: 6px 0; }
+    .content blockquote { border-left: 3px solid #cbd5e1; padding-left: 12px; color: #475569; margin: 12px 0; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #475569; }
+
+    .sources { margin-top: 20px; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    .card h3 { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 10px; }
+    .source { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .source:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-brand" href="index.html">PKA Mockups</a>
+    <div class="nav-links">
+      <a href="mockup-dashboard.html">Dashboard</a>
+      <a href="mockup-knowledge-list.html">Knowledge</a>
+      <a href="mockup-chat.html">Chat</a>
+      <a class="active" href="mockup-research-list.html">Research</a>
+      <a href="mockup-settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="breadcrumbs"><a href="mockup-research-list.html">Research</a> / Self-hosting LLMs on consumer GPUs</div>
+    <div class="page-header">
+      <h1>Self-hosting LLMs on consumer GPUs</h1>
+      <div class="actions">
+        <button class="btn btn-secondary">Export</button>
+        <button class="btn btn-secondary">Save to knowledge</button>
+        <button class="btn btn-primary">Regenerate</button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span class="tag tag-done">Completed</span>
+      <span class="meta">14 sources · Generated yesterday · 2,400 words</span>
+    </div>
+
+    <div class="content">
+      <h2>Executive summary</h2>
+      <p>Running large language models locally is now practical on mid-tier consumer GPUs with 8–16 GB VRAM. The key is picking the right quantization format, inference engine, and model size for your hardware.</p>
+
+      <h2>Recommended stack</h2>
+      <ul>
+        <li><strong>llama.cpp</strong> for GGUF models on CPU / GPU hybrid.</li>
+        <li><strong>vLLM</strong> or <strong>TGI</strong> for high-throughput serving on NVIDIA GPUs.</li>
+        <li><strong>Ollama</strong> for a simple local API with model management.</li>
+      </ul>
+
+      <h2>VRAM rules of thumb</h2>
+      <blockquote>
+        A 7B model at Q4_K_M needs roughly 4.5 GB VRAM for the weights, plus overhead for context and KV cache. Plan for ~6–7 GB at 4k context.
+      </blockquote>
+
+      <h2>Trade-offs</h2>
+      <p>Lower-bit quantization saves memory but can degrade instruction-following and math performance. Q5_K_M is often the sweet spot for reasoning tasks, while Q4_K_M is fine for summarization and chat.</p>
+    </div>
+
+    <div class="sources">
+      <div class="card">
+        <h3>Sources</h3>
+        <div class="source"><span>TheBloke — GGUF quantization notes</span><span style="color:#94a3b8">→</span></div>
+        <div class="source"><span>llama.cpp README — performance tuning</span><span style="color:#94a3b8">→</span></div>
+        <div class="source"><span>vLLM docs — PagedAttention</span><span style="color:#94a3b8">→</span></div>
+        <div class="source"><span>Ollama blog — local model management</span><span style="color:#94a3b8">→</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

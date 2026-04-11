@@ -15,7 +15,7 @@ phases:
   verify: completed
   test_plan: completed
   test_run: completed
-  release_readiness: pending
+  release_readiness: completed
   retrospective: pending
 speckit_mode: "classic"
 testing:
@@ -79,6 +79,12 @@ gates:
     notes: "pytest 31/31 通过；Must Have US/FR 全部实现；spec.md 已勾选"
     conditions: []
     sync_result: "clean"
+  - phase: "release_readiness"
+    decision: "approved"
+    timestamp: "2026-04-11T00:30:00Z"
+    notes: "CHANGELOG 已更新， stray index.html 已清理，文档全部提交，无发布阻塞"
+    conditions: []
+    sync_result: "clean"
 sync_runs:
   last_run: ""
   total_runs: 0
@@ -93,4 +99,4 @@ research_dimensions:
   tech_stack: completed
   metrics_roi: skipped
 input_richness_score: 5
-last_updated: "2026-04-11T00:30:00Z"
+last_updated: "2026-04-11T01:00:00Z"

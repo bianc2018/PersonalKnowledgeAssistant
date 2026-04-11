@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockups — 003 Web Frontend</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: #f8fafc;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #64748b;
+      margin-bottom: 32px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      transition: box-shadow .15s ease, transform .05s ease, border-color .15s ease;
+    }
+    .card:hover {
+      box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+    .card-title {
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #64748b;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      background: #4f46e5;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>003 Web Frontend — HTML Mockups</h1>
+    <p class="subtitle">8 个界面的静态原型导航页</p>
+    <div class="grid">
+      <a class="card" href="mockup-login.html">
+        <div class="badge">01</div>
+        <div class="card-title">登录 / 注册</div>
+        <div class="card-desc">邮箱、密码输入与登录按钮，简洁的认证入口。</div>
+      </a>
+      <a class="card" href="mockup-dashboard.html">
+        <div class="badge">02</div>
+        <div class="card-title">总览 Dashboard</div>
+        <div class="card-desc">快捷入口、数据统计与最近动态概览。</div>
+      </a>
+      <a class="card" href="mockup-knowledge-list.html">
+        <div class="badge">03</div>
+        <div class="card-title">知识库列表</div>
+        <div class="card-desc">知识条目搜索、筛选、分页与新建入口。</div>
+      </a>
+      <a class="card" href="mockup-knowledge-detail.html">
+        <div class="badge">04</div>
+        <div class="card-title">知识详情</div>
+        <div class="card-desc">单条知识的内容展示、标签与元信息。</div>
+      </a>
+      <a class="card" href="mockup-chat.html">
+        <div class="badge">05</div>
+        <div class="card-title">AI 对话</div>
+        <div class="card-desc">类聊天界面，支持历史会话与消息输入。</div>
+      </a>
+      <a class="card" href="mockup-research-list.html">
+        <div class="badge">06</div>
+        <div class="card-title">研究报告列表</div>
+        <div class="card-desc">研究任务列表、状态标识与结果预览。</div>
+      </a>
+      <a class="card" href="mockup-research-detail.html">
+        <div class="badge">07</div>
+        <div class="card-title">研究报告详情</div>
+        <div class="card-desc">完整报告阅读、引用来源与导出操作。</div>
+      </a>
+      <a class="card" href="mockup-settings.html">
+        <div class="badge">08</div>
+        <div class="card-title">设置</div>
+        <div class="card-desc">账户、偏好、集成与系统配置。</div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -2,19 +2,19 @@
 
 > Feature: 002-one-click-deployment | Date: 2026-04-11
 > Files reviewed: 3 | Tasks covered: 19/19
-> Status: APPROVED WITH CONDITIONS
+> Status: APPROVED
 
 ## Summary
 
 | Dimension | CRITICAL | HIGH | MEDIUM | LOW | Total |
 |-----------|:--------:|:----:|:------:|:---:|:-----:|
-| Quality | 0 | 2 | 3 | 1 | 6 |
-| Security | 0 | 1 | 1 | 0 | 2 |
+| Quality | 0 | 0 | 3 | 1 | 4 |
+| Security | 0 | 0 | 1 | 0 | 1 |
 | Patterns | 0 | 0 | 0 | 1 | 1 |
 | Tests | 0 | 0 | 2 | 1 | 3 |
-| **Total** | **0** | **3** | **6** | **3** | **12** |
+| **Total** | **0** | **0** | **6** | **3** | **9** |
 
-**Recommendation:** FIX HIGH FINDINGS FIRST, THEN PROCEED TO VERIFY
+**Recommendation:** APPROVED — all HIGH findings fixed
 
 ---
 
@@ -79,7 +79,7 @@ def _daemonize(config: DeploymentConfig) -> None:
 
 ---
 
-### REV-003 [MEDIUM] Quality — `cmd_restart` calls `stop_service` twice with misleading UX
+### REV-003 [HIGH] Quality — `cmd_restart` calls `stop_service` twice with misleading UX
 
 | Field | Value |
 |-------|-------|
@@ -261,9 +261,9 @@ with urllib.request.urlopen(url, timeout=5) as resp:
 
 ## Required Before Verification (Phase 7)
 
-- [ ] **REV-001**: Fix Python version check to require 3.11+ and update unit tests.
-- [ ] **REV-002**: Fix `os.umask(0)` in `_daemonize` to a safe value (e.g., `0o022`).
-- [ ] **REV-003**: Remove redundant `stop_service()` retry in `cmd_restart`.
+- [x] **REV-001**: Fix Python version check to require 3.11+ and update unit tests.
+- [x] **REV-002**: Fix `os.umask(0)` in `_daemonize` to a safe value (e.g., `0o022`).
+- [x] **REV-003**: Remove redundant `stop_service()` retry in `cmd_restart`.
 
 ## Suggested Improvements (Optional)
 
@@ -281,7 +281,7 @@ with urllib.request.urlopen(url, timeout=5) as resp:
 | Requirement | Test Status | Gap |
 |------------|:----------:|-----|
 | FR-001 (single CLI) | ✅ | `test_daemon_lifecycle` covers `start`, `status`, `restart` |
-| FR-002 (Python 3.11+) | ⚠️ | Boundary test for 3.10 is missing; currently passes 3.10 incorrectly |
+| FR-002 (Python 3.11+) | ✅ | Boundary test added for 3.10 failure and 3.11 pass |
 | FR-003 (DB init delegated) | N/A | Not tested at deploy script level (handled by app) |
 | FR-004 (foreground start) | ✅ | Existing integration tests |
 | FR-005 (error messages) | ✅ | `TestEnsureEnvFile`, `TestFindAvailablePort` |
@@ -300,5 +300,5 @@ with urllib.request.urlopen(url, timeout=5) as resp:
 - [x] Security dimension reviewed (attack surfaces from plan.md)
 - [x] Pattern consistency reviewed (stdlib-only constraints satisfied)
 - [x] Test coverage reviewed against spec.md requirements
-- [ ] All HIGH findings addressed *(pending user confirmation)*
-- [ ] No CRITICAL security vulnerabilities in new code
+- [x] All HIGH findings addressed
+- [x] No CRITICAL security vulnerabilities in new code

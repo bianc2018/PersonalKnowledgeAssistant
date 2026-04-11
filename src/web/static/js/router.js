@@ -21,7 +21,7 @@ function matchRoute(hashPath) {
   return null;
 }
 
-export function resolve() {
+export async function resolve() {
   const raw = window.location.hash.replace(/^#\/?/, '');
   const matched = matchRoute(raw);
 
@@ -51,16 +51,20 @@ export function resolve() {
 
   const action = route.action || 'render';
   const args = route.argIndex !== undefined ? [match[route.argIndex]] : [];
-  if (typeof pageModule[action] === 'function') {
-    pageModule[action](...args);
-  } else if (typeof pageModule.render === 'function') {
-    pageModule.render(...args);
-  } else {
-    console.error(`No render function on page module: ${route.page}`);
+  try {
+    if (typeof pageModule[action] === 'function') {
+      await pageModule[action](...args);
+    } else if (typeof pageModule.render === 'function') {
+      await pageModule.render(...args);
+    } else {
+      console.error(`No render function on page module: ${route.page}`);
+    }
+  } catch (err) {
+    console.error('Route render error:', err);
   }
 }
 
 export function initRouter() {
-  window.addEventListener('hashchange', resolve);
+  window.addEventListener('hashchange', () => resolve());
   resolve();
 }

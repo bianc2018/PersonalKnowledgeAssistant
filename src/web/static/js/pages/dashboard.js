@@ -1,5 +1,5 @@
 import { apiGet } from '../api.js';
-import { renderSkeleton, clearSkeleton } from '../ui.js';
+import { renderSkeleton, clearSkeleton, escapeHtml } from '../ui.js';
 
 export async function render() {
   const app = document.getElementById('app');
@@ -21,7 +21,7 @@ export async function render() {
   clearSkeleton(container);
 
   if (!statusRes.ok) {
-    container.innerHTML = `<div class="text-red-600">加载失败</div>`;
+    container.innerHTML = `<div class="text-red-600">加载失败：${escapeHtml(statusRes.error || '')}</div>`;
     return;
   }
 
@@ -59,8 +59,8 @@ export async function render() {
         <h2 class="font-semibold mb-3">最近知识</h2>
         ${knowItems.length ? `<ul class="space-y-2">
           ${knowItems.map(k => `<li>
-            <a href="#/knowledge/${k.id}" class="text-blue-600 hover:underline text-sm">${k.title || '无标题'}</a>
-            <div class="text-xs text-gray-500">${k.source_type || ''} · ${(k.tags || []).map(t => t.name).join(', ')}</div>
+            <a href="#/knowledge/${k.id}" class="text-blue-600 hover:underline text-sm">${escapeHtml(k.title || '无标题')}</a>
+            <div class="text-xs text-gray-500">${escapeHtml(k.source_type || '')} · ${(k.tags || []).map(t => escapeHtml(t.name)).join(', ')}</div>
           </li>`).join('')}
         </ul>` : '<div class="text-gray-500 text-sm">暂无知识</div>'}
       </div>
@@ -68,7 +68,7 @@ export async function render() {
         <h2 class="font-semibold mb-3">最近会话</h2>
         ${convItems.length ? `<ul class="space-y-2">
           ${convItems.map(c => `<li>
-            <a href="#/chat/${c.id}" class="text-blue-600 hover:underline text-sm">${c.title || '新会话'}</a>
+            <a href="#/chat/${c.id}" class="text-blue-600 hover:underline text-sm">${escapeHtml(c.title || '新会话')}</a>
             <div class="text-xs text-gray-500">${c.message_count || 0} 条消息</div>
           </li>`).join('')}
         </ul>` : '<div class="text-gray-500 text-sm">暂无会话</div>'}

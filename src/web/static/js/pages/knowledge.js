@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPatch, apiDelete, apiUpload } from '../api.js';
-import { renderSkeleton, clearSkeleton, renderMarkdown, showToast, showModal } from '../ui.js';
+import { renderSkeleton, clearSkeleton, renderMarkdown, showToast, showModal, escapeHtml } from '../ui.js';
 
 // helpers
 function fmtDate(iso) {
@@ -33,8 +33,8 @@ export async function renderList() {
         </div>
       </div>
       <div class="flex flex-col md:flex-row gap-2">
-        <input type="text" id="search-q" value="${listState.q}" placeholder="搜索知识..." aria-label="搜索知识" class="flex-1 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
-        <input type="text" id="search-tags" value="${listState.tags}" placeholder="标签过滤（逗号分隔）" aria-label="标签过滤" class="md:w-64 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+        <input type="text" id="search-q" value="${escapeHtml(listState.q)}" placeholder="搜索知识..." aria-label="搜索知识" class="flex-1 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+        <input type="text" id="search-tags" value="${escapeHtml(listState.tags)}" placeholder="标签过滤（逗号分隔）" aria-label="标签过滤" class="md:w-64 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
         <button id="btn-search" class="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm">搜索</button>
       </div>
       <div id="list-content"></div>
@@ -92,14 +92,14 @@ async function loadList() {
       ${items.length ? items.map(k => `
         <div class="bg-white dark:bg-gray-800 rounded shadow p-4 flex flex-col gap-2">
           <div class="flex items-start justify-between gap-2">
-            <a href="#/knowledge/${k.id}" class="font-semibold text-blue-600 hover:underline">${k.title || '无标题'}</a>
+            <a href="#/knowledge/${k.id}" class="font-semibold text-blue-600 hover:underline">${escapeHtml(k.title || '无标题')}</a>
             <div class="flex items-center gap-2 shrink-0">
               ${k.confidence ? confidenceBadge(k.confidence.score_level) : ''}
               ${k.is_deleted ? '<span class="text-xs text-gray-500">已删除</span>' : ''}
             </div>
           </div>
           <div class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-            ${k.source_type ? `[${k.source_type}]` : ''} ${(k.tags || []).map(t => `<span class="inline-block mr-1 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs">${t.name}</span>`).join('')}
+            ${k.source_type ? `[${escapeHtml(k.source_type)}]` : ''} ${(k.tags || []).map(t => `<span class="inline-block mr-1 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs">${escapeHtml(t.name)}</span>`).join('')}
           </div>
           <div class="text-xs text-gray-500">创建于 ${fmtDate(k.created_at)} · ${k.version_count || 1} 个版本</div>
         </div>
@@ -266,7 +266,7 @@ export async function renderDetail(itemId) {
   const res = await apiGet(`/knowledge/${itemId}`);
   clearSkeleton(container);
   if (!res.ok) {
-    container.innerHTML = `<div class="text-red-600">加载失败：${res.error}</div>`;
+    container.innerHTML = `<div class="text-red-600">加载失败：${escapeHtml(res.error || '')}</div>`;
     return;
   }
   const item = res.data?.data;
@@ -279,16 +279,16 @@ export async function renderDetail(itemId) {
 
   function renderView() {
     const contentText = item.current_version?.content_text || '';
-    const tagsHtml = (item.tags || []).map(t => `<span class="inline-block mr-1 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs">${t.name}</span>`).join('') || '<span class="text-gray-400 text-sm">无标签</span>';
+    const tagsHtml = (item.tags || []).map(t => `<span class="inline-block mr-1 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-xs">${escapeHtml(t.name)}</span>`).join('') || '<span class="text-gray-400 text-sm">无标签</span>';
     const attachmentsHtml = (item.attachments || []).map(a => `
       <li class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded px-3 py-2">
-        <div class="text-sm truncate">${a.filename} <span class="text-xs text-gray-500">(${(a.size_bytes / 1024).toFixed(1)} KB)</span></div>
+        <div class="text-sm truncate">${escapeHtml(a.filename)} <span class="text-xs text-gray-500">(${(a.size_bytes / 1024).toFixed(1)} KB)</span></div>
         <a href="/api/knowledge/${item.id}/attachments/${a.id}/download" target="_blank" class="text-blue-600 hover:underline text-sm">下载</a>
       </li>
     `).join('');
     const versionsHtml = (item.versions || []).map((v, idx) => `
       <li class="text-sm border-l-2 pl-3 ${idx === 0 ? 'border-blue-600' : 'border-gray-300 dark:border-gray-600'}">
-        <div class="text-gray-500 text-xs">${fmtDate(v.created_at)} · ${v.created_by}</div>
+        <div class="text-gray-500 text-xs">${fmtDate(v.created_at)} · ${escapeHtml(v.created_by || '')}</div>
         <div>${idx === 0 ? '当前版本' : '历史版本'}</div>
       </li>
     `).join('');
@@ -297,8 +297,8 @@ export async function renderDetail(itemId) {
       <div class="bg-white dark:bg-gray-800 rounded shadow p-4 space-y-4">
         <div class="flex items-start justify-between gap-2">
           <div>
-            <h1 class="text-xl font-bold">${item.title || '无标题'}</h1>
-            <div class="text-xs text-gray-500 mt-1">${item.source_type || ''} · 创建于 ${fmtDate(item.created_at)}</div>
+            <h1 class="text-xl font-bold">${escapeHtml(item.title || '无标题')}</h1>
+            <div class="text-xs text-gray-500 mt-1">${escapeHtml(item.source_type || '')} · 创建于 ${fmtDate(item.created_at)}</div>
           </div>
           <div class="flex gap-2 shrink-0">
             <button id="btn-edit" aria-label="编辑知识" class="px-3 py-1.5 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm">编辑</button>
@@ -321,8 +321,8 @@ export async function renderDetail(itemId) {
             <span class="text-sm font-medium">置信度</span>
             ${confidenceBadge(item.confidence.score_level)}
           </div>
-          <div class="text-sm text-gray-600 dark:text-gray-300">${item.confidence.rationale || ''}</div>
-          <div class="text-xs text-gray-400 mt-1">方法：${item.confidence.method || '-'} · ${fmtDate(item.confidence.evaluated_at)}</div>
+          <div class="text-sm text-gray-600 dark:text-gray-300">${escapeHtml(item.confidence.rationale || '')}</div>
+          <div class="text-xs text-gray-400 mt-1">方法：${escapeHtml(item.confidence.method || '-')} · ${fmtDate(item.confidence.evaluated_at)}</div>
         </div>` : ''}
 
         <div>
@@ -358,15 +358,15 @@ export async function renderDetail(itemId) {
         <h2 class="text-lg font-bold">编辑知识</h2>
         <div>
           <label class="block text-sm font-medium mb-1">标题</label>
-          <input type="text" id="edit-title" value="${item.title || ''}" class="w-full rounded border dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm" />
+          <input type="text" id="edit-title" value="${escapeHtml(item.title || '')}" class="w-full rounded border dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">内容</label>
-          <textarea id="edit-content" rows="8" class="w-full rounded border dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm">${contentText}</textarea>
+          <textarea id="edit-content" rows="8" class="w-full rounded border dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm">${escapeHtml(contentText)}</textarea>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">标签（逗号分隔）</label>
-          <input type="text" id="edit-tags" value="${tagStr}" class="w-full rounded border dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm" />
+          <input type="text" id="edit-tags" value="${escapeHtml(tagStr)}" class="w-full rounded border dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm" />
         </div>
         <div id="edit-error" class="text-red-600 text-sm hidden"></div>
         <div class="flex gap-2">

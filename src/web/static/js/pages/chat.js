@@ -220,15 +220,8 @@ export async function render(convId) {
       onDone: () => {
         currentStreamAbort = null;
       }
-    }, token);
+    }, token, { method: 'POST', body: JSON.stringify({ content: text, stream: true }) });
     currentStreamAbort = stream;
-
-    // send the POST
-    const sendRes = await apiPost(`/chat/conversations/${targetId}/messages`, { content: text, stream: true });
-    if (!sendRes.ok) {
-      contentDiv.innerHTML = `<span class="text-red-600">发送失败：${sendRes.error}</span>`;
-      if (currentStreamAbort) { currentStreamAbort.abort(); currentStreamAbort = null; }
-    }
   });
 
   await loadConversations();

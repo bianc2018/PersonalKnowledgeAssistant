@@ -1,8 +1,7 @@
 export const store = {
   token: null,
   user: null,
-  currentPage: '',
-  toasts: []
+  currentPage: ''
 };
 
 export function getToken() {
@@ -37,17 +36,3 @@ export function clearToken() {
   sessionStorage.removeItem('pka_token');
 }
 
-let _toastId = 0;
-
-export function addToast(msg, type = 'info') {
-  const id = ++_toastId;
-  const toast = { id, msg, type };
-  store.toasts.push(toast);
-  setTimeout(() => removeToast(id), 3000);
-  return toast;
-}
-
-export function removeToast(id) {
-  const idx = store.toasts.findIndex(t => t.id === id);
-  if (idx !== -1) store.toasts.splice(idx, 1);
-}

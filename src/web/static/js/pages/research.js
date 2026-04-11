@@ -1,6 +1,6 @@
 import { apiGet, apiPost } from '../api.js';
 import { createSSEStream } from '../sse.js';
-import { renderSkeleton, clearSkeleton, renderMarkdown, showToast, showModal } from '../ui.js';
+import { renderSkeleton, clearSkeleton, renderMarkdown, showToast, showModal, escapeHtml } from '../ui.js';
 import { getToken } from '../store.js';
 
 function fmtDate(iso) {
@@ -63,11 +63,11 @@ async function loadList() {
       ${items.length ? items.map(t => `
         <div class="bg-white dark:bg-gray-800 rounded shadow p-4 flex flex-col gap-2">
           <div class="flex items-start justify-between gap-2">
-            <a href="#/research/${t.id}" class="font-semibold text-blue-600 hover:underline">${t.topic || '无主题'}</a>
+            <a href="#/research/${t.id}" class="font-semibold text-blue-600 hover:underline">${escapeHtml(t.topic || '无主题')}</a>
             <div class="shrink-0">${statusBadge(t.status)}</div>
           </div>
           <div class="text-sm text-gray-500">进度: ${t.progress_percent ?? 0}% · ${fmtDate(t.created_at)}</div>
-          ${t.scope_description ? `<div class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">${t.scope_description}</div>` : ''}
+          ${t.scope_description ? `<div class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">${escapeHtml(t.scope_description)}</div>` : ''}
         </div>
       `).join('') : '<div class="text-gray-500">暂无调研任务</div>'}
     </div>
@@ -144,7 +144,7 @@ export async function renderDetail(taskId) {
   const res = await apiGet(`/research/${taskId}`);
   clearSkeleton(container);
   if (!res.ok) {
-    container.innerHTML = `<div class="text-red-600">加载失败：${res.error}</div>`;
+    container.innerHTML = `<div class="text-red-600">加载失败：${escapeHtml(res.error || '')}</div>`;
     return;
   }
   const task = res.data?.data;
@@ -163,7 +163,7 @@ export async function renderDetail(taskId) {
     <div class="bg-white dark:bg-gray-800 rounded shadow p-4 space-y-4">
       <div class="flex items-start justify-between gap-2">
         <div>
-          <h1 class="text-xl font-bold">${task.topic || '无主题'}</h1>
+          <h1 class="text-xl font-bold">${escapeHtml(task.topic || '无主题')}</h1>
           <div class="text-xs text-gray-500 mt-1">创建于 ${fmtDate(task.created_at)}</div>
         </div>
         <div id="detail-status">${statusBadge(status)}</div>
@@ -194,7 +194,7 @@ export async function renderDetail(taskId) {
         </div>
       </div>
 
-      ${task.error_message ? `<div class="text-red-600 text-sm">错误：${task.error_message}</div>` : ''}
+      ${task.error_message ? `<div class="text-red-600 text-sm">错误：${escapeHtml(task.error_message || '')}</div>` : ''}
     </div>
   `;
 
@@ -226,12 +226,12 @@ export async function renderDetail(taskId) {
     area.classList.remove('hidden');
     area.innerHTML = `
       <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded p-3">
-        <div class="font-medium text-sm mb-2">${q.question}</div>
+        <div class="font-medium text-sm mb-2">${escapeHtml(q.question)}</div>
         <form id="question-form" class="space-y-2">
           ${(q.options || []).map((opt, idx) => `
             <label class="flex items-center gap-2 text-sm">
-              <input type="radio" name="answer" value="${opt}" ${idx === 0 ? 'checked' : ''} />
-              <span>${opt}</span>
+              <input type="radio" name="answer" value="${escapeHtml(opt)}" ${idx === 0 ? 'checked' : ''} />
+              <span>${escapeHtml(opt)}</span>
             </label>
           `).join('')}
           <div>

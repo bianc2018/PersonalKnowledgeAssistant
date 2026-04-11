@@ -79,13 +79,14 @@ export function clearSkeleton(container) {
 }
 
 export function renderMarkdown(mdText) {
+  const raw = mdText || '';
   if (typeof marked !== 'undefined' && marked.parse) {
-    return marked.parse(mdText || '', { sanitize: true });
+    return marked.parse(escapeHtml(raw));
   }
-  return escapeHtml(mdText || '').replace(/\n/g, '<br>');
+  return escapeHtml(raw).replace(/\n/g, '<br>');
 }
 
-function escapeHtml(text) {
+export function escapeHtml(text) {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

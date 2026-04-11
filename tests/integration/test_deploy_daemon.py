@@ -8,6 +8,14 @@ import sys
 import time
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.skipif(
+    sys.version_info < (3, 11),
+    reason="deploy.py requires Python 3.11+",
+)
+
+
 DEPLOY = [sys.executable, str(Path(__file__).resolve().parent.parent.parent / "deploy.py")]
 CHECK_TIMEOUT = 10  # 秒
 POLL_INTERVAL = 0.2

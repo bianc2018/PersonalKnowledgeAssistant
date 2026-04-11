@@ -103,11 +103,11 @@ def run_step(
 def check_python_version() -> None:
     version = sys.version_info
     current = f"{version[0]}.{version[1]}.{version[2]}"
-    if version[0] < 3 or (version[0] == 3 and version[1] < 10):
+    if version[0] < 3 or (version[0] == 3 and version[1] < 11):
         raise DeployError(
             step="检查环境",
-            reason=f"Python 版本不符合要求\n当前版本: {current}\n所需版本: >= 3.10",
-            suggestion="请安装 Python 3.10 或更高版本后重试。",
+            reason=f"Python 版本不符合要求\n当前版本: {current}\n所需版本: >= 3.11",
+            suggestion="请安装 Python 3.11 或更高版本后重试。",
         )
 
 
@@ -266,7 +266,7 @@ def _daemonize(config: DeploymentConfig) -> None:
 
     os.setsid()
     os.chdir(str(config.project_root))
-    os.umask(0)
+    os.umask(0o022)
 
     sys.stdout.flush()
     sys.stderr.flush()
@@ -496,14 +496,12 @@ def cmd_restart(config: DeploymentConfig) -> int:
         if is_pid_alive(pid):
             print(f"正在停止后台服务 (PID {pid})...")
             if not stop_service(config):
-                print("停止旧服务失败，尝试强制结束...")
-                if not stop_service(config):
-                    _print_error(DeployError(
-                        step="重启服务",
-                        reason="无法终止旧进程",
-                        suggestion="请手动 kill 该进程后再试",
-                    ))
-                    return 1
+                _print_error(DeployError(
+                    step="重启服务",
+                    reason="无法终止旧进程",
+                    suggestion="请手动 kill 该进程后再试",
+                ))
+                return 1
     return cmd_start(config)
 
 

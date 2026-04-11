@@ -32,7 +32,7 @@ function renderNav() {
   const container = document.getElementById('nav-links');
   if (!container) return;
   const raw = window.location.hash.replace(/^#\/?/, '') || '';
-  const currentBase = raw.split('/')[0] || 'dashboard';
+  const currentBase = raw.split('?')[0].split('/')[0] || 'dashboard';
   container.innerHTML = navItems.map(item => {
     const active = currentBase === item.hash.replace('#/', '').split('/')[0]
       ? 'bg-gray-100 dark:bg-gray-700 font-medium'

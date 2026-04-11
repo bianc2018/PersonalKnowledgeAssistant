@@ -24,7 +24,8 @@ function matchRoute(hashPath) {
 
 export async function resolve() {
   const raw = window.location.hash.replace(/^#\/?/, '');
-  const matched = matchRoute(raw);
+  const path = raw.split('?')[0];
+  const matched = matchRoute(path);
 
   if (!matched) {
     window.location.hash = '#/dashboard';
@@ -39,7 +40,7 @@ export async function resolve() {
   }
 
   if (!route.public && !getToken()) {
-    const redirect = raw ? `?redirect=${encodeURIComponent(raw)}` : '';
+    const redirect = path ? `?redirect=${encodeURIComponent(path)}` : '';
     window.location.hash = `#/login${redirect}`;
     return;
   }

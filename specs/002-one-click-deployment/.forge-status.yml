@@ -40,14 +40,14 @@ gates:
   - phase: "code_review"
     decision: "approved"
     timestamp: "2026-04-11T11:00:00Z"
-    notes: "3 项 HIGH 均已修复：Python 版本检查对齐 spec、umask 改为 0o022、restart 去除冗余重试"
+    notes: "全部 12 项 findings 已修复（3 HIGH + 6 MEDIUM + 3 LOW）"
     conditions: []
     findings:
       critical: 0
       high: 3
       medium: 6
       low: 3
-      fixed: 3
+      fixed: 12
       acknowledged: 0
     sync_result: "clean"
 sync_runs:

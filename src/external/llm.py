@@ -15,7 +15,10 @@ def _get_llm_client() -> AsyncOpenAI | None:
     cfg = settings.llm_config
     if not (cfg.base_url and cfg.model):
         return None
-    return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
+    try:
+        return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
+    except Exception:
+        return None
 
 
 def _get_embedding_client() -> AsyncOpenAI | None:
@@ -23,7 +26,10 @@ def _get_embedding_client() -> AsyncOpenAI | None:
     cfg = settings.embedding_config
     if not (cfg.base_url and cfg.model):
         return None
-    return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
+    try:
+        return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
+    except Exception:
+        return None
 
 
 _DEGRADED_MSG = "【降级模式】当前 LLM 服务不可用，请检查配置或网络连接后重试。"

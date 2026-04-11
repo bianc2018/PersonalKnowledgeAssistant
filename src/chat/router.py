@@ -114,11 +114,17 @@ async def send_message(
     user: Annotated[CurrentUser, Depends(get_current_user)] = None,
 ):
     if body.stream:
+        import json as _json
+
         async def _event_stream():
             db = await get_db()
             try:
                 async for chunk in service.stream_message(db, conversation_id, body.content):
                     yield chunk
+            except Exception as exc:
+                payload = _json.dumps({"message": str(exc) or "流式响应中断"}, ensure_ascii=False)
+                yield f"event: error\ndata: {payload}\n\n"
+                yield f"event: done\ndata: {{}}\n\n"
             finally:
                 await db.close()
 

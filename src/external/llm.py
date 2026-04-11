@@ -16,7 +16,11 @@ def _get_llm_client() -> AsyncOpenAI | None:
     if not (cfg.base_url and cfg.model):
         return None
     try:
-        return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
+        return AsyncOpenAI(
+            base_url=cfg.base_url,
+            api_key=cfg.api_key or "not-needed",
+            timeout=settings.retry_settings.timeout_seconds,
+        )
     except Exception:
         return None
 
@@ -27,7 +31,11 @@ def _get_embedding_client() -> AsyncOpenAI | None:
     if not (cfg.base_url and cfg.model):
         return None
     try:
-        return AsyncOpenAI(base_url=cfg.base_url, api_key=cfg.api_key or "not-needed")
+        return AsyncOpenAI(
+            base_url=cfg.base_url,
+            api_key=cfg.api_key or "not-needed",
+            timeout=settings.retry_settings.timeout_seconds,
+        )
     except Exception:
         return None
 

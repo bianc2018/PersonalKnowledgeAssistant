@@ -60,6 +60,12 @@ class PrivacySettings(BaseSettings):
 
 
 class RetrySettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="RETRY_SETTINGS_",
+    )
     retry_times: int = 3
     timeout_seconds: int = 30
 

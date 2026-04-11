@@ -4,13 +4,13 @@ created_at: "2026-04-07"
 phases:
   problem_discovery: skipped
   research: completed
-  product_spec: in_progress
+  product_spec: completed
   revalidation: skipped
   bridge: completed
   plan: completed
-  tasks: pending
+  tasks: completed
   pre_impl_review: skipped
-  implement: pending
+  implement: completed
   code_review: pending
   verify: pending
   test_plan: pending
@@ -31,6 +31,12 @@ gates:
     notes: "用户明确要求：后台异步启动、状态查看、强制重启。同意更新 spec.md + tasks.md 后重新实现。"
     conditions: []
     sync_result: "clean"
+  - phase: "implement"
+    decision: "approved"
+    timestamp: "2026-04-11T10:00:00Z"
+    notes: "deploy.py 后台守护进程、start/status/restart/stop 子命令均已实现并通过单元+集成测试"
+    conditions: []
+    sync_result: "clean"
 sync_runs:
   last_run: ""
   total_runs: 0
@@ -42,4 +48,4 @@ change_requests:
     description: "deploy.py 增加后台守护进程模式、status/restart 子命令"
     status: accepted
     created_at: "2026-04-11T00:00:00Z"
-last_updated: "2026-04-11T00:00:00Z"
+last_updated: "2026-04-11T10:00:00Z"

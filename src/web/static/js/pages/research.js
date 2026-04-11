@@ -117,10 +117,10 @@ function openNewResearchModal() {
     const err = backdrop.querySelector('#nr-error');
     if (!topic) { err.textContent = '请输入主题'; err.classList.remove('hidden'); return; }
     const res = await apiPost('/research', { topic, scope_description: scope });
-    if (res.ok && res.data && res.data.id) {
+    if (res.ok && res.data && res.data.data && res.data.data.id) {
       showToast('调研任务已创建', 'success');
       close();
-      window.location.hash = `#/research/${res.data.id}`;
+      window.location.hash = `#/research/${res.data.data.id}`;
     } else {
       err.textContent = res.error || '创建失败';
       err.classList.remove('hidden');
@@ -275,7 +275,7 @@ export async function renderDetail(taskId) {
   if (saveBtn) {
     saveBtn.addEventListener('click', async () => {
       const r = await apiPost(`/research/${taskId}/save`);
-      if (r.ok && r.data && r.data.item_id) {
+      if (r.ok && r.data && r.data.data && r.data.data.item_id) {
         showToast('报告已保存到知识库', 'success');
       } else {
         showToast(r.error || '保存失败', 'error');

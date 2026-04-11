@@ -172,8 +172,8 @@ export async function render(convId) {
     let targetId = convId;
     if (!targetId) {
       const r = await apiPost('/chat/conversations');
-      if (r.ok && r.data && r.data.id) {
-        targetId = r.data.id;
+      if (r.ok && r.data && r.data.data && r.data.data.id) {
+        targetId = r.data.data.id;
       } else {
         showToast('创建会话失败', 'error');
         return;

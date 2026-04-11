@@ -31,11 +31,15 @@ export function render() {
     const pwd = app.querySelector('#login-password').value;
     const remember = app.querySelector('#login-remember').checked;
     const res = await apiPost('/auth/login', { password: pwd, remember_me: remember });
-    if (res.ok && res.data && res.data.token) {
-      setToken(res.data.token, remember);
+    if (res.ok && res.data && res.data.data && res.data.data.token) {
+      setToken(res.data.data.token, remember);
       window.location.hash = `#/${redirect}`;
     } else {
       const errEl = app.querySelector('#login-error');
+      if (res.error === 'System not initialized') {
+        window.location.hash = '#/init';
+        return;
+      }
       errEl.textContent = res.error || '登录失败';
       errEl.classList.remove('hidden');
     }

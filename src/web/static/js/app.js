@@ -1,5 +1,6 @@
 import { initRouter } from './router.js';
 import { getToken } from './store.js';
+import { apiGet } from './api.js';
 
 import * as initPage from './pages/init.js';
 import * as loginPage from './pages/login.js';
@@ -51,7 +52,15 @@ function renderNav() {
 
 window.addEventListener('hashchange', renderNav);
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   renderNav();
+  const statusRes = await apiGet('/system/status');
+  const needsInit = statusRes.ok && statusRes.data && statusRes.data.initialized === false;
+  if (needsInit) {
+    const hash = window.location.hash.replace(/^#\/?/, '');
+    if (hash !== 'init') {
+      window.location.hash = '#/init';
+    }
+  }
   initRouter();
 });

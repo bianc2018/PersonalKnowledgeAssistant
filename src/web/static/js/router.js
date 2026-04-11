@@ -3,6 +3,7 @@ import { getToken } from './store.js';
 const routes = [
   { pattern: /^$/, redirect: 'dashboard' },
   { pattern: /^login$/, page: 'login', public: true },
+  { pattern: /^init$/, page: 'init', public: true },
   { pattern: /^dashboard$/, page: 'dashboard' },
   { pattern: /^knowledge$/, page: 'knowledge', action: 'renderList' },
   { pattern: /^knowledge\/(.+)$/, page: 'knowledge', action: 'renderDetail', argIndex: 1 },

@@ -84,11 +84,11 @@ def run_step(
 def check_python_version() -> None:
     version = sys.version_info
     current = f"{version[0]}.{version[1]}.{version[2]}"
-    if version[0] < 3 or (version[0] == 3 and version[1] < 11):
+    if version[0] < 3 or (version[0] == 3 and version[1] < 10):
         raise DeployError(
             step="检查环境",
-            reason=f"Python 版本不符合要求\n当前版本: {current}\n所需版本: >= 3.11",
-            suggestion="请安装 Python 3.11 或更高版本后重试。",
+            reason=f"Python 版本不符合要求\n当前版本: {current}\n所需版本: >= 3.10",
+            suggestion="请安装 Python 3.10 或更高版本后重试。",
         )
 
 
@@ -240,7 +240,7 @@ def start_service(config: DeploymentConfig, port: int) -> int:
         "uvicorn",
         "src.main:app",
         "--host",
-        "127.0.0.1",
+        "0.0.0.0",
         "--port",
         str(port),
     ]

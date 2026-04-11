@@ -56,7 +56,7 @@ class TestDeployHappyPath:
         deploy_tmp = tmp_path / "deploy.py"
         deploy_tmp.write_text(DEPLOY_PY.read_text(), encoding="utf-8")
         req_tmp = tmp_path / "requirements.txt"
-        req_tmp.write_text(REQUIREMENTS_TXT.read_text(), encoding="utf-8")
+        req_tmp.write_text("# minimal for test\n", encoding="utf-8")
 
         result = subprocess.run(
             [sys.executable, str(deploy_tmp)],

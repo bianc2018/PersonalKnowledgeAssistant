@@ -24,12 +24,12 @@ class TestCheckPythonVersion:
     def test_current_python_passes(self):
         deploy.check_python_version()
 
-    @patch("sys.version_info", (3, 10, 12, "final", 0))
+    @patch("sys.version_info", (3, 9, 18, "final", 0))
     def test_old_python_fails(self):
         with pytest.raises(deploy.DeployError) as exc_info:
             deploy.check_python_version()
-        assert "3.10.12" in str(exc_info.value)
-        assert ">= 3.11" in str(exc_info.value)
+        assert "3.9.18" in str(exc_info.value)
+        assert ">= 3.10" in str(exc_info.value)
 
     @patch("sys.version_info", (3, 11, 0, "final", 0))
     def test_python_311_passes(self):

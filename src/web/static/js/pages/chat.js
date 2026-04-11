@@ -30,7 +30,7 @@ export async function render(convId) {
   app.innerHTML = `
     <div class="flex h-[calc(100vh-3.5rem)] md:h-screen">
       <!-- sidebar -->
-      <div class="w-64 border-r bg-white dark:bg-gray-800 flex flex-col hidden md:flex">
+      <div id="chat-sidebar" class="w-64 border-r bg-white dark:bg-gray-800 flex flex-col absolute md:relative inset-y-0 left-0 z-20 md:z-auto hidden md:flex">
         <div class="p-3 border-b dark:border-gray-700 flex items-center justify-between">
           <span class="font-semibold text-sm">会话</span>
           <button id="btn-new-conv" class="px-2 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-xs">+ 新建</button>
@@ -39,9 +39,14 @@ export async function render(convId) {
       </div>
 
       <!-- main -->
-      <div class="flex-1 flex flex-col bg-gray-50 dark:bg-gray-900">
+      <div class="flex-1 flex flex-col bg-gray-50 dark:bg-gray-900 relative">
         <div class="md:hidden p-3 border-b bg-white dark:bg-gray-800 flex items-center justify-between">
-          <span class="font-semibold text-sm">${convId ? '会话' : '选择或新建会话'}</span>
+          <div class="flex items-center gap-2">
+            <button id="btn-toggle-sidebar" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="切换会话列表">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <span class="font-semibold text-sm">${convId ? '会话' : '选择或新建会话'}</span>
+          </div>
           <button id="btn-new-conv-mobile" class="px-2 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 text-xs">+ 新建</button>
         </div>
         <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-4" ${convId ? 'aria-live="polite"' : ''}></div>
@@ -65,8 +70,8 @@ export async function render(convId) {
       <div class="group flex items-center justify-between rounded px-2 py-2 text-sm cursor-pointer ${c.id === convId ? 'bg-gray-100 dark:bg-gray-700 font-medium' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}">
         <a href="#/chat/${c.id}" class="flex-1 truncate">${c.title || '新会话'}</a>
         <div class="hidden group-hover:flex items-center gap-1">
-          <button data-id="${c.id}" class="btn-rename text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" title="重命名">✎</button>
-          <button data-id="${c.id}" class="btn-delete text-red-500 hover:text-red-700" title="删除">×</button>
+          <button data-id="${c.id}" class="btn-rename p-1 rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 min-w-[32px] min-h-[32px] flex items-center justify-center" aria-label="重命名" title="重命名">✎</button>
+          <button data-id="${c.id}" class="btn-delete p-1 rounded text-red-500 hover:text-red-700 min-w-[32px] min-h-[32px] flex items-center justify-center" aria-label="删除" title="删除">×</button>
         </div>
       </div>
     `).join('');
@@ -149,6 +154,13 @@ export async function render(convId) {
   app.querySelector('#btn-new-conv').addEventListener('click', () => { window.location.hash = '#/chat'; });
   const mobileNew = app.querySelector('#btn-new-conv-mobile');
   if (mobileNew) mobileNew.addEventListener('click', () => { window.location.hash = '#/chat'; });
+  const toggleSidebar = app.querySelector('#btn-toggle-sidebar');
+  if (toggleSidebar) {
+    toggleSidebar.addEventListener('click', () => {
+      const sb = app.querySelector('#chat-sidebar');
+      if (sb) sb.classList.toggle('hidden');
+    });
+  }
 
   const form = app.querySelector('#chat-form');
   const input = app.querySelector('#chat-input');

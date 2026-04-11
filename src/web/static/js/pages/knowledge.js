@@ -33,8 +33,8 @@ export async function renderList() {
         </div>
       </div>
       <div class="flex flex-col md:flex-row gap-2">
-        <input type="text" id="search-q" value="${listState.q}" placeholder="搜索知识..." class="flex-1 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
-        <input type="text" id="search-tags" value="${listState.tags}" placeholder="标签过滤（逗号分隔）" class="md:w-64 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+        <input type="text" id="search-q" value="${listState.q}" placeholder="搜索知识..." aria-label="搜索知识" class="flex-1 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
+        <input type="text" id="search-tags" value="${listState.tags}" placeholder="标签过滤（逗号分隔）" aria-label="标签过滤" class="md:w-64 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm" />
         <button id="btn-search" class="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm">搜索</button>
       </div>
       <div id="list-content"></div>
@@ -46,13 +46,26 @@ export async function renderList() {
 
   await loadList();
 
-  app.querySelector('#btn-search').addEventListener('click', async () => {
+  const doSearch = async () => {
     listState.q = app.querySelector('#search-q').value.trim();
     listState.tags = app.querySelector('#search-tags').value.trim();
     listState.offset = 0;
     renderSkeleton(container);
     await loadList();
+  };
+
+  let searchDebounce;
+  app.querySelector('#search-q').addEventListener('input', () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(doSearch, 350);
   });
+  app.querySelector('#search-q').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { clearTimeout(searchDebounce); doSearch(); }
+  });
+  app.querySelector('#search-tags').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { clearTimeout(searchDebounce); doSearch(); }
+  });
+  app.querySelector('#btn-search').addEventListener('click', doSearch);
 
   app.querySelector('#btn-add-text').addEventListener('click', () => openCreateTextModal());
   app.querySelector('#btn-add-file').addEventListener('click', () => openCreateFileModal());
@@ -288,8 +301,8 @@ export async function renderDetail(itemId) {
             <div class="text-xs text-gray-500 mt-1">${item.source_type || ''} · 创建于 ${fmtDate(item.created_at)}</div>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button id="btn-edit" class="px-3 py-1.5 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm">编辑</button>
-            <button id="btn-delete" class="px-3 py-1.5 rounded bg-red-100 text-red-700 hover:bg-red-200 text-sm ${item.is_deleted ? 'hidden' : ''}">删除</button>
+            <button id="btn-edit" aria-label="编辑知识" class="px-3 py-1.5 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm">编辑</button>
+            <button id="btn-delete" aria-label="删除知识" class="px-3 py-1.5 rounded bg-red-100 text-red-700 hover:bg-red-200 text-sm ${item.is_deleted ? 'hidden' : ''}">删除</button>
           </div>
         </div>
 

@@ -31,3 +31,9 @@ html, body {
 .dark ::-webkit-scrollbar-thumb {
   background: #475569;
 }
+
+/* Ensure icon-only buttons have adequate touch target */
+.min-touch {
+  min-width: 44px;
+  min-height: 44px;
+}

@@ -11,7 +11,7 @@ phases:
   tasks: completed
   pre_impl_review: skipped
   implement: completed
-  code_review: pending
+  code_review: completed
   verify: pending
   test_plan: pending
   test_run: pending
@@ -37,6 +37,19 @@ gates:
     notes: "deploy.py 后台守护进程、start/status/restart/stop 子命令均已实现并通过单元+集成测试"
     conditions: []
     sync_result: "clean"
+  - phase: "code_review"
+    decision: "approved"
+    timestamp: "2026-04-11T11:00:00Z"
+    notes: "3 项 HIGH 均已修复：Python 版本检查对齐 spec、umask 改为 0o022、restart 去除冗余重试"
+    conditions: []
+    findings:
+      critical: 0
+      high: 3
+      medium: 6
+      low: 3
+      fixed: 3
+      acknowledged: 0
+    sync_result: "clean"
 sync_runs:
   last_run: ""
   total_runs: 0
@@ -48,4 +61,4 @@ change_requests:
     description: "deploy.py 增加后台守护进程模式、status/restart 子命令"
     status: accepted
     created_at: "2026-04-11T00:00:00Z"
-last_updated: "2026-04-11T10:00:00Z"
+last_updated: "2026-04-11T11:00:00Z"

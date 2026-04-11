@@ -1,22 +1,22 @@
 {
   "data": {
-    "id": "211d5bc6-2773-4200-ad9e-841f7e226967",
+    "id": "959ef696-dbec-4041-a5d1-355b476bfbb6",
     "title": "Version Confidence",
     "source_type": "text",
     "current_version": {
-      "id": "8cd12e03-7a1d-485f-910f-d823b5b8670c",
+      "id": "6502f96d-44bc-4b36-969d-08ef89eaec55",
       "content_text": "This is a completely different new content to trigger version change and reevaluation.",
-      "created_at": "2026-04-11T14:09:57.553082Z"
+      "created_at": "2026-04-11T15:00:30.842588Z"
     },
     "versions": [
       {
-        "id": "8cd12e03-7a1d-485f-910f-d823b5b8670c",
-        "created_at": "2026-04-11T14:09:57.553082Z",
+        "id": "6502f96d-44bc-4b36-969d-08ef89eaec55",
+        "created_at": "2026-04-11T15:00:30.842588Z",
         "created_by": "user_edit"
       },
       {
-        "id": "2f380862-27c7-4775-873a-79429704a596",
-        "created_at": "2026-04-11T14:09:57.181877Z",
+        "id": "47ab07b4-5430-44b2-9b3a-8b85ad18e084",
+        "created_at": "2026-04-11T14:58:23.624353Z",
         "created_by": "user_edit"
       }
     ],
@@ -24,7 +24,7 @@
     "tags": [],
     "confidence": null,
     "is_deleted": false,
-    "created_at": "2026-04-11T14:09:57.181877Z",
-    "updated_at": "2026-04-11T14:09:57.553082Z"
+    "created_at": "2026-04-11T14:58:23.624353Z",
+    "updated_at": "2026-04-11T15:00:30.842588Z"
   }
 }

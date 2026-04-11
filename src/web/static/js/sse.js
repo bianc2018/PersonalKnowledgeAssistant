@@ -7,6 +7,7 @@ export function createSSEStream(url, callbacks, token, options = {}) {
     try {
       const headers = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (body) headers['Content-Type'] = 'application/json';
       const res = await fetch(url, { headers, signal: abortController.signal, method, body });
       if (!res.body) throw new Error('No response body');
       const reader = res.body.getReader();

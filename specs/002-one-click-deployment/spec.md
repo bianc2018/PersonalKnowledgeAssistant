@@ -52,14 +52,62 @@
 
 ---
 
+### User Story 4 - 后台守护进程启动服务 (Priority: P2)
+
+开发者可以使用子命令将服务以后台守护进程方式启动，终端即刻返回，不会因为关闭终端而导致服务中断。
+
+**Why this priority**: 在实际服务器环境中，前台进程无法持久运行，需要守护进程模式支持长期稳定运行。
+
+**Independent Test**: 执行 `python deploy.py start`，验证终端立即返回，且服务在后台持续运行；关闭终端后再次访问接口仍正常。
+
+**Acceptance Scenarios**:
+
+1. **Given** 环境已满足运行条件，**When** 执行 `python deploy.py start`，**Then** 服务应在后台启动并输出成功信息及 PID
+2. **Given** 服务已在后台运行，**When** 关闭启动时使用的终端会话，**Then** 服务进程应继续存活且接口可访问
+
+---
+
+### User Story 5 - 查看系统运行状态 (Priority: P2)
+
+开发者可以使用子命令快速查看当前服务是否正在运行，以及所占用的端口和进程 PID。
+
+**Why this priority**: 后台运行的服务难以直观判断状态，需要专门的查询命令来辅助运维。
+
+**Independent Test**: 分别在有/无后台服务运行时执行 `python deploy.py status`，验证输出是否准确反映当前状态。
+
+**Acceptance Scenarios**:
+
+1. **Given** 服务正在后台运行，**When** 执行 `python deploy.py status`，**Then** 应显示”运行中”、PID 和访问地址
+2. **Given** 服务未在后台运行，**When** 执行 `python deploy.py status`，**Then** 应显示”未运行”
+
+---
+
+### User Story 6 - 强制重启 (Priority: P2)
+
+开发者可以使用子命令快速停止并重新启动后台服务，适用于配置变更后的生效或异常恢复。
+
+**Why this priority**: 后台服务无法像前台那样通过 Ctrl+C 停止，需要一条命令完成”先杀后启”的原子操作。
+
+**Independent Test**: 在后台服务运行中执行 `python deploy.py restart`，验证旧进程被终止，新进程成功启动且服务可用。
+
+**Acceptance Scenarios**:
+
+1. **Given** 后台服务正在运行，**When** 执行 `python deploy.py restart`，**Then** 应先终止旧进程，再启动新进程并输出新 PID
+2. **Given** 后台服务未在运行，**When** 执行 `python deploy.py restart`，**Then** 应直接启动新服务
+
+---
+
 ### Edge Cases
 
 - 目标环境缺少必要的运行时依赖时，系统应如何提示？
 - 服务端口已被其他进程占用时，系统应自动检测并分配一个可用端口，同时向用户明确告知新端口
-- 首次运行与再次运行时，SQLAlchemy `create_all()` 采用“若表已存在则跳过”策略，不会冲突或破坏已有数据
+- 首次运行与再次运行时，SQLAlchemy `create_all()` 采用”若表已存在则跳过”策略，不会冲突或破坏已有数据
 - 当应用服务已在运行时，重新执行部署命令应报错提示用户先手动停止现有进程，而非自动重启或启动多实例
 - 构建过程中网络中断导致依赖下载失败时，脚本应最多重试 3 次，全部失败后退出并输出明确错误信息
 - 当必需的配置文件缺失时，系统应自动生成模板文件并暂停，提示用户补全后再继续
+- 后台启动时 PID 文件已存在，需检测对应进程是否仍在运行：若已停止则清理残留 PID 文件并允许启动；若仍在运行则拒绝启动
+- status 命令需要同时兼容前台进程和后台守护进程两种运行模式的检测
+- restart 命令应能处理旧进程无法正常终止的情况，必要时发送 SIGKILL 强制结束
 
 ## Requirements *(mandatory)*
 
@@ -76,6 +124,11 @@
 - **FR-009**: System MUST detect port conflicts and dynamically allocate an available alternative port, surfacing the chosen port to the user in the progress output
 - **FR-010**: System MUST detect if the application is already running and prompt the user to manually stop the existing process before re-deploying, rather than automatically restarting or spawning a second instance
 - **FR-011**: System MUST retry dependency installation up to 3 times when network interruptions occur, exiting with a clear error if all retries fail
+- **FR-012**: System MUST provide a `start` subcommand that launches the service as a detached background daemon process using only the Python standard library, returning control to the terminal immediately
+- **FR-013**: System MUST provide a `status` subcommand that reports whether the background service is running, including the process PID and the bound port
+- **FR-014**: System MUST provide a `restart` subcommand that stops any running background service and starts a new one atomically
+- **FR-015**: System MUST write and manage a PID file to prevent multiple background instances, and clean up stale PID files when the recorded process no longer exists
+- **FR-016**: System MUST redirect stdout and stderr of the background daemon to `logs/deploy.log` so that users can inspect them after detaching from the terminal
 
 ### Key Entities *(include if feature involves data)*
 
@@ -105,6 +158,14 @@
 - **Q7**: 部署脚本在执行前需要验证哪些目标环境前置条件？ → **A**: 检查 Python 3.11+、pip/cmd，以及端口占用检测所需的系统工具
 - **Q8**: 首次部署时的数据库初始化应采用什么机制？ → **A**: 由 FastAPI 应用在启动时自动执行 SQLAlchemy `create_all()` 建表，无额外迁移脚本
 - **Q9**: 服务启动后应以什么模式运行？ → **A**: 前台运行，日志直接输出到终端，用户通过 Ctrl+C 停止
+
+### Session 2026-04-11 (Scope Change CR-001)
+
+- **Q10**: 后台守护进程模式应如何实现？ → **A**: 仅使用 Python 标准库的 `os.fork()`、`os.setsid()` 进行 double-fork 守护进程化，脱离终端控制
+- **Q11**: 子命令设计如何保持兼容？ → **A**: 无参数时保留原有前台启动行为；新增 `start`、`status`、`restart` 三个子命令
+- **Q12**: PID 文件存放在哪里？ → **A**: 项目根目录下的 `.deploy.pid`，与 `data/`、`logs/` 同级，便于脚本自身管理
+- **Q13**: 强制重启时如何处理旧进程无法优雅退出的情况？ → **A**: 先发送 SIGTERM，等待最多 5 秒，若仍未退出则发送 SIGKILL
+- **Q14**: 后台日志如何处理？ → **A**: stdout 和 stderr 重定向到 `logs/deploy.log`；脚本本身的标准输出仅用于打印启动成功信息和子命令结果
 
 ## Assumptions
 

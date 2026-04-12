@@ -1,5 +1,31 @@
 # Changelog
 
+## [去除密码校验] - 2026-04-12
+
+### Added
+- 为本地个人部署场景新增「无需密码，直接访问」初始化选项
+- 保留现有 Argon2 + JWT 密码保护模式，通过 `password_enabled` 开关兼容
+- 无密码模式下使用固定 token `"no-auth"` 并自动跳过登录页
+- 新增 `deploy.py reset-password` 子命令，支持强确认后清空本地数据并重置系统
+- 新增无密码模式附件加密支持：通过 `SHA256(SECRET_KEY)` 派生稳定主密钥
+- 数据库 schema 新增 `password_enabled` 列，并自动迁移旧数据
+
+### Changed
+- `src/system/router.py` 初始化接口支持 `password_enabled` 与可选密码
+- `src/auth/router.py` 与 `src/auth/dependencies.py` 支持无密码登录与认证短路
+- `src/system/service.py` 备份导出/导入/重置在无密码模式下跳过密码校验
+- 前端 init 页面改为单选卡片交互，默认选中「无需密码」
+- `app.js` 启动时检测 `password_enabled=false` 自动完成登录
+
+### Security
+- ⚠️ 无密码模式下接受所有本地请求（符合本地单用户 threat model）
+- 附件主密钥在无密码模式下由 `SECRET_KEY` 派生，建议保护好 `.env` 文件
+
+### Technical Notes
+- 新增集成测试覆盖无密码初始化、登录绕过、附件加解密
+- 全部相关测试通过：43/43（100%）
+- 代码审查通过，详细报告见 `specs/remove-password-verification/code-review.md`
+
 ## [Web 前端页面开发] - 2026-04-11
 
 ### Added

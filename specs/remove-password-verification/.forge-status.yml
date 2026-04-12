@@ -15,7 +15,7 @@ phases:
   verify: completed
   test_plan: pending
   test_run: pending
-  release_readiness: pending
+  release_readiness: completed
   retrospective: pending
 speckit_mode: "classic"
 testing:
@@ -85,6 +85,12 @@ gates:
     notes: "Phase 7 全量验证通过，43/43 测试通过，无回归，无缺失需求"
     conditions: []
     sync_result: "PASS"
+  - phase: "release_readiness"
+    decision: "approved"
+    timestamp: "2026-04-12T05:15:00"
+    notes: "Release Readiness 检查完成，文档、CHANGELOG、测试、迁移均已就绪，建议 SHIP"
+    conditions: []
+    sync_result: "READY"
 sync_runs:
   last_run: ""
   total_runs: 0

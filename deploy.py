@@ -2,11 +2,12 @@
 """一键部署脚本：自动完成环境检查、依赖安装、配置检查并启动服务。
 
 支持子命令：
-  python deploy.py          前台启动（兼容旧行为）
-  python deploy.py start    后台守护进程启动
-  python deploy.py status   查看运行状态
-  python deploy.py restart  强制重启
-  python deploy.py stop     停止后台服务
+  python deploy.py              前台启动（兼容旧行为）
+  python deploy.py start        后台守护进程启动
+  python deploy.py status       查看运行状态
+  python deploy.py restart      强制重启
+  python deploy.py stop         停止后台服务
+  python deploy.py reset-password  重置密码（删除所有本地数据）
 """
 
 from __future__ import annotations
@@ -517,6 +518,44 @@ def cmd_restart(config: DeploymentConfig) -> int:
     return cmd_start(config)
 
 
+def cmd_reset_password(config: DeploymentConfig) -> int:
+    db_path = config.data_dir / "app.db"
+    files_dir = config.project_root / "files"
+    print("\033[91m⚠️  警告：此操作将永久删除所有本地数据！\033[0m\n")
+    print("以下文件/目录将被删除：")
+    print(f"  - {db_path}")
+    print(f"  - {files_dir}")
+    print("\n此操作不可恢复。")
+    try:
+        confirmation = input("请输入 RESET 以确认删除，或按 Ctrl+C 取消：\n> ").strip()
+    except EOFError:
+        print("\n操作已取消，未做任何更改。")
+        return 0
+    if confirmation != "RESET":
+        print("操作已取消，未做任何更改。")
+        return 0
+
+    if is_app_running():
+        print("正在停止服务...")
+        stop_service(config)
+
+    if db_path.exists():
+        db_path.unlink()
+        print(f"已删除 {db_path}")
+    else:
+        print(f"数据库文件已不存在，跳过: {db_path}")
+
+    if files_dir.exists():
+        import shutil
+        shutil.rmtree(files_dir)
+        print(f"已删除 {files_dir}")
+    else:
+        print(f"附件目录已不存在，跳过: {files_dir}")
+
+    print("\033[92m✅ 重置完成。请重新运行启动脚本并完成初始化。\033[0m")
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # Foreground main (legacy compatibility)
 # ---------------------------------------------------------------------------
@@ -576,12 +615,13 @@ def _print_error(error: DeployError) -> None:
 
 def _print_usage() -> None:
     print("Usage:")
-    print("  python deploy.py           前台启动服务")
-    print("  python deploy.py start     后台守护进程启动")
-    print("  python deploy.py status    查看服务运行状态")
-    print("  python deploy.py restart   强制重启后台服务")
-    print("  python deploy.py stop      停止后台服务")
-    print("  python deploy.py --help    显示此帮助信息")
+    print("  python deploy.py              前台启动服务")
+    print("  python deploy.py start        后台守护进程启动")
+    print("  python deploy.py status       查看服务运行状态")
+    print("  python deploy.py restart      强制重启后台服务")
+    print("  python deploy.py stop         停止后台服务")
+    print("  python deploy.py reset-password  重置密码并清空数据")
+    print("  python deploy.py --help       显示此帮助信息")
 
 
 def main() -> int:
@@ -599,6 +639,8 @@ def main() -> int:
             return cmd_restart(config)
         if arg == "stop":
             return cmd_stop(config)
+        if arg == "reset-password":
+            return cmd_reset_password(config)
         print(f"错误: 未识别的参数: {arg}")
         print("提示: 运行 python deploy.py --help 查看用法")
         return 1

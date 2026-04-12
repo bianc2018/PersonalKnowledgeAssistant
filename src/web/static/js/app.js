@@ -1,6 +1,6 @@
 import { initRouter } from './router.js';
-import { getToken } from './store.js';
-import { apiGet } from './api.js';
+import { getToken, setToken } from './store.js';
+import { apiGet, apiPost } from './api.js';
 
 import * as initPage from './pages/init.js';
 import * as loginPage from './pages/login.js';
@@ -55,11 +55,24 @@ window.addEventListener('hashchange', renderNav);
 document.addEventListener('DOMContentLoaded', async () => {
   renderNav();
   const statusRes = await apiGet('/system/status');
-  const needsInit = statusRes.ok && statusRes.data && statusRes.data.initialized === false;
-  if (needsInit) {
-    const hash = window.location.hash.replace(/^#\/?/, '');
-    if (hash !== 'init') {
-      window.location.hash = '#/init';
+  if (statusRes.ok && statusRes.data) {
+    const { initialized, password_enabled } = statusRes.data;
+    if (initialized === false) {
+      const hash = window.location.hash.replace(/^#\/?/, '');
+      if (hash !== 'init') {
+        window.location.hash = '#/init';
+      }
+      initRouter();
+      return;
+    }
+
+    if (password_enabled === false && !getToken()) {
+      const loginRes = await apiPost('/auth/login', {});
+      if (loginRes.ok && loginRes.data && loginRes.data.token) {
+        setToken(loginRes.data.token);
+        initRouter();
+        return;
+      }
     }
   }
   initRouter();

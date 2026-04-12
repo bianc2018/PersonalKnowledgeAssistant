@@ -15,6 +15,7 @@ from src.auth.crypto import (
     decrypt_bytes,
     derive_master_key,
     encrypt_bytes,
+    get_no_auth_master_key,
     verify_password,
 )
 from src.config import get_settings
@@ -78,15 +79,27 @@ async def update_config(db: aiosqlite.Connection, updates: dict) -> dict:
     return current
 
 
-async def export_backup(db: aiosqlite.Connection, password: str) -> bytes:
+async def _get_system_auth_info(db: aiosqlite.Connection) -> tuple[bool, str | None, bytes | None]:
     async with db.execute(
-        "SELECT password_hash, salt FROM system_config WHERE id = 1"
+        "SELECT password_enabled, password_hash, salt FROM system_config WHERE id = 1"
     ) as cursor:
         row = await cursor.fetchone()
-    if not row or not verify_password(password, row[0]):
+    if not row:
+        raise ValueError("System not initialized")
+    return bool(row[0]), row[1], row[2]
+
+
+async def _require_master_key(db: aiosqlite.Connection, password: str | None) -> bytes:
+    enabled, pwd_hash, salt = await _get_system_auth_info(db)
+    if not enabled:
+        return get_no_auth_master_key()
+    if not password or not verify_password(password, pwd_hash):
         raise ValueError("Incorrect password")
-    salt = row[1]
-    master_key = derive_master_key(password, salt)
+    return derive_master_key(password, salt)
+
+
+async def export_backup(db: aiosqlite.Connection, password: str | None) -> bytes:
+    master_key = await _require_master_key(db, password)
 
     # Build metadata
     async with db.execute(
@@ -199,16 +212,9 @@ async def export_backup(db: aiosqlite.Connection, password: str) -> bytes:
 
 
 async def import_backup(
-    db: aiosqlite.Connection, file_bytes: bytes, password: str
+    db: aiosqlite.Connection, file_bytes: bytes, password: str | None
 ) -> dict:
-    async with db.execute(
-        "SELECT password_hash, salt FROM system_config WHERE id = 1"
-    ) as cursor:
-        row = await cursor.fetchone()
-    if not row or not verify_password(password, row[0]):
-        raise ValueError("Incorrect password")
-    salt = row[1]
-    master_key = derive_master_key(password, salt)
+    master_key = await _require_master_key(db, password)
 
     try:
         zip_bytes = decrypt_bytes(file_bytes, master_key)
@@ -379,13 +385,11 @@ async def import_backup(
     }
 
 
-async def reset_system(db: aiosqlite.Connection, password: str) -> None:
-    async with db.execute(
-        "SELECT password_hash FROM system_config WHERE id = 1"
-    ) as cursor:
-        row = await cursor.fetchone()
-    if not row or not verify_password(password, row[0]):
-        raise ValueError("Incorrect password")
+async def reset_system(db: aiosqlite.Connection, password: str | None) -> None:
+    enabled, pwd_hash, _salt = await _get_system_auth_info(db)
+    if enabled:
+        if not password or not verify_password(password, pwd_hash):
+            raise ValueError("Incorrect password")
 
     tables = [
         "knowledge_items",
@@ -410,6 +414,7 @@ async def reset_system(db: aiosqlite.Connection, password: str) -> None:
         """
         UPDATE system_config SET
             initialized = 0,
+            password_enabled = 1,
             password_hash = NULL,
             salt = NULL,
             llm_config = '{}',

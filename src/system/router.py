@@ -14,7 +14,8 @@ router = APIRouter(prefix="/api/system", tags=["system"])
 
 
 class InitRequest(BaseModel):
-    password: str = Field(..., min_length=8)
+    password: str | None = None
+    password_enabled: bool = False
 
 
 class InitResponse(BaseModel):
@@ -32,11 +33,12 @@ class ConfigPutRequest(BaseModel):
 
 
 class PasswordRequest(BaseModel):
-    password: str
+    password: str | None = None
 
 
 class StatusResponse(BaseModel):
     initialized: bool
+    password_enabled: bool = False
     version: str = "0.1.0"
     llm_connected: bool = False
     search_source_available: str | None = None
@@ -61,15 +63,26 @@ async def system_init(body: InitRequest):
                 detail="System already initialized",
             )
 
-        if not any(c.isalpha() for c in body.password) or not any(c.isdigit() for c in body.password):
+        if body.password_enabled and not body.password:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Password must contain at least one letter and one digit",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is required when password protection is enabled",
             )
 
+        if body.password_enabled:
+            if not any(c.isalpha() for c in body.password) or not any(c.isdigit() for c in body.password):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Password must contain at least one letter and one digit",
+                )
+
         import json
-        salt = generate_salt()
-        password_hash = hash_password(body.password)
+        if body.password_enabled:
+            salt = generate_salt()
+            password_hash = hash_password(body.password)
+        else:
+            salt = None
+            password_hash = None
         now = datetime.now(timezone.utc).isoformat()
 
         llm_cfg = settings.llm_config.model_dump()
@@ -83,18 +96,20 @@ async def system_init(body: InitRequest):
         await db.execute(
             """
             INSERT INTO system_config (
-                id, initialized, password_hash, salt,
+                id, initialized, password_enabled, password_hash, salt,
                 llm_config, embedding_config, search_config,
                 privacy_settings, retry_settings, storage_settings, log_settings, updated_at
-            ) VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 initialized=excluded.initialized,
+                password_enabled=excluded.password_enabled,
                 password_hash=excluded.password_hash,
                 salt=excluded.salt,
                 updated_at=excluded.updated_at
             """,
             (
                 1,
+                int(body.password_enabled),
                 password_hash,
                 salt,
                 json.dumps(llm_cfg),
@@ -119,11 +134,12 @@ async def system_status():
     db = await get_db()
     try:
         async with db.execute(
-            "SELECT initialized FROM system_config WHERE id = 1"
+            "SELECT initialized, password_enabled FROM system_config WHERE id = 1"
         ) as cursor:
             row = await cursor.fetchone()
 
         initialized = bool(row[0]) if row else False
+        password_enabled = bool(row[1]) if row else False
 
         llm_connected = False
         embedding_available = False
@@ -155,6 +171,7 @@ async def system_status():
 
         return StatusResponse(
             initialized=initialized,
+            password_enabled=password_enabled,
             llm_connected=llm_connected,
             search_source_available=search_source,
             embedding_available=embedding_available,
@@ -217,7 +234,7 @@ async def export_system(
 @router.post("/import")
 async def import_system(
     file: Annotated[UploadFile, File()],
-    password: Annotated[str, Form()] = "",
+    password: Annotated[str | None, Form()] = None,
     user: Annotated[CurrentUser, Depends(get_current_user)] = None,
 ):
     file_bytes = await file.read()

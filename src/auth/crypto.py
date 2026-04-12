@@ -1,3 +1,4 @@
+import hashlib
 import os
 from pathlib import Path
 from typing import Tuple
@@ -63,6 +64,12 @@ def clear_master_key(token: str) -> None:
 
 def generate_salt() -> bytes:
     return os.urandom(16)
+
+
+def get_no_auth_master_key() -> bytes:
+    from src.config import get_settings
+    settings = get_settings()
+    return hashlib.sha256(settings.secret_key.encode()).digest()
 
 
 def encrypt_file(plaintext_path: Path, ciphertext_path: Path, key: bytes) -> None:

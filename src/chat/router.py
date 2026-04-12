@@ -30,6 +30,10 @@ class ChatRequest(BaseModel):
     stream: bool = False
 
 
+class RenameRequest(BaseModel):
+    title: str
+
+
 @router.get("/conversations", response_model=ConversationsListResponse)
 async def list_conversations(
     offset: int = Query(default=0, ge=0),
@@ -59,6 +63,37 @@ async def create_conversation(
         await db.close()
 
 
+@router.patch("/conversations/{conversation_id}", response_model=ApiResponse)
+async def patch_conversation(
+    conversation_id: str,
+    body: RenameRequest,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        ok = await service.rename_conversation(db, conversation_id, body.title)
+        if not ok:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        return ApiResponse(data={"id": conversation_id, "title": body.title})
+    finally:
+        await db.close()
+
+
+@router.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_conversation(
+    conversation_id: str,
+    user: Annotated[CurrentUser, Depends(get_current_user)] = None,
+):
+    db = await get_db()
+    try:
+        ok = await service.delete_conversation(db, conversation_id)
+        if not ok:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+        return None
+    finally:
+        await db.close()
+
+
 @router.get("/conversations/{conversation_id}/messages", response_model=MessagesResponse)
 async def get_messages(
     conversation_id: str,
@@ -79,11 +114,17 @@ async def send_message(
     user: Annotated[CurrentUser, Depends(get_current_user)] = None,
 ):
     if body.stream:
+        import json as _json
+
         async def _event_stream():
             db = await get_db()
             try:
                 async for chunk in service.stream_message(db, conversation_id, body.content):
                     yield chunk
+            except Exception as exc:
+                payload = _json.dumps({"message": str(exc) or "流式响应中断"}, ensure_ascii=False)
+                yield f"event: error\ndata: {payload}\n\n"
+                yield f"event: done\ndata: {{}}\n\n"
             finally:
                 await db.close()
 

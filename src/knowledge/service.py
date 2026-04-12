@@ -39,11 +39,21 @@ def _compute_delta(old_text: str, new_text: str) -> float:
     return round(1.0 - diff, 4)
 
 
+def _sanitize_filename(filename: str) -> str:
+    """Remove path traversal characters and return basename only."""
+    from urllib.parse import unquote
+    name = Path(unquote(filename)).name
+    # Strip common risky characters
+    name = name.replace("..", "").replace("/", "").replace("\\", "").strip()
+    return name or "upload"
+
+
 def _storage_path(item_id: str, filename: str) -> str:
     prefix = item_id.replace("-", "")
     dir_path = Path("files") / prefix[:2] / prefix[2:4] / item_id
     dir_path.mkdir(parents=True, exist_ok=True)
-    return str(dir_path / f"{filename}.enc")
+    safe_name = _sanitize_filename(filename)
+    return str(dir_path / f"{safe_name}.enc")
 
 
 async def _ensure_tags(db: aiosqlite.Connection, tag_names: List[str]) -> List[TagOut]:
@@ -535,7 +545,7 @@ def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> List[str
     return chunks
 
 
-def _fallback_embedding(text: str, dim: int = 1536) -> List[float]:
+def _fallback_embedding(text: str, dim: int = 768) -> List[float]:
     """Deterministic pseudo-random vector when external embedding is unavailable."""
     seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % (2 ** 32)
     rng = random.Random(seed)

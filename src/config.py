@@ -8,7 +8,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
+_ENV_CONFIG = SettingsConfigDict(
+    env_file=".env",
+    env_file_encoding="utf-8",
+    extra="ignore",
+)
+
+
 class LLMConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="LLM_",
+    )
     base_url: str = ""
     api_key: str = ""
     model: str = ""
@@ -16,12 +29,25 @@ class LLMConfig(BaseSettings):
 
 
 class EmbeddingConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="EMBEDDING_",
+    )
     base_url: str = ""
     api_key: str = ""
     model: str = ""
+    dimension: int = 768
 
 
 class SearchConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="SEARCH_",
+    )
     provider: str = ""
     api_key: str = ""
     base_url: str = ""
@@ -34,6 +60,12 @@ class PrivacySettings(BaseSettings):
 
 
 class RetrySettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="RETRY_SETTINGS_",
+    )
     retry_times: int = 3
     timeout_seconds: int = 30
 
@@ -50,11 +82,7 @@ class LogSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config = _ENV_CONFIG
 
     database_url: str = Field(default=str(PROJECT_ROOT / "data" / "app.db"))
     secret_key: str = Field(default="change-me-in-production")

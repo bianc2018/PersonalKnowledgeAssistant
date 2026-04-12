@@ -1,0 +1,39 @@
+/* Minimal app styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#app {
+  min-height: 100%;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+/* Focus rings */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Simple scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+/* Ensure icon-only buttons have adequate touch target */
+.min-touch {
+  min-width: 44px;
+  min-height: 44px;
+}

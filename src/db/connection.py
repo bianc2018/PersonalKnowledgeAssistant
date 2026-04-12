@@ -22,10 +22,11 @@ async def _init_connection(conn: aiosqlite.Connection) -> None:
         pass
 
 
-async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aiosqlite.Connection:
+async def init_db(db_path: str | None = None, embedding_dim: int | None = None) -> aiosqlite.Connection:
     """Initialize database schema and virtual tables."""
     settings = get_settings()
     path = db_path or settings.database_url
+    dim = embedding_dim if embedding_dim is not None else settings.embedding_config.dimension
     Path(path).parent.mkdir(parents=True, exist_ok=True)
 
     conn = await aiosqlite.connect(path)
@@ -36,16 +37,20 @@ async def init_db(db_path: str | None = None, embedding_dim: int = 1536) -> aios
         async with conn.executescript(schema_path.read_text("utf-8")):
             pass
 
-    # Recreate virtual tables if schema changed (safe for MVP lifecycle)
-    await conn.execute("DROP TABLE IF EXISTS vec_chunks")
-    await conn.execute("DROP TABLE IF EXISTS embedding_chunks_fts")
+    # Migration: add password_enabled column to existing databases
+    async with conn.execute("PRAGMA table_info(system_config)") as cursor:
+        columns = [row[1] async for row in cursor]
+    if columns and "password_enabled" not in columns:
+        await conn.execute(
+            "ALTER TABLE system_config ADD COLUMN password_enabled INTEGER NOT NULL DEFAULT 1 CHECK(password_enabled IN (0, 1))"
+        )
 
     # Create sqlite-vec virtual table for embeddings only
     await conn.execute(
         f"""
         CREATE VIRTUAL TABLE IF NOT EXISTS vec_chunks USING vec0(
             chunk_id TEXT PRIMARY KEY,
-            embedding FLOAT[{embedding_dim}]
+            embedding FLOAT[{dim}]
         )
         """
     )

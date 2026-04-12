@@ -1,12 +1,12 @@
 {
   "data": [
     {
-      "id": "900803cd-8b17-408e-8508-dfd06c4465a1",
+      "id": "ac2bda12-048c-48a7-b5ca-5c76442b944d",
       "title": "Tag Filter A",
       "source_type": "text",
       "tags": [
         {
-          "id": "8823d5cb-deda-4b05-98d3-a39a34fc8a75",
+          "id": "85caf8a7-0a54-4b75-9a7c-7a2de96acf45",
           "name": "alpha",
           "color": null
         }
@@ -14,8 +14,8 @@
       "confidence": null,
       "version_count": 1,
       "is_deleted": false,
-      "created_at": "2026-04-07T12:53:07.382289Z",
-      "updated_at": "2026-04-07T12:53:07.382289Z"
+      "created_at": "2026-04-11T14:55:44.652456Z",
+      "updated_at": "2026-04-11T14:55:44.652456Z"
     }
   ],
   "pagination": {

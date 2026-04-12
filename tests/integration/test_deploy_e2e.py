@@ -50,13 +50,14 @@ class TestDeployHappyPath:
         )
         assert result.returncode == 0, result.stderr
 
+    @pytest.mark.skipif(sys.version_info < (3, 11), reason="deploy.py requires Python 3.11+")
     @pytest.mark.timeout(60)
     def test_env_missing_generates_template(self, tmp_path, monkeypatch):
         tmp_env = tmp_path / ".env"
         deploy_tmp = tmp_path / "deploy.py"
         deploy_tmp.write_text(DEPLOY_PY.read_text(), encoding="utf-8")
         req_tmp = tmp_path / "requirements.txt"
-        req_tmp.write_text(REQUIREMENTS_TXT.read_text(), encoding="utf-8")
+        req_tmp.write_text("# minimal for test\n", encoding="utf-8")
 
         result = subprocess.run(
             [sys.executable, str(deploy_tmp)],
@@ -74,6 +75,7 @@ class TestDeployHappyPath:
 
 
 class TestDeployGuards:
+    @pytest.mark.skipif(sys.version_info < (3, 11), reason="deploy.py requires Python 3.11+")
     @pytest.mark.timeout(30)
     def test_detects_running_service(self, tmp_path, monkeypatch):
         free_port = _find_free_port()

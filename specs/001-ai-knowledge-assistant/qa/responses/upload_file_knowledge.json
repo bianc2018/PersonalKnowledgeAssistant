@@ -1,23 +1,23 @@
 {
   "data": {
-    "id": "6c964fc4-2ad4-402d-8d1b-e9fc1e048a8f",
+    "id": "c346218e-6854-4d68-8db9-a2b70203f938",
     "title": "QA Upload",
     "source_type": "file",
     "current_version": {
-      "id": "dfb9b2a3-48e3-4bf6-9699-96e092595cb5",
+      "id": "21d3cc21-8363-421d-88e5-7f28bbb61d7e",
       "content_text": "This is a test file for knowledge upload QA.",
-      "created_at": "2026-04-07T12:53:06.234418Z"
+      "created_at": "2026-04-11T14:55:40.795896Z"
     },
     "versions": [
       {
-        "id": "dfb9b2a3-48e3-4bf6-9699-96e092595cb5",
-        "created_at": "2026-04-07T12:53:06.234418Z",
+        "id": "21d3cc21-8363-421d-88e5-7f28bbb61d7e",
+        "created_at": "2026-04-11T14:55:40.795896Z",
         "created_by": "auto_extraction"
       }
     ],
     "attachments": [
       {
-        "id": "7f0d69d5-9aba-4b20-946f-c2f368ae93b8",
+        "id": "93de37a7-4623-415f-9952-cda40af5b37e",
         "filename": "qa_test.txt",
         "mime_type": "text/plain",
         "size_bytes": 44,
@@ -27,19 +27,19 @@
     ],
     "tags": [
       {
-        "id": "1e3a9646-eb9d-41cc-bcbd-ddaf0bcf4eb0",
-        "name": "qa",
+        "id": "4139d1d8-d812-4c2c-87b3-d638a27c8883",
+        "name": "upload",
         "color": null
       },
       {
-        "id": "c6eb5251-c528-4da0-830d-b5110d4aaa29",
-        "name": "upload",
+        "id": "c84c11fd-f2e5-4709-95a1-7ca123cd2ca4",
+        "name": "qa",
         "color": null
       }
     ],
     "confidence": null,
     "is_deleted": false,
-    "created_at": "2026-04-07T12:53:06.234418Z",
-    "updated_at": "2026-04-07T12:53:06.234418Z"
+    "created_at": "2026-04-11T14:55:40.795896Z",
+    "updated_at": "2026-04-11T14:55:40.795896Z"
   }
 }

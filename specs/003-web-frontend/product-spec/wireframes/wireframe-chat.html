@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe - Chat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; color: #333; padding: 1rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; padding: .5rem; background: #fff; border: 1px dashed #999; }
+    .nav a { text-decoration: none; color: #555; font-size: .85rem; padding: .25rem .5rem; border: 1px solid #ccc; background: #fafafa; }
+    .nav a.active { border: 2px solid #333; background: #eee; }
+    .screen-title { font-size: .9rem; color: #666; margin-bottom: 1rem; }
+    .app { display: flex; gap: 1rem; max-width: 1200px; margin: 0 auto; height: 720px; }
+    .sidebar { width: 200px; flex-shrink: 0; background: #fff; border: 2px solid #666; padding: 1rem; display: flex; flex-direction: column; }
+    .nav-item { padding: .5rem; margin-bottom: .25rem; border: 1px solid #ddd; font-size: .85rem; color: #555; }
+    .nav-item.active { border: 2px solid #333; background: #eee; font-weight: bold; }
+    .new-chat { margin-top: auto; padding: .5rem; border: 2px solid #333; background: #fff; font-weight: bold; font-size: .8rem; cursor: pointer; }
+    .main { flex: 1; background: #fff; border: 2px solid #333; display: flex; flex-direction: column; }
+    .thread { flex: 1; overflow-y: auto; padding: 1.5rem; }
+    .message { margin-bottom: 1rem; max-width: 80%; }
+    .message.user { margin-left: auto; }
+    .bubble { padding: .75rem 1rem; border: 2px solid #999; font-size: .9rem; }
+    .message.user .bubble { border: 2px solid #333; background: #fafafa; }
+    .meta { font-size: .7rem; color: #888; margin-top: .25rem; }
+    .citations { margin-top: .5rem; padding: .5rem; border: 1px dashed #999; font-size: .75rem; color: #555; }
+    .citation { margin-bottom: .25rem; }
+    .typing { display: flex; gap: .3rem; align-items: center; padding: .5rem 0; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #666; }
+    .inputbar { border-top: 2px solid #333; padding: 1rem; display: flex; gap: .5rem; }
+    .inputbar input { flex: 1; padding: .6rem; border: 1px solid #999; }
+    .inputbar button { padding: .6rem 1rem; border: 2px solid #333; background: #fff; font-weight: bold; }
+    .annotation { margin-top: 1rem; padding: .75rem; border: 1px dashed #999; background: #fafafa; font-size: .8rem; color: #555; }
+    .callout { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; border: 1px solid #333; font-size: .7rem; margin-right: .25rem; }
+    .responsive-note { margin-top: 1rem; font-size: .75rem; color: #777; border-top: 1px dashed #ccc; padding-top: .5rem; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <span style="font-size:.8rem;color:#999;margin-right:.5rem;">导航:</span>
+    <a href="wireframe-login.html">登录/初始化</a>
+    <a href="wireframe-dashboard.html">仪表盘</a>
+    <a href="wireframe-knowledge-list.html">知识列表</a>
+    <a href="wireframe-knowledge-detail.html">知识详情</a>
+    <a class="active" href="wireframe-chat.html">聊天</a>
+    <a href="wireframe-research-list.html">研究列表</a>
+    <a href="wireframe-research-detail.html">研究详情</a>
+    <a href="wireframe-settings.html">设置</a>
+  </div>
+
+  <div class="screen-title">屏幕: Chat - 对话列表 / 消息流 / SSE 流式回复 / 引用</div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div style="font-weight:bold;margin-bottom:.5rem;font-size:.85rem;">对话历史</div>
+      <div class="nav-item active">向量数据库选型</div>
+      <div class="nav-item">SSE 实现讨论</div>
+      <div class="nav-item">隐私设置答疑</div>
+      <div class="nav-item">Embedding 对比</div>
+      <button class="new-chat">+ 新对话</button>
+      <div class="annotation" style="margin-top:1rem;">
+        <p><span class="callout">1</span>左侧对话列表，点击切换会话，新建按钮清空当前线程。</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="thread">
+        <div class="message user">
+          <div class="bubble">sqlite-vec 和 faiss 应该怎么选？</div>
+          <div class="meta">你 · 10:12</div>
+        </div>
+
+        <div class="message assistant">
+          <div class="bubble">如果你追求零依赖、单文件部署，sqlite-vec 是更好的选择...</div>
+          <div class="meta">AI · 10:12</div>
+          <div class="citations">
+            <div class="citation">[1] sqlite-vec 使用指南</div>
+            <div class="citation">[2] 某产品需求文档.pdf</div>
+          </div>
+        </div>
+
+        <div class="message user">
+          <div class="bubble">那性能差距大吗？</div>
+          <div class="meta">你 · 10:13</div>
+        </div>
+
+        <div class="message assistant">
+          <div class="bubble" style="border-style:dashed;">
+            <div class="typing">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span style="font-size:.75rem;color:#666;margin-left:.3rem;">AI 正在思考...</span>
+            </div>
+          </div>
+          <div class="meta">AI · typing</div>
+        </div>
+      </div>
+
+      <div class="inputbar">
+        <input type="text" placeholder="输入消息..." readonly>
+        <button>发送</button>
+      </div>
+    </main>
+  </div>
+
+  <div class="annotation" style="max-width:1200px;margin:1rem auto 0;">
+    <p><span class="callout">2</span><strong>SSE 流式输出:</strong> 发送消息后，AI 气泡边框虚线表示接收中，内容通过 SSE 逐步追加到 bubble 中，完成后边框变实线。</p>
+    <p style="margin-top:.5rem;"><span class="callout">3</span><strong>引用:</strong> 每条 AI 回复下方展示引用的知识条目标题，点击可打开对应知识详情页。</p>
+  </div>
+
+  <div class="responsive-note" style="max-width:1200px;margin:.5rem auto 0;">
+    移动端适配: 左侧对话列表变为可滑出的抽屉菜单，消息气泡宽度 90%，输入框固定在底部。
+  </div>
+</body>
+</html>

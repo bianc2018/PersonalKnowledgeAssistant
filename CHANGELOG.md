@@ -1,5 +1,56 @@
 # Changelog
 
+## [去除密码校验] - 2026-04-12
+
+### Added
+- 为本地个人部署场景新增「无需密码，直接访问」初始化选项
+- 保留现有 Argon2 + JWT 密码保护模式，通过 `password_enabled` 开关兼容
+- 无密码模式下使用固定 token `"no-auth"` 并自动跳过登录页
+- 新增 `deploy.py reset-password` 子命令，支持强确认后清空本地数据并重置系统
+- 新增无密码模式附件加密支持：通过 `SHA256(SECRET_KEY)` 派生稳定主密钥
+- 数据库 schema 新增 `password_enabled` 列，并自动迁移旧数据
+
+### Changed
+- `src/system/router.py` 初始化接口支持 `password_enabled` 与可选密码
+- `src/auth/router.py` 与 `src/auth/dependencies.py` 支持无密码登录与认证短路
+- `src/system/service.py` 备份导出/导入/重置在无密码模式下跳过密码校验
+- 前端 init 页面改为单选卡片交互，默认选中「无需密码」
+- `app.js` 启动时检测 `password_enabled=false` 自动完成登录
+
+### Security
+- ⚠️ 无密码模式下接受所有本地请求（符合本地单用户 threat model）
+- 附件主密钥在无密码模式下由 `SECRET_KEY` 派生，建议保护好 `.env` 文件
+
+### Technical Notes
+- 新增集成测试覆盖无密码初始化、登录绕过、附件加解密
+- 全部相关测试通过：43/43（100%）
+- 代码审查通过，详细报告见 `specs/remove-password-verification/code-review.md`
+
+## [Web 前端页面开发] - 2026-04-11
+
+### Added
+- 为 `001-ai-knowledge-assistant` 后端挂载完整的零 Node 依赖 Web 前端
+- 新增页面模块：Login / Init、Dashboard、Knowledge（列表/详情/创建/编辑）、Chat、Research、Settings
+- 实现附件下载 API `GET /api/knowledge/{id}/attachments/{attachment_id}/download`，支持 AES-256-GCM 解密流式返回
+- 实现基于 `fetch + ReadableStream` 的 SSE 解析器（`sse.js`），支持 Chat 流式回答与 Research 实时进度推送
+- 实现 hash 路由（`router.js`）、Bearer JWT 认证拦截（`api.js`）、全局 Toast / Modal / Skeleton UI 组件
+- 响应式布局适配（侧边栏折叠、触摸目标 ≥44px）、手动无障碍检查（焦点环、aria-live、键盘导航）
+
+### Changed
+- `deploy.py` Python 版本要求从 `>= 3.11` 调整为 `>= 3.10`，匹配 CI 环境
+
+### Fixed
+- **P0** 修复 Chat SSE 完全失效：`sse.js` 未支持 POST 方法与 `event:` 字段；`chat.js` 错误地双重调用 `apiPost` 与 `createSSEStream`
+- **P1** 修复 `renderMarkdown` 中 `marked.parse` 的废弃 `sanitize` 选项导致的 XSS 风险
+- **P1** 在 `knowledge.js`、`research.js`、`dashboard.js` 中对所有模板字符串动态插值增加 `escapeHtml`
+- **P2** 修复 `router.js` 未 `await` 异步页面渲染，导致异常被静默吞没
+- 修复 `test_deploy_e2e.py` 因完整 `requirements.txt` 导致 `pip install` 超时的问题
+
+### Technical Notes
+- 前端技术栈：Jinja2 Shell + HTMX 2.0.8 + Alpine.js 3.x + Tailwind CSS v4 (Play CDN) + marked.js
+- 后端测试：pytest 31/31 全部通过（包含附件下载集成测试与部署脚本测试）
+- 所有 Must Have 用户故事（US-001~US-009）与 Should Have 响应式适配（US-010）均已实现并验证
+
 ## [AI 知识管理助手] - 2026-04-07
 
 ### Added

@@ -1,5 +1,7 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +9,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.config import get_settings, PROJECT_ROOT
-from src.db.connection import init_db
+from src.db.connection import init_db, get_db
+from src.external.llm import is_llm_available
 from src.tasks import queue as tq
 from src.auth.router import router as auth_router
 from src.system.router import router as system_router
@@ -30,6 +33,58 @@ def _setup_logging() -> None:
     )
 
 
+async def _health_monitor() -> None:
+    """Periodically check external service health and re-queue pending_recheck tasks."""
+    logger = logging.getLogger("app")
+    while True:
+        try:
+            await asyncio.sleep(60)
+            if not await is_llm_available():
+                continue
+            db = await get_db()
+            try:
+                async with db.execute(
+                    "SELECT id FROM research_tasks WHERE status = 'pending_recheck'"
+                ) as cursor:
+                    rows = await cursor.fetchall()
+                if rows:
+                    now = datetime.now(timezone.utc).isoformat()
+                    for (task_id,) in rows:
+                        await db.execute(
+                            "UPDATE research_tasks SET status = ?, updated_at = ? WHERE id = ?",
+                            ("queued", now, task_id),
+                        )
+                        await db.commit()
+                        await tq.submit_task(task_id)
+                        logger.info("Re-queued pending_recheck task %s", task_id)
+            finally:
+                await db.close()
+        except Exception:
+            logger.exception("Health monitor error")
+
+
+async def _cleanup_scheduler() -> None:
+    """Periodically run version retention and log cleanup."""
+    logger = logging.getLogger("app")
+    from src.system.service import cleanup_old_versions, cleanup_old_logs
+
+    while True:
+        try:
+            await asyncio.sleep(86400)  # run once per day
+            db = await get_db()
+            try:
+                removed = await cleanup_old_versions(db)
+                if removed:
+                    logger.info("Version retention cleanup removed %s versions", removed)
+            finally:
+                await db.close()
+            logs_removed = await cleanup_old_logs()
+            if logs_removed:
+                logger.info("Log cleanup removed %s files", logs_removed)
+        except Exception:
+            logger.exception("Cleanup scheduler error")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _setup_logging()
@@ -43,7 +98,11 @@ async def lifespan(app: FastAPI):
     worker_tasks = [
         tq.spawn_worker(run_research_task) for _ in range(worker_count)
     ]
+    monitor_task = asyncio.create_task(_health_monitor())
+    cleanup_task = asyncio.create_task(_cleanup_scheduler())
     yield
+    monitor_task.cancel()
+    cleanup_task.cancel()
     for t in worker_tasks:
         t.cancel()
 

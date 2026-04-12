@@ -5,7 +5,7 @@ import os
 import shutil
 import uuid
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +15,7 @@ from src.auth.crypto import (
     decrypt_bytes,
     derive_master_key,
     encrypt_bytes,
+    get_no_auth_master_key,
     verify_password,
 )
 from src.config import get_settings
@@ -78,15 +79,27 @@ async def update_config(db: aiosqlite.Connection, updates: dict) -> dict:
     return current
 
 
-async def export_backup(db: aiosqlite.Connection, password: str) -> bytes:
+async def _get_system_auth_info(db: aiosqlite.Connection) -> tuple[bool, str | None, bytes | None]:
     async with db.execute(
-        "SELECT password_hash, salt FROM system_config WHERE id = 1"
+        "SELECT password_enabled, password_hash, salt FROM system_config WHERE id = 1"
     ) as cursor:
         row = await cursor.fetchone()
-    if not row or not verify_password(password, row[0]):
+    if not row:
+        raise ValueError("System not initialized")
+    return bool(row[0]), row[1], row[2]
+
+
+async def _require_master_key(db: aiosqlite.Connection, password: str | None) -> bytes:
+    enabled, pwd_hash, salt = await _get_system_auth_info(db)
+    if not enabled:
+        return get_no_auth_master_key()
+    if not password or not verify_password(password, pwd_hash):
         raise ValueError("Incorrect password")
-    salt = row[1]
-    master_key = derive_master_key(password, salt)
+    return derive_master_key(password, salt)
+
+
+async def export_backup(db: aiosqlite.Connection, password: str | None) -> bytes:
+    master_key = await _require_master_key(db, password)
 
     # Build metadata
     async with db.execute(
@@ -179,10 +192,17 @@ async def export_backup(db: aiosqlite.Connection, password: str) -> bytes:
     }
 
     zip_buffer = io.BytesIO()
+    files_dir = get_settings().files_dir.resolve()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("metadata.json", json.dumps(metadata, ensure_ascii=False, indent=2))
         for att in attachments:
             path = Path(att["storage_path"])
+            # Prevent path traversal: only include files under files_dir
+            try:
+                if not path.resolve().is_relative_to(files_dir):
+                    continue
+            except Exception:
+                continue
             if path.exists():
                 arcname = path.as_posix()
                 zf.write(path, arcname)
@@ -192,16 +212,9 @@ async def export_backup(db: aiosqlite.Connection, password: str) -> bytes:
 
 
 async def import_backup(
-    db: aiosqlite.Connection, file_bytes: bytes, password: str
+    db: aiosqlite.Connection, file_bytes: bytes, password: str | None
 ) -> dict:
-    async with db.execute(
-        "SELECT password_hash, salt FROM system_config WHERE id = 1"
-    ) as cursor:
-        row = await cursor.fetchone()
-    if not row or not verify_password(password, row[0]):
-        raise ValueError("Incorrect password")
-    salt = row[1]
-    master_key = derive_master_key(password, salt)
+    master_key = await _require_master_key(db, password)
 
     try:
         zip_bytes = decrypt_bytes(file_bytes, master_key)
@@ -321,7 +334,13 @@ async def import_backup(
         except Exception:
             pass
 
+    files_dir = get_settings().files_dir
     for att in metadata.get("attachments", []):
+        storage_path = att.get("storage_path", "")
+        # Reject path traversal attempts and absolute paths
+        if ".." in storage_path or Path(storage_path).is_absolute():
+            skipped_files.append(f"{storage_path}: 路径非法")
+            continue
         try:
             await db.execute(
                 """
@@ -338,15 +357,15 @@ async def import_backup(
                     att["item_id"],
                     att["filename"],
                     att["mime_type"],
-                    att["storage_path"],
+                    storage_path,
                     att["size_bytes"],
                     att["extraction_status"],
                     att.get("extraction_error"),
                     att["created_at"],
                 ),
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            skipped_files.append(f"{storage_path}: {exc}")
 
     await db.commit()
 
@@ -366,13 +385,11 @@ async def import_backup(
     }
 
 
-async def reset_system(db: aiosqlite.Connection, password: str) -> None:
-    async with db.execute(
-        "SELECT password_hash FROM system_config WHERE id = 1"
-    ) as cursor:
-        row = await cursor.fetchone()
-    if not row or not verify_password(password, row[0]):
-        raise ValueError("Incorrect password")
+async def reset_system(db: aiosqlite.Connection, password: str | None) -> None:
+    enabled, pwd_hash, _salt = await _get_system_auth_info(db)
+    if enabled:
+        if not password or not verify_password(password, pwd_hash):
+            raise ValueError("Incorrect password")
 
     tables = [
         "knowledge_items",
@@ -397,6 +414,7 @@ async def reset_system(db: aiosqlite.Connection, password: str) -> None:
         """
         UPDATE system_config SET
             initialized = 0,
+            password_enabled = 1,
             password_hash = NULL,
             salt = NULL,
             llm_config = '{}',
@@ -416,34 +434,68 @@ async def reset_system(db: aiosqlite.Connection, password: str) -> None:
         files_dir.mkdir(parents=True, exist_ok=True)
 
 
-async def archive_old_attachments() -> int:
+async def cleanup_old_versions(db: aiosqlite.Connection) -> int:
     settings = get_settings()
-    threshold_gb = settings.storage_settings.archive_threshold_gb
-    files_dir = settings.files_dir
-    if not files_dir.exists():
+    policy = settings.storage_settings.version_retention_policy
+    if not policy:
+        return 0
+    ptype = policy.get("type")
+    value = policy.get("value")
+    if not ptype or value is None:
         return 0
 
-    total_bytes = sum(f.stat().st_size for f in files_dir.rglob("*") if f.is_file())
-    if total_bytes < threshold_gb * 1024 * 1024 * 1024:
-        return 0
+    removed = 0
+    if ptype == "count":
+        async with db.execute("SELECT DISTINCT item_id FROM knowledge_versions") as cursor:
+            items = [r[0] async for r in cursor]
+        for item_id in items:
+            async with db.execute(
+                """
+                SELECT id FROM knowledge_versions
+                WHERE item_id = ? ORDER BY created_at DESC LIMIT -1 OFFSET ?
+                """,
+                (item_id, value),
+            ) as cursor:
+                to_delete = [r[0] async for r in cursor]
+            if to_delete:
+                placeholders = ",".join("?" * len(to_delete))
+                await db.execute(
+                    f"DELETE FROM knowledge_versions WHERE id IN ({placeholders})",
+                    to_delete,
+                )
+                removed += len(to_delete)
+    elif ptype == "days":
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=value)).isoformat()
+        await db.execute("DELETE FROM knowledge_versions WHERE created_at < ?", (cutoff,))
+        async with db.execute("SELECT changes()") as cursor:
+            row = await cursor.fetchone()
+            removed = row[0] if row else 0
+    elif ptype == "gb":
+        threshold_bytes = value * 1024 * 1024 * 1024
+        async with db.execute(
+            "SELECT id, LENGTH(content_text) as sz FROM knowledge_versions ORDER BY created_at"
+        ) as cursor:
+            rows = [(r[0], r[1]) async for r in cursor]
+        total = sum(sz for _, sz in rows)
+        if total > threshold_bytes:
+            to_free = total - threshold_bytes
+            freed = 0
+            to_delete = []
+            for vid, sz in rows:
+                if freed >= to_free:
+                    break
+                to_delete.append(vid)
+                freed += sz
+            if to_delete:
+                placeholders = ",".join("?" * len(to_delete))
+                await db.execute(
+                    f"DELETE FROM knowledge_versions WHERE id IN ({placeholders})",
+                    to_delete,
+                )
+                removed = len(to_delete)
 
-    # Gzip oldest 20% of .enc files
-    all_files = sorted(
-        [f for f in files_dir.rglob("*.enc") if f.is_file()],
-        key=lambda p: p.stat().st_mtime,
-    )
-    to_archive = all_files[: max(1, len(all_files) // 5)]
-    archived = 0
-    for f in to_archive:
-        if f.suffix == ".gz":
-            continue
-        gz_path = f.with_suffix(".enc.gz")
-        with open(f, "rb") as src:
-            with gzip.open(gz_path, "wb") as dst:
-                shutil.copyfileobj(src, dst)
-        f.unlink()
-        archived += 1
-    return archived
+    await db.commit()
+    return removed
 
 
 async def cleanup_old_logs() -> int:

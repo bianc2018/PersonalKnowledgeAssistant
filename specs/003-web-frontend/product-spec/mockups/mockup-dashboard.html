@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: #f8fafc;
+      color: #334155;
+    }
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+    }
+    .nav-brand { font-weight: 700; color: #0f172a; text-decoration: none; }
+    .nav-links { margin-left: auto; display: flex; gap: 12px; }
+    .nav-links a { font-size: 13px; color: #475569; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .nav-links a:hover { background: #f1f5f9; color: #0f172a; }
+    .nav-links a.active { background: #eef2ff; color: #4f46e5; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+    h1 { font-size: 24px; color: #0f172a; margin-bottom: 20px; }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+    .stat-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .04em; }
+    .stat-value { font-size: 28px; font-weight: 700; color: #0f172a; margin-top: 6px; }
+    .stat-change { font-size: 12px; color: #10b981; margin-top: 2px; }
+
+    .section-title { font-size: 16px; font-weight: 600; color: #0f172a; margin: 24px 0 10px; }
+
+    .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid #e2e8f0; color: #334155;
+      padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer;
+    }
+    .chip:hover { border-color: #cbd5e1; }
+
+    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    @media (max-width: 920px) { .two-col { grid-template-columns: 1fr; } }
+
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+    .card h3 { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 10px; }
+    .list-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .list-item:last-child { border-bottom: none; }
+    .list-meta { font-size: 12px; color: #94a3b8; }
+    .tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #4f46e5; }
+    .tag-ok { background: #ecfdf5; color: #059669; }
+
+    .btn { padding: 8px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-brand" href="index.html">PKA Mockups</a>
+    <div class="nav-links">
+      <a class="active" href="mockup-dashboard.html">Dashboard</a>
+      <a href="mockup-knowledge-list.html">Knowledge</a>
+      <a href="mockup-chat.html">Chat</a>
+      <a href="mockup-research-list.html">Research</a>
+      <a href="mockup-settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Dashboard</h1>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Knowledge Items</div>
+        <div class="stat-value">1,248</div>
+        <div class="stat-change">+12 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Research Reports</div>
+        <div class="stat-value">86</div>
+        <div class="stat-change">+3 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Chat Sessions</div>
+        <div class="stat-value">342</div>
+        <div class="stat-change">+28 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Storage Used</div>
+        <div class="stat-value">4.2 GB</div>
+        <div class="stat-change">of 10 GB</div>
+      </div>
+    </div>
+
+    <div class="section-title">Quick actions</div>
+    <div class="quick-actions">
+      <button class="chip">+ New knowledge</button>
+      <button class="chip">Start research</button>
+      <button class="chip">Chat with AI</button>
+      <button class="chip">Import file</button>
+    </div>
+
+    <div class="section-title">Recent activity</div>
+    <div class="two-col">
+      <div class="card">
+        <h3>Latest knowledge</h3>
+        <div class="list-item">
+          <div>
+            <div>FastAPI Streaming Responses</div>
+            <div class="list-meta">Added 2 hours ago · 1,240 words</div>
+          </div>
+          <span class="tag">Note</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div>SQLite-vec vs Chroma</div>
+            <div class="list-meta">Added yesterday · 890 words</div>
+          </div>
+          <span class="tag">Comparison</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div>Argon2id Parameters</div>
+            <div class="list-meta">Added 2 days ago · 340 words</div>
+          </div>
+          <span class="tag">Snippet</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Research status</h3>
+        <div class="list-item">
+          <div>
+            <div>Vector DB benchmarking</div>
+            <div class="list-meta">Queued</div>
+          </div>
+          <span class="tag">Queued</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div>Obsidian plugin dev</div>
+            <div class="list-meta">In progress</div>
+          </div>
+          <span class="tag-ok">Running</span>
+        </div>
+        <div class="list-item">
+          <div>
+            <div>Self-hosting LLMs</div>
+            <div class="list-meta">Completed yesterday</div>
+          </div>
+          <span class="tag-ok">Done</span>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px;width:100%">View all</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

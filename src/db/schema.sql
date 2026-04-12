@@ -159,6 +159,7 @@ CREATE TABLE IF NOT EXISTS research_citations (
 CREATE TABLE IF NOT EXISTS system_config (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     initialized INTEGER NOT NULL DEFAULT 0 CHECK (initialized IN (0, 1)),
+    password_enabled INTEGER NOT NULL DEFAULT 1 CHECK (password_enabled IN (0, 1)),
     password_hash TEXT,
     salt BLOB,
     llm_config TEXT NOT NULL DEFAULT '{}',
@@ -181,12 +182,6 @@ CREATE TABLE IF NOT EXISTS embedding_chunks (
 );
 
 CREATE INDEX IF NOT EXISTS idx_embedding_chunks_version ON embedding_chunks(version_id);
-
--- sqlite-vec virtual table (dimension may be adjusted at runtime)
-CREATE VIRTUAL TABLE IF NOT EXISTS vec_chunks USING vec0(
-    chunk_id TEXT PRIMARY KEY,
-    embedding FLOAT[1536]
-);
 
 -- FTS5 virtual table for full-text search
 CREATE VIRTUAL TABLE IF NOT EXISTS embedding_chunks_fts USING fts5(

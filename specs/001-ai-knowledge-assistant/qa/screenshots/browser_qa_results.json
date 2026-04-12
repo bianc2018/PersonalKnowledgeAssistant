@@ -1,0 +1,67 @@
+[
+  {
+    "tc": "TC-B01",
+    "status": "PASS",
+    "note": "Init page loaded"
+  },
+  {
+    "tc": "TC-B02",
+    "status": "PASS",
+    "note": "Redirected to login"
+  },
+  {
+    "tc": "TC-B03",
+    "status": "PASS",
+    "note": "Logged in"
+  },
+  {
+    "tc": "TC-B04",
+    "status": "PASS",
+    "note": "Dashboard loaded"
+  },
+  {
+    "tc": "TC-B05a",
+    "status": "PASS",
+    "note": "Knowledge list loaded"
+  },
+  {
+    "tc": "TC-B05b",
+    "status": "PASS",
+    "note": "Knowledge created"
+  },
+  {
+    "tc": "TC-B06a",
+    "status": "PASS",
+    "note": "Chat page loaded"
+  },
+  {
+    "tc": "TC-B06b",
+    "status": "PASS",
+    "note": "New conversation created"
+  },
+  {
+    "tc": "TC-B06c",
+    "status": "PASS",
+    "note": "Message sent"
+  },
+  {
+    "tc": "TC-B07a",
+    "status": "PASS",
+    "note": "Research list loaded"
+  },
+  {
+    "tc": "TC-B07b",
+    "status": "PASS",
+    "note": "Research created: {'data': {'id': 'e80750b2-ce6f-47ee-8719-4df2e534c205', 'topic': 'Browser QA Research', 'status': 'queued', 'progress_percent': 0, 'created_at': ''}}"
+  },
+  {
+    "tc": "TC-B08a",
+    "status": "PASS",
+    "note": "Settings page loaded"
+  },
+  {
+    "tc": "TC-B08b",
+    "status": "PASS",
+    "note": "Settings saved"
+  }
+]

@@ -4,7 +4,7 @@ import pytest_asyncio
 
 @pytest_asyncio.fixture
 async def auth_client(client):
-    await client.post("/api/system/init", json={"password": "test1234"})
+    await client.post("/api/system/init", json={"password": "test1234", "password_enabled": True})
     login = await client.post("/api/auth/login", json={"password": "test1234"})
     token = login.json()["data"]["token"]
     client.headers["Authorization"] = f"Bearer {token}"

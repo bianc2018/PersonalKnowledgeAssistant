@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wireframe - Research Detail</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; color: #333; padding: 1rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; padding: .5rem; background: #fff; border: 1px dashed #999; }
+    .nav a { text-decoration: none; color: #555; font-size: .85rem; padding: .25rem .5rem; border: 1px solid #ccc; background: #fafafa; }
+    .nav a.active { border: 2px solid #333; background: #eee; }
+    .screen-title { font-size: .9rem; color: #666; margin-bottom: 1rem; }
+    .app { display: flex; gap: 1rem; max-width: 1200px; margin: 0 auto; }
+    .sidebar { width: 180px; flex-shrink: 0; background: #fff; border: 2px solid #666; padding: 1rem; }
+    .nav-item { padding: .5rem; margin-bottom: .25rem; border: 1px solid #ddd; font-size: .85rem; color: #555; }
+    .nav-item.active { border: 2px solid #333; background: #eee; font-weight: bold; }
+    .main { flex: 1; background: #fff; border: 2px solid #333; padding: 1.5rem; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .title { font-size: 1.1rem; font-weight: bold; }
+    .badge { font-size: .75rem; padding: .2rem .5rem; border: 1px solid #666; }
+    .badge.waiting { border: 2px solid #333; background: #eee; }
+    .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; }
+    .btn { padding: .4rem .7rem; border: 2px solid #333; background: #fff; font-size: .8rem; font-weight: bold; cursor: pointer; }
+    .panel { border: 1px solid #ccc; padding: .75rem; margin-bottom: 1rem; }
+    .panel-title { font-size: .85rem; font-weight: bold; margin-bottom: .5rem; }
+    .timeline { list-style: none; }
+    .timeline li { position: relative; padding-left: 1.2rem; padding-bottom: .6rem; border-left: 2px solid #ccc; font-size: .8rem; }
+    .timeline li::before { content: ''; position: absolute; left: -5px; top: 2px; width: 8px; height: 8px; border-radius: 50%; border: 2px solid #666; background: #fff; }
+    .timeline li.done { border-left-color: #666; }
+    .timeline li.active { font-weight: bold; }
+    .decision { border: 2px dashed #666; padding: .75rem; background: #fafafa; margin-bottom: 1rem; }
+    .decision-title { font-weight: bold; margin-bottom: .5rem; }
+    .options { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem; }
+    .option { padding: .4rem .7rem; border: 2px solid #999; background: #fff; font-size: .8rem; cursor: pointer; }
+    .option.selected { border: 2px solid #333; background: #eee; }
+    .report { min-height: 120px; border: 1px solid #ccc; padding: .75rem; font-size: .85rem; color: #444; background: #fafafa; }
+    .annotation { margin-top: 1rem; padding: .75rem; border: 1px dashed #999; background: #fafafa; font-size: .8rem; color: #555; }
+    .callout { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; border: 1px solid #333; font-size: .7rem; margin-right: .25rem; }
+    .responsive-note { margin-top: 1rem; font-size: .75rem; color: #777; border-top: 1px dashed #ccc; padding-top: .5rem; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <span style="font-size:.8rem;color:#999;margin-right:.5rem;">导航:</span>
+    <a href="wireframe-login.html">登录/初始化</a>
+    <a href="wireframe-dashboard.html">仪表盘</a>
+    <a href="wireframe-knowledge-list.html">知识列表</a>
+    <a href="wireframe-knowledge-detail.html">知识详情</a>
+    <a href="wireframe-chat.html">聊天</a>
+    <a href="wireframe-research-list.html">研究列表</a>
+    <a class="active" href="wireframe-research-detail.html">研究详情</a>
+    <a href="wireframe-settings.html">设置</a>
+  </div>
+
+  <div class="screen-title">屏幕: Research Detail - 进度 / 决策 / 报告 / 保存到知识库</div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="nav-item">仪表盘</div>
+      <div class="nav-item">知识库</div>
+      <div class="nav-item">聊天</div>
+      <div class="nav-item active">研究任务</div>
+      <div class="nav-item">设置</div>
+    </aside>
+
+    <main class="main">
+      <div class="header">
+        <div class="title">Embedding 模型对比</div>
+        <span class="badge waiting">等待输入</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn">返回列表</button>
+        <button class="btn">重试</button>
+        <button class="btn">取消任务</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">SSE 进度时间线</div>
+        <ul class="timeline">
+          <li class="done">任务创建</li>
+          <li class="done">收集初始资料</li>
+          <li class="active">模型性能对比（进行中）</li>
+          <li>生成总结报告</li>
+        </ul>
+      </div>
+
+      <div class="decision">
+        <div class="decision-title">需要你来做决定</div>
+        <p style="font-size:.8rem;margin-bottom:.5rem;">你更关注"中文语义相似度"还是"推理速度"？</p>
+        <div class="options">
+          <span class="option selected">中文语义相似度</span>
+          <span class="option">推理速度</span>
+          <span class="option">两者兼顾</span>
+        </div>
+        <button class="btn">提交决策</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">当前报告预览</div>
+        <div class="report">
+          <p>目前已收集 5 篇相关资料，初步对比结果如下...</p>
+          <p style="margin-top:.5rem;">（报告将在任务完成后自动整理为完整 Markdown）</p>
+        </div>
+      </div>
+
+      <div class="toolbar" style="margin-top:.5rem;">
+        <button class="btn">保存到知识库</button>
+        <button class="btn">导出 PDF</button>
+      </div>
+
+      <div class="annotation">
+        <p><span class="callout">1</span><strong>SSE 进度:</strong> 后端通过 SSE 推送步骤更新，HTMX 渐进更新 timeline 节点高亮与进度文案；完成时状态徽章自动切换为 "已完成"。</p>
+        <p style="margin-top:.5rem;"><span class="callout">2</span><strong>决策表单:</strong> 当状态为 awaiting_input 时展示决策区域，用户选择后 HTMX POST 提交，后端恢复任务执行。</p>
+        <p style="margin-top:.5rem;"><span class="callout">3</span><strong>保存到知识库:</strong> 点击后弹出确认框，后端将最终报告创建为知识条目，并附带任务来源标签。</p>
+      </div>
+
+      <div class="responsive-note">
+        移动端适配: 时间线垂直展示，决策选项全宽堆叠，工具栏按钮变为图标+文字小按钮。
+      </div>
+    </main>
+  </div>
+</body>
+</html>

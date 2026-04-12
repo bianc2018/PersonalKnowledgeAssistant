@@ -1,0 +1,108 @@
+schema_version: 2
+feature: "003-web-frontend"
+created_at: "2026-04-10"
+phases:
+  problem_discovery: skipped
+  research: completed
+  product_spec: completed
+  revalidation: skipped
+  bridge: completed
+  plan: completed
+  tasks: completed
+  pre_impl_review: pending
+  implement: completed
+  code_review: completed
+  verify: completed
+  test_plan: completed
+  test_run: completed
+  release_readiness: completed
+  retrospective: completed
+speckit_mode: "classic"
+testing:
+  final_pass_rate: "100% (backend integration); N/A (frontend manual E2E blocked by sandbox)"
+  bugs_found: 0
+  bugs_fixed: 0
+  bugs_deferred: 0
+  test_runs_total: 1
+gates:
+  - phase: "problem_discovery"
+    decision: "skipped"
+    timestamp: "2026-04-10T00:00:00Z"
+    notes: "需求明确，直接跳过"
+    conditions: []
+    sync_result: "clean"
+  - phase: "research"
+    decision: "approved"
+    timestamp: "2026-04-10T00:00:00Z"
+    notes: "4 个维度调研完成：竞品、UX/UI、代码库分析、技术栈选型"
+    conditions: []
+    sync_result: "clean"
+  - phase: "product_spec"
+    decision: "approved"
+    timestamp: "2026-04-10T14:00:00Z"
+    notes: "product-spec.md + user-journey.md + 8 wireframes + 9 mockups + metrics.md 已完成"
+    conditions: []
+    sync_result: "clean"
+  - phase: "revalidation"
+    decision: "skipped"
+    timestamp: "2026-04-10T14:30:00Z"
+    notes: "用户直接推进到 Bridge 阶段"
+    conditions: []
+    sync_result: "clean"
+  - phase: "bridge"
+    decision: "approved"
+    timestamp: "2026-04-10T15:00:00Z"
+    notes: "spec.md 已生成，包含 9 个 Must Have 用户故事、13 个 FR、6 个 TC + 3 个 E2E"
+    conditions: []
+    sync_result: "clean"
+  - phase: "plan"
+    decision: "approved"
+    timestamp: "2026-04-10T16:00:00Z"
+    notes: "plan.md 已完成，跨验证和宪法合规检查全部通过"
+    conditions: []
+    sync_result: "clean"
+  - phase: "tasks"
+    decision: "approved"
+    timestamp: "2026-04-10T16:30:00Z"
+    notes: "29 项任务已分解完毕，所有 Must Have 用户故事和 FR 均已覆盖"
+    conditions: []
+    sync_result: "clean"
+  - phase: "code_review"
+    decision: "approved"
+    timestamp: "2026-04-11T00:00:00Z"
+    notes: "P0 SSE 修复、P1 XSS 防护、P2 Router 异步错误捕获全部完成，无回归"
+    conditions: []
+    sync_result: "clean"
+  - phase: "verify"
+    decision: "approved"
+    timestamp: "2026-04-11T00:00:00Z"
+    notes: "pytest 31/31 通过；Must Have US/FR 全部实现；spec.md 已勾选"
+    conditions: []
+    sync_result: "clean"
+  - phase: "release_readiness"
+    decision: "approved"
+    timestamp: "2026-04-11T00:30:00Z"
+    notes: "CHANGELOG 已更新， stray index.html 已清理，文档全部提交，无发布阻塞"
+    conditions: []
+    sync_result: "clean"
+  - phase: "retrospective"
+    decision: "approved"
+    timestamp: "2026-04-11T01:30:00Z"
+    notes: "retrospective 报告已生成，记录了 P0 SSE、P1 XSS 等关键教训与改进建议"
+    conditions: []
+    sync_result: "clean"
+sync_runs:
+  last_run: ""
+  total_runs: 0
+  last_drift_count: 0
+  last_critical_count: 0
+  last_verdict: ""
+change_requests: []
+research_dimensions:
+  competitors: completed
+  ux_patterns: completed
+  codebase: completed
+  tech_stack: completed
+  metrics_roi: skipped
+input_richness_score: 5
+last_updated: "2026-04-11T01:30:00Z"

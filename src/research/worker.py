@@ -6,8 +6,8 @@ import aiosqlite
 
 from src.config import get_settings
 from src.db.connection import get_db
-from src.external.llm import chat_completion
-from src.external.search import fetch_url, search_web
+from src.external.llm import chat_completion, is_llm_available
+from src.external.search import fetch_url, search_llm_builtin, search_web
 from src.tasks import queue as tq
 
 
@@ -26,10 +26,10 @@ async def _update_task_status(
     await db.execute(
         """
         UPDATE research_tasks
-        SET status = ?, progress_percent = ?, error_message = ?, search_source_used = ?, updated_at = ?
+        SET status = ?, progress_percent = ?, error_message = ?, search_source_used = ?
         WHERE id = ?
         """,
-        (status, progress, error, source, _now(), task_id),
+        (status, progress, error, source, task_id),
     )
     await db.commit()
     tq.publish_event(task_id, "status", {"status": status})
@@ -75,8 +75,8 @@ async def _save_citation(
 ) -> None:
     await db.execute(
         """
-        INSERT INTO research_citations (id, task_id, source_title, source_url, source_summary, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO research_citations (id, task_id, source_title, source_url, source_summary)
+        VALUES (?, ?, ?, ?, ?)
         """,
         (
             str(uuid.uuid4()),
@@ -84,7 +84,6 @@ async def _save_citation(
             source.get("title", ""),
             source.get("url", ""),
             source.get("summary", ""),
-            _now(),
         ),
     )
     await db.commit()
@@ -132,7 +131,7 @@ async def run_research_task(task_id: str) -> None:
             outline_raw = await chat_completion(
                 [{"role": "user", "content": outline_prompt}], stream=False
             )
-        except Exception as e:
+        except Exception:
             outline_raw = ""
 
         outline_data = _safe_json_parse(outline_raw)
@@ -152,7 +151,7 @@ async def run_research_task(task_id: str) -> None:
 
         outline = outline_data.get("outline") or _default_outline()
 
-        # Stage 2: search
+        # Stage 2: search (FR-006a priority: LLM builtin -> Search API -> HTTP crawler/fallback)
         search_results: list[dict] = []
         search_source = None
         if allow_search:
@@ -164,15 +163,24 @@ async def run_research_task(task_id: str) -> None:
             tq.publish_event(
                 task_id, "progress", {"percent": 30, "stage": "正在检索网络信息..."}
             )
-            try:
-                search_results = await search_web(topic + " " + scope)
-                search_source = "search_api"
-            except Exception:
-                # Fallback to LLM built-in search if enabled (simplified as no-op here)
-                if llm_cfg.enable_search:
-                    search_source = "llm_builtin"
-                else:
-                    search_source = None
+
+            # 1) LLM builtin search
+            if llm_cfg.enable_search:
+                try:
+                    search_results = await search_llm_builtin(topic + " " + scope)
+                    if search_results:
+                        search_source = "llm_builtin"
+                except Exception:
+                    search_results = []
+
+            # 2) Independent search API fallback
+            if not search_results:
+                try:
+                    search_results = await search_web(topic + " " + scope)
+                    if search_results and any(r.get("url") for r in search_results):
+                        search_source = "search_api"
+                except Exception:
+                    search_results = []
 
             if search_results:
                 # Fetch top 3 URLs for deeper content
@@ -189,9 +197,7 @@ async def run_research_task(task_id: str) -> None:
         else:
             search_context = "用户未启用网络搜索，仅使用模型内部知识。"
 
-        if search_source is None and allow_search and not llm_cfg.enable_search:
-            search_source = "local_llm"
-        elif search_source is None:
+        if search_source is None:
             search_source = "local_llm"
 
         await db.execute(
@@ -201,10 +207,13 @@ async def run_research_task(task_id: str) -> None:
         await db.commit()
 
         # Stage 3: write sections
+        _VALID_SECTION_TYPES = {"background", "key_points", "trends", "conclusion", "summary"}
         total_sections = len(outline)
         for idx, sec in enumerate(outline):
             progress = 40 + int((idx / total_sections) * 40)
             stype = sec.get("type", "summary")
+            if stype not in _VALID_SECTION_TYPES:
+                stype = "summary"
             title = sec.get("title", "未命名章节")
             tq.publish_event(
                 task_id, "progress", {"percent": progress, "stage": f"正在撰写：{title}..."}
@@ -248,7 +257,11 @@ async def run_research_task(task_id: str) -> None:
         tq.publish_event(task_id, "report", {"sections": sections})
 
     except Exception as e:
-        await _update_task_status(db, task_id, "failed", 0, error=str(e))
+        # If external services are unavailable, mark for recheck instead of permanent failure
+        if not await is_llm_available():
+            await _update_task_status(db, task_id, "pending_recheck", 0, error=str(e))
+        else:
+            await _update_task_status(db, task_id, "failed", 0, error=str(e))
     finally:
         await db.close()
 

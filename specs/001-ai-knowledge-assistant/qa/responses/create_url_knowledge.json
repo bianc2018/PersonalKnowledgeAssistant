@@ -1,36 +1,36 @@
 {
   "data": {
-    "id": "693b088c-8523-42e4-aea7-cb177af5d123",
+    "id": "b8da3c0a-8bd0-4d5d-ab99-3bfc4f7d2b91",
     "title": "QA URL Test",
     "source_type": "url",
     "current_version": {
-      "id": "c69b0e02-7a96-4b78-8c65-9442fbe67dab",
+      "id": "02ef3cfd-ec1e-4fd7-a947-599c7f1c1c37",
       "content_text": "",
-      "created_at": "2026-04-07T12:53:06.904834Z"
+      "created_at": "2026-04-11T14:55:43.967788Z"
     },
     "versions": [
       {
-        "id": "c69b0e02-7a96-4b78-8c65-9442fbe67dab",
-        "created_at": "2026-04-07T12:53:06.904834Z",
+        "id": "02ef3cfd-ec1e-4fd7-a947-599c7f1c1c37",
+        "created_at": "2026-04-11T14:55:43.967788Z",
         "created_by": "auto_extraction"
       }
     ],
     "attachments": [],
     "tags": [
       {
-        "id": "0f155093-1993-4646-88b4-574576a73737",
-        "name": "url",
+        "id": "0a1fbc7d-98d4-42aa-b52e-7f18cd71f2cb",
+        "name": "qa",
         "color": null
       },
       {
-        "id": "482ffce4-ec43-4f1e-9848-9e591bff1ae1",
-        "name": "qa",
+        "id": "578d6858-f180-4f4a-b92e-7fcb4b3750b1",
+        "name": "url",
         "color": null
       }
     ],
     "confidence": null,
     "is_deleted": false,
-    "created_at": "2026-04-07T12:53:06.904834Z",
-    "updated_at": "2026-04-07T12:53:06.904834Z"
+    "created_at": "2026-04-11T14:55:43.967788Z",
+    "updated_at": "2026-04-11T14:55:43.967788Z"
   }
 }

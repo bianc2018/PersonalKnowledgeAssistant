@@ -1,9 +1,11 @@
+from pathlib import Path
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from src.auth.crypto import get_cached_master_key
+from src.auth.crypto import decrypt_bytes, get_cached_master_key
 from src.auth.dependencies import CurrentUser, get_current_user
 from src.db.connection import get_db
 from src.knowledge.models import (
@@ -57,7 +59,14 @@ async def upload_knowledge(
     if master_key is None:
         raise HTTPException(status_code=401, detail="Session expired")
 
+    MAX_FILE_SIZE = 1024 * 1024 * 1024  # 1GB
+    if file.size is not None and file.size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="文件大小超过 1GB 限制")
+
     file_bytes = await file.read()
+    if len(file_bytes) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="文件大小超过 1GB 限制")
+
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
     db = await get_db()
@@ -188,3 +197,46 @@ async def evaluate_confidence_endpoint(
         return ApiResponse(data={"task_status": "queued", "message": "置信度评估任务已提交"})
     finally:
         await db.close()
+
+
+@router.get("/{item_id}/attachments/{attachment_id}/download")
+async def download_attachment(
+    item_id: str,
+    attachment_id: str,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+):
+    master_key = get_cached_master_key(user.token)
+    if master_key is None:
+        raise HTTPException(status_code=401, detail="Session expired")
+
+    db = await get_db()
+    try:
+        async with db.execute(
+            "SELECT filename, mime_type, storage_path FROM attachments WHERE id = ? AND item_id = ?",
+            (attachment_id, item_id),
+        ) as cursor:
+            row = await cursor.fetchone()
+    finally:
+        await db.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    filename, mime_type, storage_path = row
+    file_path = Path(storage_path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    try:
+        encrypted = file_path.read_bytes()
+        plaintext = decrypt_bytes(encrypted, master_key)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to decrypt file")
+
+    return StreamingResponse(
+        iter([plaintext]),
+        media_type=mime_type or "application/octet-stream",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Knowledge Detail</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: #f8fafc;
+      color: #334155;
+    }
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+    }
+    .nav-brand { font-weight: 700; color: #0f172a; text-decoration: none; }
+    .nav-links { margin-left: auto; display: flex; gap: 12px; }
+    .nav-links a { font-size: 13px; color: #475569; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+    .nav-links a:hover { background: #f1f5f9; color: #0f172a; }
+    .nav-links a.active { background: #eef2ff; color: #4f46e5; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+    .breadcrumbs { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+    .breadcrumbs a { color: #4f46e5; text-decoration: none; }
+
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    h1 { font-size: 26px; color: #0f172a; }
+    .actions { display: flex; gap: 8px; }
+    .btn { padding: 8px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tag { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #eef2ff; color: #4f46e5; }
+
+    .content { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); min-height: 320px; }
+    .content h2 { font-size: 18px; color: #0f172a; margin: 20px 0 8px; }
+    .content h2:first-child { margin-top: 0; }
+    .content p { margin-bottom: 12px; line-height: 1.7; }
+    .content ul { margin: 0 0 12px 18px; }
+    .content li { margin: 6px 0; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #475569; }
+
+    .meta-bar { display: flex; gap: 16px; font-size: 12px; color: #64748b; margin-top: 16px; }
+
+    .sidebar { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .sidebar { grid-template-columns: 1fr; } }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    .card h3 { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 10px; }
+    .source { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .source:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-brand" href="index.html">PKA Mockups</a>
+    <div class="nav-links">
+      <a href="mockup-dashboard.html">Dashboard</a>
+      <a class="active" href="mockup-knowledge-list.html">Knowledge</a>
+      <a href="mockup-chat.html">Chat</a>
+      <a href="mockup-research-list.html">Research</a>
+      <a href="mockup-settings.html">Settings</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="breadcrumbs"><a href="mockup-knowledge-list.html">Knowledge</a> / FastAPI Streaming Responses</div>
+    <div class="page-header">
+      <h1>FastAPI Streaming Responses</h1>
+      <div class="actions">
+        <button class="btn btn-secondary">Edit</button>
+        <button class="btn btn-secondary">Share</button>
+        <button class="btn btn-primary">Ask AI</button>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">backend</span>
+      <span class="tag">python</span>
+      <span class="tag">fastapi</span>
+      <span class="tag">sse</span>
+    </div>
+
+    <div class="content">
+      <h2>Overview</h2>
+      <p>FastAPI supports multiple response types for streaming data: plain text iterables, <code>StreamingResponse</code>, and server-sent events (SSE). Choosing the right one depends on your use case.</p>
+
+      <h2>SSE with StreamingResponse</h2>
+      <p>Use <code>EventSourceResponse</code> or a custom generator with <code>text/event-stream</code> media type to push real-time updates to the client without polling.</p>
+      <ul>
+        <li>Lower overhead than WebSockets for one-way updates.</li>
+        <li>Native retry and event-id handling.</li>
+        <li>Works well with HTTP proxies and load balancers.</li>
+      </ul>
+
+      <h2>Trade-offs</h2>
+      <p>Streaming is great for large payloads and real-time AI responses, but error handling mid-stream can be tricky. Always validate headers and handle client disconnects gracefully.</p>
+    </div>
+
+    <div class="meta-bar">
+      <span>Created: 2024-03-12</span>
+      <span>Updated: 2 hours ago</span>
+      <span>Words: 1,240</span>
+      <span>Sources: 4</span>
+    </div>
+
+    <div class="sidebar">
+      <div class="card">
+        <h3>Sources</h3>
+        <div class="source">
+          <span>FastAPI Docs — Streaming</span>
+          <span style="color:#94a3b8">→</span>
+        </div>
+        <div class="source">
+          <span>MDN — Server-Sent Events</span>
+          <span style="color:#94a3b8">→</span>
+        </div>
+        <div class="source">
+          <span>GitHub — sse-starlette</span>
+          <span style="color:#94a3b8">→</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Related</h3>
+        <div class="source">
+          <span>Starlette background tasks</span>
+          <span style="color:#94a3b8">→</span>
+        </div>
+        <div class="source">
+          <span>Async generators in Python</span>
+          <span style="color:#94a3b8">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,8 +1,11 @@
+import io
 import os
 from pathlib import Path
 from typing import Tuple
 
 import httpx
+
+from src.utils import validate_url
 
 
 async def extract_text_from_bytes(
@@ -99,6 +102,10 @@ def _extract_image(data: bytes) -> Tuple[str, str, str | None]:
 
 async def extract_text_from_url(url: str) -> Tuple[str, str, str | None]:
     """Fetch URL and extract article text."""
+    error = validate_url(url)
+    if error:
+        return "", "failed", error
+
     try:
         async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
             resp = await client.get(url)
@@ -118,6 +125,3 @@ async def extract_text_from_url(url: str) -> Tuple[str, str, str | None]:
         return html, "success", None
     except Exception as e:
         return "", "failed", str(e)
-
-
-import io

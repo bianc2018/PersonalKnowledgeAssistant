@@ -1,0 +1,8 @@
+project_name: PersonalKnowledgeAssistant
+project_tech_stack: Python 3.11+ + FastAPI, sqlite-vec, aiosqlite, httpx, cryptography, argon2-cffi, pydantic
+project_domain: AI 个人知识助手
+codebase_path: .
+features_dir: specs
+default_speckit_mode: classic
+progressive_verify_interval: 5
+auto_sync_between_phases: true

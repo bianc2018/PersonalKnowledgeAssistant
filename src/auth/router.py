@@ -9,6 +9,7 @@ from src.auth.crypto import (
     cache_master_key,
     derive_master_key,
     generate_salt,
+    get_no_auth_master_key,
     hash_password,
     verify_password,
 )
@@ -18,7 +19,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 class LoginRequest(BaseModel):
-    password: str
+    password: str | None = None
     remember_me: bool = False
 
 
@@ -38,18 +39,31 @@ async def login(body: LoginRequest):
     db = await get_db()
     try:
         async with db.execute(
-            "SELECT password_hash, salt FROM system_config WHERE id = 1"
+            "SELECT password_enabled, password_hash, salt FROM system_config WHERE id = 1"
         ) as cursor:
             row = await cursor.fetchone()
 
-        if row is None or row[0] is None:
+        if row is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="System not initialized",
             )
 
-        password_hash, salt = row
-        if not verify_password(body.password, password_hash):
+        password_enabled, password_hash, salt = row
+
+        if not password_enabled:
+            expires_delta = timedelta(days=365)
+            expires_at = datetime.now(timezone.utc) + expires_delta
+            token = "no-auth"
+            cache_master_key(token, get_no_auth_master_key())
+            return LoginResponse(
+                data=LoginData(
+                    token=token,
+                    expires_in=int(expires_delta.total_seconds()),
+                )
+            )
+
+        if not body.password or not verify_password(body.password, password_hash):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect password",

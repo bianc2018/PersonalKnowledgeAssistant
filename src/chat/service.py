@@ -260,6 +260,29 @@ async def send_message(
     )
 
 
+async def rename_conversation(db: aiosqlite.Connection, conversation_id: str, title: str) -> bool:
+    async with db.execute("SELECT id FROM conversations WHERE id = ?", (conversation_id,)) as cursor:
+        row = await cursor.fetchone()
+    if not row:
+        return False
+    await db.execute(
+        "UPDATE conversations SET title = ?, updated_at = ? WHERE id = ?",
+        (title, _now(), conversation_id),
+    )
+    await db.commit()
+    return True
+
+
+async def delete_conversation(db: aiosqlite.Connection, conversation_id: str) -> bool:
+    async with db.execute("SELECT id FROM conversations WHERE id = ?", (conversation_id,)) as cursor:
+        row = await cursor.fetchone()
+    if not row:
+        return False
+    await db.execute("DELETE FROM conversations WHERE id = ?", (conversation_id,))
+    await db.commit()
+    return True
+
+
 async def stream_message(
     db: aiosqlite.Connection,
     conversation_id: str,
@@ -310,7 +333,8 @@ async def stream_message(
     full_text = ""
     async for delta in stream:
         full_text += delta
-        yield f'event: delta\ndata: {{"delta": "{delta}"}}\n\n'
+        payload = json.dumps({"delta": delta}, ensure_ascii=False)
+        yield f"event: delta\ndata: {payload}\n\n"
 
     # After stream ends, parse citations
     used_indices = sorted(

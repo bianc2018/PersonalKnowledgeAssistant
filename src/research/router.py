@@ -88,6 +88,8 @@ async def research_events(
 ):
     q = tq.subscribe(task_id)
 
+    import json as _json
+
     async def _stream():
         try:
             while True:
@@ -97,6 +99,9 @@ async def research_events(
                 except asyncio.TimeoutError:
                     # Heartbeat / keepalive
                     yield "\n"
+        except Exception as exc:
+            payload = _json.dumps({"message": str(exc) or "SSE 连接中断"}, ensure_ascii=False)
+            yield f"event: error\ndata: {payload}\n\n"
         finally:
             tq.unsubscribe(task_id, q)
 

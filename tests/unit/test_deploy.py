@@ -214,3 +214,42 @@ class TestStatusCommand:
         assert result == 0
         captured = capsys.readouterr()
         assert "未运行" in captured.out
+
+
+class TestCmdResetPassword:
+    @patch.object(deploy, "is_app_running", return_value=False)
+    @patch.object(deploy, "stop_service", return_value=True)
+    def test_reset_password_confirm_reset_deletes_files(self, mock_stop, mock_running, tmp_path, monkeypatch):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        db_path = config.data_dir / "app.db"
+        files_dir = tmp_path / "files"
+        config.data_dir.mkdir(parents=True, exist_ok=True)
+        db_path.write_text("dummy db", encoding="utf-8")
+        files_dir.mkdir(parents=True, exist_ok=True)
+        (files_dir / "dummy.txt").write_text("dummy", encoding="utf-8")
+
+        import io
+        monkeypatch.setattr("sys.stdin", io.StringIO("RESET\n"))
+        result = deploy.cmd_reset_password(config)
+        assert result == 0
+        assert not db_path.exists()
+        assert not files_dir.exists()
+
+    @patch.object(deploy, "is_app_running", return_value=False)
+    @patch.object(deploy, "stop_service", return_value=True)
+    def test_reset_password_cancel_keeps_files(self, mock_stop, mock_running, tmp_path, monkeypatch):
+        config = deploy.DeploymentConfig()
+        config.project_root = tmp_path
+        db_path = config.data_dir / "app.db"
+        files_dir = tmp_path / "files"
+        config.data_dir.mkdir(parents=True, exist_ok=True)
+        db_path.write_text("dummy db", encoding="utf-8")
+        files_dir.mkdir(parents=True, exist_ok=True)
+
+        import io
+        monkeypatch.setattr("sys.stdin", io.StringIO("no\n"))
+        result = deploy.cmd_reset_password(config)
+        assert result == 0
+        assert db_path.exists()
+        assert files_dir.exists()

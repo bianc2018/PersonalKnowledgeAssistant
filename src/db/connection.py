@@ -37,6 +37,14 @@ async def init_db(db_path: str | None = None, embedding_dim: int | None = None) 
         async with conn.executescript(schema_path.read_text("utf-8")):
             pass
 
+    # Migration: add password_enabled column to existing databases
+    async with conn.execute("PRAGMA table_info(system_config)") as cursor:
+        columns = [row[1] async for row in cursor]
+    if columns and "password_enabled" not in columns:
+        await conn.execute(
+            "ALTER TABLE system_config ADD COLUMN password_enabled INTEGER NOT NULL DEFAULT 1 CHECK(password_enabled IN (0, 1))"
+        )
+
     # Create sqlite-vec virtual table for embeddings only
     await conn.execute(
         f"""

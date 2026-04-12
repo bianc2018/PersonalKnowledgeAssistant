@@ -49,9 +49,22 @@ def _extract_url_from_output(stdout: str) -> str | None:
     return None
 
 
-def _probe_url(url: str) -> int:
-    with urllib.request.urlopen(url, timeout=5) as resp:
-        return resp.status
+def _probe_url(url: str, timeout: float = 10.0) -> int:
+    req = urllib.request.Request(url)
+    # Disable proxies for localhost to avoid environmental proxy interference
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    deadline = time.monotonic() + timeout
+    last_err = None
+    while time.monotonic() < deadline:
+        try:
+            with opener.open(req, timeout=2) as resp:
+                return resp.status
+        except urllib.error.HTTPError as exc:
+            return exc.code
+        except Exception as exc:
+            last_err = exc
+            time.sleep(0.2)
+    raise last_err or RuntimeError(f"Failed to probe {url}")
 
 
 def test_daemon_lifecycle():

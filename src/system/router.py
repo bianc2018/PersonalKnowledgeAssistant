@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/system", tags=["system"])
 
 
 class InitRequest(BaseModel):
-    password: str | None = None
+    password: str | None = Field(default=None, min_length=8)
     password_enabled: bool = False
 
 

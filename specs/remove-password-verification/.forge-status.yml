@@ -16,7 +16,7 @@ phases:
   test_plan: pending
   test_run: pending
   release_readiness: completed
-  retrospective: pending
+  retrospective: completed
 speckit_mode: "classic"
 testing:
   final_pass_rate: "43/43 (100%)"
@@ -91,6 +91,12 @@ gates:
     notes: "Release Readiness 检查完成，文档、CHANGELOG、测试、迁移均已就绪，建议 SHIP"
     conditions: []
     sync_result: "READY"
+  - phase: "retrospective"
+    decision: "approved"
+    timestamp: "2026-04-12T05:20:00"
+    notes: "回顾完成，记录了流程改进项和安全后续行动"
+    conditions: []
+    sync_result: "completed"
 sync_runs:
   last_run: ""
   total_runs: 0
